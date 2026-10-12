@@ -193,7 +193,6 @@ const getProjectVulData = async () => {
   projectVulDataLoading.value = true
   const res = await getProjectVulDataApi(query.id as string)
   if (Array.isArray(res.data.list)) {
-    // 更新 vulTableData 的值，使用 .value 属性访问 ref 的值
     vulTableData = res.data.list
   }
   projectVulDataLoading.value = false
@@ -497,6 +496,6 @@ getAllApi()
   margin-left: 20px;
 }
 .el-table__row:hover {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 阴影效果，可以根据需求调整 */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 </style>

@@ -3,6 +3,7 @@ import { useDesign } from '@/hooks/web/useDesign'
 import { ElButton, ComponentSize, ButtonType } from 'element-plus'
 import { PropType, Component, computed, unref } from 'vue'
 import { useAppStore } from '@/store/modules/app'
+import { isConsoleGateway } from '@/integration/console'
 
 const appStore = useAppStore()
 
@@ -90,6 +91,7 @@ const props = defineProps({
 const emits = defineEmits(['click'])
 
 const color = computed(() => {
+  if (isConsoleGateway) return props.color
   const { type } = props
   if (type === 'primary') {
     return unref(getTheme).elColorPrimary
@@ -98,6 +100,7 @@ const color = computed(() => {
 })
 
 const style = computed(() => {
+  if (isConsoleGateway) return ''
   const { type } = props
   if (type === 'primary') {
     return '--el-button-text-color: #fff; --el-button-hover-text-color: #fff'
@@ -108,7 +111,7 @@ const style = computed(() => {
 
 <template>
   <ElButton
-    :class="`${prefixCls} color-#fff`"
+    :class="[prefixCls, !isConsoleGateway && 'color-#fff']"
     v-bind="{ ...props }"
     :color="color"
     :style="style"

@@ -2,13 +2,13 @@ package app
 
 import (
 	"fmt"
-	"github.com/Autumn-27/ScopeSentry/internal/bootstrap"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/repositories/assets/app"
-	"github.com/Autumn-27/ScopeSentry/internal/utils/helper"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"recon/internal/bootstrap"
+	"recon/internal/models"
+	"recon/internal/repositories/assets/app"
+	"recon/internal/utils/helper"
 )
 
 type Service interface {
@@ -26,7 +26,7 @@ func NewService() Service {
 }
 
 func (s *service) GetAppData(ctx *gin.Context, query models.SearchRequest) (*models.AppResponse, error) {
-	// 构建查询条件
+
 	query.Index = "app"
 	searchQuery, err := helper.GetSearchQuery(query)
 	if err != nil {
@@ -34,7 +34,6 @@ func (s *service) GetAppData(ctx *gin.Context, query models.SearchRequest) (*mod
 	}
 	filter := bson.M(searchQuery)
 
-	// 获取总数
 	totalCount, err := s.repo.CountDocuments(ctx, filter)
 	if err != nil {
 		return nil, fmt.Errorf("failed to count documents: %w", err)
@@ -47,13 +46,11 @@ func (s *service) GetAppData(ctx *gin.Context, query models.SearchRequest) (*mod
 		}, nil
 	}
 
-	// 设置分页和排序选项
 	opts := options.Find().
 		SetSkip(int64((query.PageIndex - 1) * query.PageSize)).
 		SetLimit(int64(query.PageSize)).
 		SetSort(bson.D{{"time", -1}})
 
-	// 查询数据
 	results, err := s.repo.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find documents: %w", err)

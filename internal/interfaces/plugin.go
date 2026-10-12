@@ -1,15 +1,13 @@
 // interfaces-------------------------------------
 // @file      : plugin.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/12/6 16:08
 // -------------------------------------------
 
 package interfaces
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/options"
+	"recon/internal/models"
+	"recon/internal/options"
 )
 
 type Plugin interface {

@@ -13,9 +13,9 @@ const init = async (icon?: string) => {
   const iconInfo = icon.split(':')
   iconName.value = iconInfo[0]
   const wrapIndex = icons.findIndex((item) => item.prefix === iconInfo[0])
-  // 查询当前icon的索引
+
   const index = filterItemIcons(icons[wrapIndex].icons).findIndex((item) => item === icon)
-  // 计算当前icon的页码
+
   await nextTick()
   currentPage.value = Math.ceil((index + 1) / unref(pageSize))
 }
@@ -124,7 +124,7 @@ const inputClear = () => {
           v-model="search"
           class="mb-20px"
           clearable
-          placeholder="搜索图标"
+          placeholder="Search icons"
           @clear="inputClear"
         />
         <ElTabs tab-position="left" v-model="iconName" @tab-change="tabChange">

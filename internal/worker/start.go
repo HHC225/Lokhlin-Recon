@@ -1,7 +1,5 @@
 // worker-------------------------------------
 // @file      : start.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/11/2 17:57
 // -------------------------------------------
 

@@ -1,6 +1,7 @@
 import service from './service'
 import { CONTENT_TYPE } from '@/constants'
 import { useUserStoreWithOut } from '@/store/modules/user'
+import { isConsoleGateway, csrfHeaders } from '@/integration/console'
 
 const request = (option: AxiosConfig) => {
   const { url, method, params, data, headers, responseType } = option
@@ -13,8 +14,11 @@ const request = (option: AxiosConfig) => {
     responseType: responseType,
     headers: {
       'Content-Type': CONTENT_TYPE,
-      [userStore.getTokenKey ?? 'Authorization']: userStore.getToken ?? '',
-      ...headers
+      ...(!isConsoleGateway
+        ? { [userStore.getTokenKey ?? 'Authorization']: userStore.getToken ?? '' }
+        : {}),
+      ...headers,
+      ...csrfHeaders(method)
     }
   })
 }

@@ -1,4 +1,10 @@
 <script setup lang="tsx">
+import {
+  isConsoleGateway,
+  csrfHeaders,
+  resourcePath,
+  handleConsoleUploadError
+} from '@/integration/console'
 import { ContentWrap } from '@/components/ContentWrap'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ref, reactive, h, nextTick, Ref } from 'vue'
@@ -269,12 +275,14 @@ const confirmDelete = async () => {
   }
 }
 const userStore = useUserStore()
-const uploadHeaders = ref({ Authorization: `${userStore.getToken}` })
+const uploadHeaders = ref(
+  isConsoleGateway ? csrfHeaders('POST') : { Authorization: userStore.getToken }
+)
 
 const upload = ref<UploadInstance>()
 const uploadSuccess = async () => {
-  console.log('导入中')
-  ElMessage.success('导入中')
+  console.log('Import started')
+  ElMessage.success(t('console.importStarted'))
 }
 
 const handleExceed: UploadProps['onExceed'] = (files) => {
@@ -338,14 +346,15 @@ const filterChange = async (newFilters: any) => {
       </ElCol>
       <ElCol :span="3">
         <ElTooltip :content="t('common.uploadMsg')" placement="top">
-          <!-- <ElUpload class="upload-demo" action="/api/poc/data/import" :headers="uploadHeaders">
+          <!-- <ElUpload class="upload-demo" :action="resourcePath('/api/poc/data/import')" :headers="uploadHeaders" @error="handleConsoleUploadError">
             <ElButton :icon="uploadicon">{{ t('common.import') }}</ElButton>
           </ElUpload> -->
           <ElUpload
             ref="upload"
             class="flex items-center"
-            action="/api/poc/data/import"
+            :action="resourcePath('/api/poc/data/import')"
             :headers="uploadHeaders"
+            @error="handleConsoleUploadError"
             :on-success="handleUploadSuccess"
             :limit="1"
             :on-exceed="handleExceed"

@@ -1,16 +1,14 @@
 // assets-------------------------------------
 // @file      : url.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/5/14 23:11
 // -------------------------------------------
 
 package assets
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/handlers/assets/url"
-	"github.com/Autumn-27/ScopeSentry/internal/api/routes/common"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
+	"recon/internal/api/handlers/assets/url"
+	"recon/internal/api/routes/common"
+	"recon/internal/models"
 )
 
 func registerUrlRoutes() models.RouteGroup {

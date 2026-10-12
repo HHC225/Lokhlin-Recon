@@ -1,24 +1,22 @@
 // options-------------------------------------
 // @file      : plugin.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/12/3 21:12
 // -------------------------------------------
 
 package options
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/config"
-	"github.com/Autumn-27/ScopeSentry/internal/database/mongodb"
-	sasRedis "github.com/Autumn-27/ScopeSentry/internal/database/redis"
-	commonRepo "github.com/Autumn-27/ScopeSentry/internal/repositories/common"
-	assetCommon "github.com/Autumn-27/ScopeSentry/internal/services/assets/common"
-	"github.com/Autumn-27/ScopeSentry/internal/services/node"
-	"github.com/Autumn-27/ScopeSentry/internal/services/poc"
-	taskCommon "github.com/Autumn-27/ScopeSentry/internal/services/task/common"
-	"github.com/Autumn-27/ScopeSentry/internal/services/task/template"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
+	"recon/internal/config"
+	"recon/internal/database/mongodb"
+	sasRedis "recon/internal/database/redis"
+	commonRepo "recon/internal/repositories/common"
+	assetCommon "recon/internal/services/assets/common"
+	"recon/internal/services/node"
+	"recon/internal/services/poc"
+	taskCommon "recon/internal/services/task/common"
+	"recon/internal/services/task/template"
 )
 
 type PluginOption struct {

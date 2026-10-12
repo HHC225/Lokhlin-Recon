@@ -21,37 +21,38 @@ import { isImgPath } from '@/utils/is'
 import { createVideoViewer } from '@/components/VideoPlayer'
 import { Icon } from '@/components/Icon'
 import { BaseButton } from '@/components/Button'
+import { useI18n } from '@/hooks/web/useI18n'
 
 export default defineComponent({
   name: 'Table',
   props: {
     pageSize: propTypes.number.def(10),
     currentPage: propTypes.number.def(1),
-    // 是否展示表格的工具栏
+
     showAction: propTypes.bool.def(false),
-    // 是否所有的超出隐藏，优先级低于schema中的showOverflowTooltip,
+
     showOverflowTooltip: propTypes.bool.def(true),
-    // 表头
+
     columns: {
       type: Array as PropType<TableColumn[]>,
       default: () => []
     },
-    // 是否展示分页
+
     pagination: {
       type: Object as PropType<Pagination>,
       default: (): Pagination | undefined => undefined
     },
-    // 仅对 type=selection 的列有效，类型为 Boolean，为 true 则会在数据更新之后保留之前选中的数据（需指定 row-key）
+
     reserveSelection: propTypes.bool.def(false),
-    // 加载状态
+
     loading: propTypes.bool.def(false),
-    // 是否叠加索引
+
     reserveIndex: propTypes.bool.def(false),
-    // 对齐方式
+
     align: propTypes.string
       .validate((v: string) => ['left', 'center', 'right'].includes(v))
       .def('left'),
-    // 表头对齐方式
+
     headerAlign: propTypes.string
       .validate((v: string) => ['left', 'center', 'right'].includes(v))
       .def('left'),
@@ -59,7 +60,7 @@ export default defineComponent({
       type: Array as PropType<Recordable[]>,
       default: () => []
     },
-    // 是否自动预览
+
     preview: {
       type: Array as PropType<string[]>,
       default: () => []
@@ -76,7 +77,7 @@ export default defineComponent({
     showHeader: propTypes.bool.def(true),
     highlightCurrentRow: propTypes.bool.def(false),
     currentRowKey: propTypes.oneOfType([Number, String]),
-    // row-class-name, 类型为 (row: Recordable, rowIndex: number) => string | string
+
     rowClassName: {
       type: [Function, String] as PropType<(row: Recordable, rowIndex: number) => string | string>,
       default: ''
@@ -189,7 +190,7 @@ export default defineComponent({
     },
     scrollbarAlwaysOn: propTypes.bool.def(false),
     flexible: propTypes.bool.def(false),
-    // 自定义内容
+
     customContent: propTypes.bool.def(false),
     cardBodyStyle: {
       type: Object as PropType<CSSProperties>,
@@ -210,9 +211,9 @@ export default defineComponent({
   },
   emits: ['update:pageSize', 'update:currentPage', 'register', 'refresh'],
   setup(props, { attrs, emit, slots, expose }) {
+    const { t } = useI18n()
     const elTableRef = ref<ComponentRef<typeof ElTable>>()
 
-    // 注册
     onMounted(() => {
       const tableRef = unref(elTableRef)
       emit('register', tableRef?.$parent, elTableRef)
@@ -222,7 +223,6 @@ export default defineComponent({
 
     const currentPageRef = ref(props.currentPage)
 
-    // useTable传入的props
     const outsideProps = ref<TableProps>({})
 
     const mergeProps = ref<TableProps>({})
@@ -403,7 +403,7 @@ export default defineComponent({
                 })
               }}
             >
-              预览
+              {t('tableDemo.preview')}
             </BaseButton>
           )}
         </div>
@@ -538,7 +538,7 @@ export default defineComponent({
                 })
               ) : (
                 <div class="flex flex-1 justify-center">
-                  <ElEmpty description="暂无数据" />
+                  <ElEmpty description={t('common.noData')} />
                 </div>
               )}
             </div>

@@ -1,10 +1,10 @@
 package apikey
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/handlers/apikey"
-	"github.com/Autumn-27/ScopeSentry/internal/api/routes/common"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/handlers/apikey"
+	"recon/internal/api/routes/common"
+	"recon/internal/models"
 )
 
 func RegisterApiKeyRoutes(api *gin.RouterGroup) {

@@ -39,7 +39,7 @@ const toLogin = () => {
           :class="`${prefixCls}__left flex-1 bg-gray-500 bg-opacity-20 relative p-30px lt-xl:hidden`"
         >
           <div class="flex items-center relative text-white">
-            <img src="@/assets/imgs/logo.png" alt="" class="w-48px h-48px mr-10px" />
+            <img src="@/assets/imgs/recon.svg" alt="" class="w-48px h-48px mr-10px" />
             <span class="text-20px font-bold">{{ underlineToHump(appStore.getTitle) }}</span>
           </div>
           <div class="flex justify-center items-center h-[calc(100%-60px)]">
@@ -49,9 +49,9 @@ const toLogin = () => {
               enter-active-class="animate__animated animate__bounceInLeft"
             >
               <img src="@/assets/svgs/login-box-bg.svg" key="1" alt="" class="w-350px" />
-              <div class="text-3xl text-white" key="2" style="position: relative; left: 23%"
-                >Scope Sentry</div
-              >
+              <div class="text-3xl text-white" key="2" style="position: relative; left: 23%">{{
+                appStore.getTitle
+              }}</div>
             </TransitionGroup>
           </div>
         </div>
@@ -60,7 +60,7 @@ const toLogin = () => {
             class="flex justify-between items-center text-white at-2xl:justify-end at-xl:justify-end"
           >
             <div class="flex items-center at-2xl:hidden at-xl:hidden">
-              <img src="@/assets/imgs/logo.png" alt="" class="w-48px h-48px mr-10px" />
+              <img src="@/assets/imgs/recon.svg" alt="" class="w-48px h-48px mr-10px" />
               <span class="text-20px font-bold">{{ underlineToHump(appStore.getTitle) }}</span>
             </div>
 

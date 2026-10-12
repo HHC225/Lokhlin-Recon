@@ -3,14 +3,13 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/Autumn-27/ScopeSentry/internal/constants"
 	"github.com/gin-gonic/gin"
+	"recon/internal/constants"
 )
 
-// PermissionMiddleware 权限检查中间件
 func PermissionMiddleware(permission string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 获取用户角色
+
 		role, exists := c.Get("role")
 		if !exists {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "User role not found"})
@@ -18,7 +17,6 @@ func PermissionMiddleware(permission string) gin.HandlerFunc {
 			return
 		}
 
-		// 获取角色对应的权限列表
 		permissions, exists := constants.RolePermissions[role.(string)]
 		if !exists {
 			c.JSON(http.StatusForbidden, gin.H{"error": "Invalid user role"})
@@ -26,7 +24,6 @@ func PermissionMiddleware(permission string) gin.HandlerFunc {
 			return
 		}
 
-		// 检查是否具有所需权限
 		hasPermission := false
 		for _, p := range permissions {
 			if p == permission {
@@ -43,4 +40,4 @@ func PermissionMiddleware(permission string) gin.HandlerFunc {
 
 		c.Next()
 	}
-} 
+}

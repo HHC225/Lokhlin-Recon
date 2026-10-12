@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { store } from '../index'
-import zhCn from 'element-plus/es/locale/lang/zh-cn'
+import ko from 'element-plus/es/locale/lang/ko'
 import en from 'element-plus/es/locale/lang/en'
 import { useStorage } from '@/hooks/web/useStorage'
 import { LocaleDropdownType } from '@/components/LocaleDropdown'
@@ -8,7 +8,7 @@ import { LocaleDropdownType } from '@/components/LocaleDropdown'
 const { getStorage, setStorage } = useStorage()
 
 const elLocaleMap = {
-  'zh-CN': zhCn,
+  ko: ko,
   en: en
 }
 interface LocaleState {
@@ -20,14 +20,14 @@ export const useLocaleStore = defineStore('locales', {
   state: (): LocaleState => {
     return {
       currentLocale: {
-        lang: getStorage('lang') || 'zh-CN',
-        elLocale: elLocaleMap[getStorage('lang') || 'zh-CN']
+        lang: getStorage('lang') === 'en' ? 'en' : 'ko',
+        elLocale: elLocaleMap[getStorage('lang') === 'en' ? 'en' : 'ko']
       },
-      // 多语言
+
       localeMap: [
         {
-          lang: 'zh-CN',
-          name: '简体中文'
+          lang: 'ko',
+          name: '한국어'
         },
         {
           lang: 'en',

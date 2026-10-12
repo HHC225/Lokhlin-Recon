@@ -1,16 +1,14 @@
 // assets-------------------------------------
 // @file      : sensitive.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/5/17 11:33
 // -------------------------------------------
 
 package assets
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/handlers/assets/sensitive"
-	"github.com/Autumn-27/ScopeSentry/internal/api/routes/common"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
+	"recon/internal/api/handlers/assets/sensitive"
+	"recon/internal/api/routes/common"
+	"recon/internal/models"
 )
 
 func registerSensitivveRoutes() models.RouteGroup {

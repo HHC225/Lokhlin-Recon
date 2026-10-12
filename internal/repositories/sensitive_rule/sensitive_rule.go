@@ -1,7 +1,5 @@
 // sensitive_rule-------------------------------------
 // @file      : sensitive_rule.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/10/28 22:26
 // -------------------------------------------
 
@@ -9,13 +7,13 @@ package sensitive_rule
 
 import (
 	"context"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
 	"go.mongodb.org/mongo-driver/mongo"
+	"recon/internal/models"
 
-	"github.com/Autumn-27/ScopeSentry/internal/database/mongodb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"recon/internal/database/mongodb"
 )
 
 type Repository interface {

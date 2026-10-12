@@ -26,11 +26,11 @@ const progressColums = reactive<TableColumn[]>([
           ElTooltip,
           { content: tooltipContent, placement: 'top', rawContent: true },
           {
-            default: () => cellValue // 用 cellValue 作为原始数据显示
+            default: () => cellValue
           }
         )
       } else {
-        return cellValue // 如果 row.node 是空字符串，则直接显示 cellValue
+        return cellValue
       }
     }
   },

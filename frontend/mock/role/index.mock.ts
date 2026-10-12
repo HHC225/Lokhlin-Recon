@@ -723,7 +723,7 @@ const testList: string[] = [
 
 const List: any[] = []
 
-const roleNames = ['超级管理员', '管理员', '普通用户', '游客']
+const roleNames = ['Super administrator', 'Administrator', 'Member', 'Guest']
 const menus = [
   [
     {
@@ -734,7 +734,7 @@ const menus = [
       status: faker.number.int({ min: 0, max: 1 }),
       id: 1,
       meta: {
-        title: '首页',
+        title: 'Home',
         icon: 'ant-design:dashboard-filled',
         alwaysShow: true
       },
@@ -746,7 +746,7 @@ const menus = [
           status: faker.number.int({ min: 0, max: 1 }),
           id: 2,
           meta: {
-            title: '分析页',
+            title: 'Analytics',
             noCache: true
           }
         },
@@ -757,7 +757,7 @@ const menus = [
           status: faker.number.int({ min: 0, max: 1 }),
           id: 3,
           meta: {
-            title: '工作台',
+            title: 'Workspace',
             noCache: true
           }
         }
@@ -767,7 +767,7 @@ const menus = [
       path: '/external-link',
       component: '#',
       meta: {
-        title: '文档',
+        title: 'Documentation',
         icon: 'clarity:document-solid'
       },
       name: 'ExternalLink',
@@ -780,7 +780,7 @@ const menus = [
           status: faker.number.int({ min: 0, max: 1 }),
           id: 5,
           meta: {
-            title: '文档'
+            title: 'Documentation'
           }
         }
       ]
@@ -793,7 +793,7 @@ const menus = [
       status: faker.number.int({ min: 0, max: 1 }),
       id: 6,
       meta: {
-        title: '菜单',
+        title: 'Menu',
         icon: 'carbon:skill-level-advanced'
       },
       children: [
@@ -805,7 +805,7 @@ const menus = [
           id: 7,
           redirect: '/level/menu1/menu1-1/menu1-1-1',
           meta: {
-            title: '菜单1'
+            title: 'Menu1'
           },
           children: [
             {
@@ -816,7 +816,7 @@ const menus = [
               id: 8,
               redirect: '/level/menu1/menu1-1/menu1-1-1',
               meta: {
-                title: '菜单1-1',
+                title: 'Menu1-1',
                 alwaysShow: true
               },
               children: [
@@ -828,7 +828,7 @@ const menus = [
                   id: 9,
                   permission: ['edit', 'add', 'delete'],
                   meta: {
-                    title: '菜单1-1-1',
+                    title: 'Menu1-1-1',
                     permission: ['edit', 'add', 'delete']
                   }
                 }
@@ -842,7 +842,7 @@ const menus = [
               id: 10,
               permission: ['edit', 'add', 'delete'],
               meta: {
-                title: '菜单1-2',
+                title: 'Menu1-2',
                 permission: ['edit', 'add', 'delete']
               }
             }
@@ -856,7 +856,7 @@ const menus = [
           id: 11,
           permission: ['edit', 'add', 'delete'],
           meta: {
-            title: '菜单2',
+            title: 'Menu2',
             permission: ['edit', 'add', 'delete']
           }
         }
@@ -870,7 +870,7 @@ const menus = [
       status: faker.number.int({ min: 0, max: 1 }),
       id: 12,
       meta: {
-        title: '综合示例',
+        title: 'Examples',
         icon: 'ep:management',
         alwaysShow: true
       },
@@ -883,7 +883,7 @@ const menus = [
           id: 13,
           permission: ['edit', 'add', 'delete'],
           meta: {
-            title: '综合示例-弹窗',
+            title: 'Dialog example',
             permission: ['edit', 'add', 'delete']
           }
         },
@@ -895,7 +895,7 @@ const menus = [
           id: 14,
           permission: ['edit', 'add', 'delete'],
           meta: {
-            title: '综合示例-页面',
+            title: 'Page example',
             permission: ['edit', 'add', 'delete']
           }
         },
@@ -907,7 +907,7 @@ const menus = [
           id: 15,
           permission: ['edit', 'add', 'delete'],
           meta: {
-            title: '综合示例-新增',
+            title: 'Create example',
             noTagsView: true,
             noCache: true,
             hidden: true,
@@ -924,7 +924,7 @@ const menus = [
           id: 16,
           permission: ['edit', 'add', 'delete'],
           meta: {
-            title: '综合示例-编辑',
+            title: 'Edit example',
             noTagsView: true,
             noCache: true,
             hidden: true,
@@ -941,7 +941,7 @@ const menus = [
           id: 17,
           permission: ['edit', 'add', 'delete'],
           meta: {
-            title: '综合示例-详情',
+            title: 'Detail example',
             noTagsView: true,
             noCache: true,
             hidden: true,
@@ -962,7 +962,7 @@ const menus = [
       status: faker.number.int({ min: 0, max: 1 }),
       id: 1,
       meta: {
-        title: '首页',
+        title: 'Home',
         icon: 'ant-design:dashboard-filled',
         alwaysShow: true
       },
@@ -974,7 +974,7 @@ const menus = [
           status: faker.number.int({ min: 0, max: 1 }),
           id: 2,
           meta: {
-            title: '分析页',
+            title: 'Analytics',
             noCache: true
           }
         },
@@ -985,7 +985,7 @@ const menus = [
           status: faker.number.int({ min: 0, max: 1 }),
           id: 3,
           meta: {
-            title: '工作台',
+            title: 'Workspace',
             noCache: true
           }
         }
@@ -997,7 +997,7 @@ const menus = [
       path: '/external-link',
       component: '#',
       meta: {
-        title: '文档',
+        title: 'Documentation',
         icon: 'clarity:document-solid'
       },
       name: 'ExternalLink',
@@ -1010,7 +1010,7 @@ const menus = [
           status: faker.number.int({ min: 0, max: 1 }),
           id: 5,
           meta: {
-            title: '文档'
+            title: 'Documentation'
           }
         }
       ]
@@ -1023,7 +1023,7 @@ const menus = [
       status: faker.number.int({ min: 0, max: 1 }),
       id: 6,
       meta: {
-        title: '菜单',
+        title: 'Menu',
         icon: 'carbon:skill-level-advanced'
       },
       children: [
@@ -1035,7 +1035,7 @@ const menus = [
           id: 7,
           redirect: '/level/menu1/menu1-1/menu1-1-1',
           meta: {
-            title: '菜单1'
+            title: 'Menu1'
           },
           children: [
             {
@@ -1046,7 +1046,7 @@ const menus = [
               id: 8,
               redirect: '/level/menu1/menu1-1/menu1-1-1',
               meta: {
-                title: '菜单1-1',
+                title: 'Menu1-1',
                 alwaysShow: true
               },
               children: [
@@ -1058,7 +1058,7 @@ const menus = [
                   id: 9,
                   permission: ['edit', 'add', 'delete'],
                   meta: {
-                    title: '菜单1-1-1',
+                    title: 'Menu1-1-1',
                     permission: ['edit', 'add', 'delete']
                   }
                 }
@@ -1072,7 +1072,7 @@ const menus = [
               id: 10,
               permission: ['edit', 'add', 'delete'],
               meta: {
-                title: '菜单1-2',
+                title: 'Menu1-2',
                 permission: ['edit', 'add', 'delete']
               }
             }
@@ -1086,7 +1086,7 @@ const menus = [
           id: 11,
           permission: ['edit', 'add', 'delete'],
           meta: {
-            title: '菜单2',
+            title: 'Menu2',
             permission: ['edit', 'add', 'delete']
           }
         }
@@ -1102,7 +1102,7 @@ const menus = [
       status: faker.number.int({ min: 0, max: 1 }),
       id: 12,
       meta: {
-        title: '综合示例',
+        title: 'Examples',
         icon: 'ep:management',
         alwaysShow: true
       },
@@ -1115,7 +1115,7 @@ const menus = [
           id: 17,
           permission: ['edit', 'add', 'delete'],
           meta: {
-            title: '综合示例-详情',
+            title: 'Detail example',
             noTagsView: true,
             noCache: true,
             hidden: true,
@@ -1143,7 +1143,6 @@ for (let i = 0; i < 4; i++) {
 }
 
 export default [
-  // 列表接口
   {
     url: '/mock/role/list',
     method: 'get',
@@ -1169,7 +1168,7 @@ export default [
       }
     }
   },
-  // 列表接口
+
   {
     url: '/mock/role/list2',
     method: 'get',

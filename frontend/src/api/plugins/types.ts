@@ -31,7 +31,7 @@ export type RemotePluginData = {
   isInstalled: boolean
   needUpdate: boolean
   isSystem: boolean
-  type?: string // 'server' | 'scan' | '' (空字符串视为 'scan')
+  type?: string
 }
 
 export interface RemotePluginResponse {

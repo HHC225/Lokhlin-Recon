@@ -8,37 +8,36 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/Autumn-27/ScopeSentry/internal/utils"
-	"github.com/Autumn-27/ScopeSentry/internal/utils/helper"
 	"io"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
+	"recon/internal/utils"
+	"recon/internal/utils/helper"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/Autumn-27/ScopeSentry/internal/plugins"
-	schedulerCore "github.com/Autumn-27/ScopeSentry/internal/scheduler"
+	"recon/internal/plugins"
+	schedulerCore "recon/internal/scheduler"
 
-	"github.com/Autumn-27/ScopeSentry/internal/constants"
-	"github.com/Autumn-27/ScopeSentry/internal/database/mongodb"
-	"github.com/Autumn-27/ScopeSentry/internal/logger"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/options"
-	"github.com/Autumn-27/ScopeSentry/internal/repositories/plugin"
-	"github.com/Autumn-27/ScopeSentry/internal/services/node"
 	"github.com/gin-gonic/gin"
 	"github.com/valyala/fasthttp"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	mongoOptions "go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
+	"recon/internal/constants"
+	"recon/internal/database/mongodb"
+	"recon/internal/logger"
+	"recon/internal/models"
+	"recon/internal/options"
+	"recon/internal/repositories/plugin"
+	"recon/internal/services/node"
 )
 
-// Service 定义插件服务接口
 type Service interface {
 	List(ctx *gin.Context, req *models.PluginListRequest) (*models.PluginListResponse, error)
 	ListByModule(ctx *gin.Context, module string) ([]models.Plugin, error)
@@ -61,13 +60,11 @@ type Service interface {
 	RunTaskEnd(task models.Task) error
 }
 
-// service 实现插件服务接口
 type service struct {
 	repo        plugin.Repository
 	nodeService node.Service
 }
 
-// NewService 创建新的插件服务实例
 func NewService() Service {
 	return &service{
 		repo:        plugin.NewRepository(),
@@ -75,7 +72,6 @@ func NewService() Service {
 	}
 }
 
-// List 获取插件列表
 func (s *service) List(ctx *gin.Context, req *models.PluginListRequest) (*models.PluginListResponse, error) {
 	query := bson.M{}
 	if req.Type != "all" {
@@ -109,7 +105,6 @@ func (s *service) List(ctx *gin.Context, req *models.PluginListRequest) (*models
 	}, nil
 }
 
-// ListByModule 根据模块获取插件列表
 func (s *service) ListByModule(ctx *gin.Context, module string) ([]models.Plugin, error) {
 	result, err := s.repo.FindByModule(ctx, module)
 	if result == nil {
@@ -118,12 +113,10 @@ func (s *service) ListByModule(ctx *gin.Context, module string) ([]models.Plugin
 	return result, err
 }
 
-// GetPluginByHash 根据 hash 获取单个插件
 func (s *service) GetPluginByHash(ctx context.Context, hash string) (*models.Plugin, error) {
 	return s.repo.FindByHash(ctx, hash)
 }
 
-// Detail 获取插件详情
 func (s *service) Detail(ctx *gin.Context, req *models.PluginDetailRequest) (*models.Plugin, error) {
 	id, err := primitive.ObjectIDFromHex(req.ID)
 	if err != nil {
@@ -133,19 +126,13 @@ func (s *service) Detail(ctx *gin.Context, req *models.PluginDetailRequest) (*mo
 	return s.repo.FindByID(ctx, id)
 }
 
-// Save 保存插件
 func (s *service) Save(ctx *gin.Context, req *models.PluginSaveRequest) error {
-	// 验证密钥
-	key, err := ioutil.ReadFile("PLUGINKEY")
-	if err != nil {
-		return fmt.Errorf("failed to read plugin key: %w", err)
-	}
-	if req.Key != strings.TrimSpace(string(key)) {
-		return fmt.Errorf("invalid plugin key")
+	if err := checkPluginKey(ctx, req.Key); err != nil {
+		return err
 	}
 
 	if req.ID == "" {
-		// 创建新插件
+
 		plugin := &models.Plugin{
 			Name:          req.Name,
 			Module:        req.Module,
@@ -180,7 +167,7 @@ func (s *service) Save(ctx *gin.Context, req *models.PluginSaveRequest) error {
 			RegisterPlugin(plugin.Source, plugin.Hash)
 		}
 	} else {
-		// 更新现有插件
+
 		id, err := primitive.ObjectIDFromHex(req.ID)
 		if err != nil {
 			return fmt.Errorf("invalid id format: %w", err)
@@ -213,18 +200,17 @@ func (s *service) Save(ctx *gin.Context, req *models.PluginSaveRequest) error {
 				}
 			}()
 		} else {
-			// 如果是更新 也重新注册插件
+
 			RegisterPlugin(req.Source, req.Hash)
 		}
 	}
-	// 服务端插件 无论是插入还是更新，判断cycle是不是1 如果是1 表示运行1次
+
 	if req.Type == "server" {
 		plugins.RunPluginOnce(req.Hash)
 	}
 	return nil
 }
 
-// Delete 删除插件
 func (s *service) Delete(ctx *gin.Context, req *models.PluginDeleteRequest) error {
 	var hashes []string
 	for _, item := range req.Data {
@@ -241,10 +227,9 @@ func (s *service) Delete(ctx *gin.Context, req *models.PluginDeleteRequest) erro
 					logger.Error("failed to refresh config", zap.Error(err))
 				}
 			} else {
-				// module 为空 说明是服务端插件
-				// 删除插件
+
 				plugins.GlobalPluginManager.DeletePlugin(item.Hash)
-				// 移除计划任务
+
 				err := schedulerCore.GetGlobalScheduler().RemoveJob(item.Hash)
 				if err != nil {
 					logger.Error(fmt.Sprintf("failed to remove job: %v", err))
@@ -255,7 +240,6 @@ func (s *service) Delete(ctx *gin.Context, req *models.PluginDeleteRequest) erro
 	return s.repo.DeleteByHash(ctx, hashes)
 }
 
-// GetLogs 获取插件日志
 func (s *service) GetLogs(ctx *gin.Context, req *models.PluginLogRequest) (string, error) {
 	logKey := ""
 	if req.Type == "server" {
@@ -270,7 +254,6 @@ func (s *service) GetLogs(ctx *gin.Context, req *models.PluginLogRequest) (strin
 	return logs, nil
 }
 
-// CleanLogs 清理插件日志
 func (s *service) CleanLogs(ctx *gin.Context, req *models.PluginLogRequest) error {
 	if req.Hash == "" {
 		return fmt.Errorf("module and hash are required")
@@ -288,7 +271,6 @@ func (s *service) CleanLogs(ctx *gin.Context, req *models.PluginLogRequest) erro
 	return nil
 }
 
-// CleanAllLogs 清除所有插件日志
 func (s *service) CleanAllLogs(ctx *gin.Context) error {
 	err := s.repo.CleanAllLogs(ctx)
 	if err != nil {
@@ -297,31 +279,24 @@ func (s *service) CleanAllLogs(ctx *gin.Context) error {
 	return nil
 }
 
-// Import 导入插件
 func (s *service) Import(ctx *gin.Context, filePath string, reqKey string) error {
-	key, err := ioutil.ReadFile("PLUGINKEY")
-	if err != nil {
-		return fmt.Errorf("failed to read plugin key: %w", err)
-	}
-	if reqKey != strings.TrimSpace(string(key)) {
-		return fmt.Errorf("invalid plugin key")
-	}
-	// 2. 读取 zip 文件字节内容
-	zipData, err := os.ReadFile(filePath)
-	if err != nil {
-		return fmt.Errorf("读取 zip 文件失败: %w", err)
+	if err := checkPluginKey(ctx, reqKey); err != nil {
+		return err
 	}
 
-	// 3. 初始化 zip.Reader
+	zipData, err := os.ReadFile(filePath)
+	if err != nil {
+		return fmt.Errorf("Failed to read ZIP file: %w", err)
+	}
+
 	reader, err := zip.NewReader(bytes.NewReader(zipData), int64(len(zipData)))
 	if err != nil {
-		return fmt.Errorf("打开 zip 文件失败: %w", err)
+		return fmt.Errorf("Failed to open ZIP file: %w", err)
 	}
 
 	var pluginInfo models.PluginInfo
 	var pluginSource string
 
-	// 4. 遍历压缩包中的文件
 	for _, file := range reader.File {
 		if file.FileInfo().IsDir() {
 			continue
@@ -330,30 +305,29 @@ func (s *service) Import(ctx *gin.Context, filePath string, reqKey string) error
 
 		f, err := file.Open()
 		if err != nil {
-			return fmt.Errorf("打开压缩包中文件失败: %w", err)
+			return fmt.Errorf("Failed to open archive entry: %w", err)
 		}
 		content, err := io.ReadAll(f)
 		f.Close()
 		if err != nil {
-			return fmt.Errorf("读取压缩包中文件内容失败: %w", err)
+			return fmt.Errorf("Failed to read archive entry: %w", err)
 		}
 
 		switch baseName {
 		case "info.json":
 			if err := json.Unmarshal(content, &pluginInfo); err != nil {
-				return fmt.Errorf("解析 info.json 失败: %w", err)
+				return fmt.Errorf("Failed to parse info.json: %w", err)
 			}
 		case "plugin.go":
 			pluginSource = string(content)
 		}
 	}
 
-	// 5. 校验 info.json 的关键信息
 	if pluginInfo.Name == "" {
-		return fmt.Errorf("info.json 缺少 name字段")
+		return fmt.Errorf("info.json is missing name")
 	}
 	if pluginInfo.Module == "" && pluginInfo.Type != "server" {
-		return fmt.Errorf("info.json 缺少 module字段")
+		return fmt.Errorf("info.json is missing module")
 	}
 
 	if pluginInfo.Hash == "" {
@@ -363,9 +337,9 @@ func (s *service) Import(ctx *gin.Context, filePath string, reqKey string) error
 	for _, p := range constants.Plugins {
 		PLUGINS[p.Hash] = true
 	}
-	// 6. 插件是否是系统插件 或 module 不合法
+
 	if PLUGINS[pluginInfo.Hash] {
-		return fmt.Errorf("插件已存在")
+		return fmt.Errorf("Plugin already exists")
 	}
 	var pluginsModules = make(map[string]bool)
 	for _, module := range constants.PLUGINSMODULES {
@@ -373,16 +347,12 @@ func (s *service) Import(ctx *gin.Context, filePath string, reqKey string) error
 	}
 	if pluginInfo.Type != "server" {
 		if !pluginsModules[pluginInfo.Module] {
-			return fmt.Errorf("模块非法: %s", pluginInfo.Module)
+			return fmt.Errorf("Invalid module: %s", pluginInfo.Module)
 		}
 	}
-	// 7. 设置其他字段
+
 	pluginInfo.Source = pluginSource
 	pluginInfo.IsSystem = false
-
-	// 8. 插入数据库
-
-	// 9. 触发配置刷新
 
 	p := &models.Plugin{
 		Name:          pluginInfo.Name,
@@ -416,24 +386,23 @@ func (s *service) Import(ctx *gin.Context, filePath string, reqKey string) error
 	}()
 	if pluginInfo.Type == "server" {
 		RegisterPlugin(pluginInfo.Source, pluginInfo.Hash)
-		// 判断是否需要运行一次
+
 		plugins.RunPluginOnce(pluginInfo.Hash)
 	}
 
 	return nil
 }
 
-// Reinstall 重装插件
 func (s *service) Reinstall(ctx *gin.Context, req *models.PluginReinstallRequest) error {
 	if req.Node == "" {
 		req.Node = "all"
 	}
 	if req.Module == "" {
-		// 说明是服务端插件
+
 		plg, flag := plugins.GlobalPluginManager.GetPlugin(req.Hash)
 		if !flag {
-			logger.Error(fmt.Sprintf("<UNK> plugin %s <UNK>", req.Hash))
-			return fmt.Errorf("<UNK> plugin %s <UNK>", req.Hash)
+			logger.Error(fmt.Sprintf("Plugin %s not found", req.Hash))
+			return fmt.Errorf("Plugin %s not found", req.Hash)
 		}
 		plg.Install()
 	} else {
@@ -450,7 +419,6 @@ func (s *service) Reinstall(ctx *gin.Context, req *models.PluginReinstallRequest
 	return nil
 }
 
-// Recheck 重检插件
 func (s *service) Recheck(ctx *gin.Context, req *models.PluginRecheckRequest) error {
 	if req.Node == "" {
 		req.Node = "all"
@@ -467,7 +435,6 @@ func (s *service) Recheck(ctx *gin.Context, req *models.PluginRecheckRequest) er
 	return nil
 }
 
-// Uninstall 卸载插件
 func (s *service) Uninstall(ctx *gin.Context, req *models.PluginUninstallRequest) error {
 
 	if req.Node == "" {
@@ -485,19 +452,24 @@ func (s *service) Uninstall(ctx *gin.Context, req *models.PluginUninstallRequest
 	return nil
 }
 
-// CheckKey 检查插件密钥
 func (s *service) CheckKey(ctx *gin.Context, req *models.PluginKeyCheckRequest) error {
+	return checkPluginKey(ctx, req.Key)
+}
+
+func checkPluginKey(ctx *gin.Context, supplied string) error {
+	if ctx.GetBool(constants.GatewayAuthenticatedContextKey) && ctx.GetString("role") == "super_admin" {
+		return nil
+	}
 	key, err := ioutil.ReadFile("PLUGINKEY")
 	if err != nil {
 		return fmt.Errorf("failed to read plugin key: %w", err)
 	}
-	if req.Key != strings.TrimSpace(string(key)) {
+	if supplied != strings.TrimSpace(string(key)) {
 		return fmt.Errorf("invalid plugin key")
 	}
 	return nil
 }
 
-// RemotePluginResponse 远程插件API响应结构
 type RemotePluginResponse struct {
 	Timestamp int64            `json:"timestamp"`
 	Status    string           `json:"status"`
@@ -521,21 +493,19 @@ type RemotePluginItem struct {
 	Version      string `json:"version"`
 	CreateTime   string `json:"createTime"`
 	Username     string `json:"username"`
-	IsInstalled  bool   `json:"isInstalled"` // 是否已安装
-	NeedUpdate   bool   `json:"needUpdate"`  // 是否需要更新
+	IsInstalled  bool   `json:"isInstalled"`
+	NeedUpdate   bool   `json:"needUpdate"`
 }
 
-// SearchRemotePlugins 搜索远程插件并对比已安装的插件
 func (s *service) SearchRemotePlugins(ctx *gin.Context) (map[string]interface{}, error) {
 	var installedPlugins []models.Plugin
 	var remotePlugins RemotePluginResponse
 	var installedErr, remoteErr error
 	var wg sync.WaitGroup
+	catalogURL := strings.TrimSpace(os.Getenv("RECON_PLUGIN_CATALOG_URL"))
 
-	// 并发获取已安装的插件和远程插件
 	wg.Add(2)
 
-	// 获取已安装的插件
 	go func() {
 		defer wg.Done()
 		query := bson.M{}
@@ -543,9 +513,11 @@ func (s *service) SearchRemotePlugins(ctx *gin.Context) (map[string]interface{},
 		installedPlugins, installedErr = s.repo.FindWithPagination(ctx, query, opts)
 	}()
 
-	// 获取远程插件
 	go func() {
 		defer wg.Done()
+		if catalogURL == "" {
+			return
+		}
 		client := &fasthttp.Client{
 			ReadTimeout: 30 * time.Second,
 		}
@@ -555,11 +527,10 @@ func (s *service) SearchRemotePlugins(ctx *gin.Context) (map[string]interface{},
 		defer fasthttp.ReleaseRequest(req)
 		defer fasthttp.ReleaseResponse(resp)
 
-		req.SetRequestURI("https://api.scope-sentry.top/api/common/plugin/search")
+		req.SetRequestURI(catalogURL)
 		req.Header.SetMethod("POST")
 		req.Header.SetContentType("application/json")
 
-		// 构建请求体
 		requestBody := map[string]interface{}{
 			"name":        "",
 			"priceStatus": 2,
@@ -594,30 +565,35 @@ func (s *service) SearchRemotePlugins(ctx *gin.Context) (map[string]interface{},
 
 	wg.Wait()
 
-	// 检查错误
 	if installedErr != nil {
 		return nil, fmt.Errorf("failed to get installed plugins: %w", installedErr)
 	}
 	if remoteErr != nil {
 		return nil, fmt.Errorf("failed to get remote plugins: %w", remoteErr)
 	}
+	if catalogURL == "" {
+		remotePlugins.Data.Total = int64(len(installedPlugins))
+		for index, plugin := range installedPlugins {
+			remotePlugins.Data.Data = append(remotePlugins.Data.Data, RemotePluginItem{
+				ID: index + 1, Name: plugin.Name, Module: plugin.Module, Hash: plugin.Hash,
+				Introduction: plugin.Introduction, Version: plugin.Version, PriceStatus: 2,
+			})
+		}
+	}
 
-	// 构建已安装插件的hash映射和version映射
 	installedHashMap := make(map[string]models.Plugin)
 	for _, plugin := range installedPlugins {
 		installedHashMap[plugin.Hash] = plugin
 	}
 
-	// 为远程插件添加安装状态和更新状态
 	resultPlugins := make([]RemotePluginItem, 0, len(remotePlugins.Data.Data))
 	for _, remotePlugin := range remotePlugins.Data.Data {
 		installedPlugin, isInstalled := installedHashMap[remotePlugin.Hash]
 
 		remotePlugin.IsInstalled = isInstalled
 
-		// 如果已安装，检查版本是否需要更新
 		if isInstalled {
-			// 只有当远程版本不为空且与已安装版本不同时，才需要更新
+
 			remoteVersion := strings.TrimSpace(remotePlugin.Version)
 			installedVersion := strings.TrimSpace(installedPlugin.Version)
 
@@ -639,44 +615,34 @@ func (s *service) SearchRemotePlugins(ctx *gin.Context) (map[string]interface{},
 	}, nil
 }
 
-// ImportByData 通过POST JSON数据导入插件
 func (s *service) ImportByData(ctx *gin.Context, req *models.PluginImportByDataRequest) error {
-	// 验证密钥
-	key, err := ioutil.ReadFile("PLUGINKEY")
-	if err != nil {
-		return fmt.Errorf("failed to read plugin key: %w", err)
-	}
-	if req.Key != strings.TrimSpace(string(key)) {
-		return fmt.Errorf("invalid plugin key")
+	if err := checkPluginKey(ctx, req.Key); err != nil {
+		return err
 	}
 
-	// 解析info.json的json字符串
 	var pluginInfo models.PluginInfo
 	if err := json.Unmarshal([]byte(req.JSON), &pluginInfo); err != nil {
-		return fmt.Errorf("解析 json 字符串失败: %w", err)
+		return fmt.Errorf("Failed to parse JSON string: %w", err)
 	}
 
-	// 校验关键信息
 	if pluginInfo.Name == "" {
-		return fmt.Errorf("json 中缺少 name 字段")
+		return fmt.Errorf("JSON is missing name")
 	}
 	if pluginInfo.Type != "server" && pluginInfo.Module == "" {
-		return fmt.Errorf("json 中缺少 Module 字段")
+		return fmt.Errorf("JSON is missing Module")
 	}
 
-	// 如果hash为空，生成新的hash
 	if pluginInfo.Hash == "" {
 		pluginInfo.Hash = generatePluginHash(32, pluginInfo.Type)
 	}
 
-	// 验证module是否合法
 	if pluginInfo.Type != "server" {
 		var pluginsModules = make(map[string]bool)
 		for _, module := range constants.PLUGINSMODULES {
 			pluginsModules[module] = true
 		}
 		if !pluginsModules[pluginInfo.Module] {
-			return fmt.Errorf("模块非法: %s", pluginInfo.Module)
+			return fmt.Errorf("Invalid module: %s", pluginInfo.Module)
 		}
 	}
 
@@ -684,11 +650,11 @@ func (s *service) ImportByData(ctx *gin.Context, req *models.PluginImportByDataR
 	for _, p := range constants.Plugins {
 		PLUGINS[p.Hash] = true
 	}
-	// 6. 插件是否是系统插件 或 module 不合法
+
 	if PLUGINS[pluginInfo.Hash] {
 		req.IsSystem = true
 	}
-	// 创建插件对象
+
 	p := &models.Plugin{
 		Name:          pluginInfo.Name,
 		Module:        pluginInfo.Module,
@@ -703,13 +669,11 @@ func (s *service) ImportByData(ctx *gin.Context, req *models.PluginImportByDataR
 		Type:          pluginInfo.Type,
 	}
 
-	// 使用upsert：如果存在则更新，不存在则插入
 	pluginID, err := s.repo.UpsertByHash(ctx, p)
 	if err != nil {
 		return fmt.Errorf("failed to upsert plugin: %w", err)
 	}
 
-	// 如果不是内置插件，需要RefreshConfig
 	if !req.IsSystem && pluginInfo.Type != "server" {
 		go func() {
 			msg := models.Message{
@@ -731,31 +695,26 @@ func (s *service) ImportByData(ctx *gin.Context, req *models.PluginImportByDataR
 	return nil
 }
 
-const pluginSalt = "ScopeSentry_"
+const pluginSalt = "Recon_"
 const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 func generatePluginHash(length int, tp string) string {
-	// 初始化随机数种子
+
 	rand.Seed(time.Now().UnixNano())
 
-	// 生成随机字符串
 	b := make([]byte, length)
 	for i := range b {
 		b[i] = charset[rand.Intn(len(charset))]
 	}
 	randomString := string(b)
 
-	// 拼接盐值
 	salted := randomString + pluginSalt + tp
 
-	// 计算 MD5
 	hash := md5.Sum([]byte(salted))
 
-	// 返回十六进制字符串
 	return hex.EncodeToString(hash[:])
 }
 
-// UpdateStatus 更新插件状态
 func (s *service) UpdateStatus(ctx *gin.Context, req *models.PluginStatusRequest) error {
 
 	update := bson.M{
@@ -795,12 +754,11 @@ func (s *service) UpdateStatus(ctx *gin.Context, req *models.PluginStatusRequest
 	return nil
 }
 
-// Run 运行插件一次
 func (s *service) Run(ctx *gin.Context, req *models.PluginRunRequest) error {
-	// 从 GlobalPluginManager 获取插件实例
+
 	plgRunner, flag := plugins.GlobalPluginManager.GetPlugin(req.Hash)
 	if !flag {
-		// 从数据库获取插件信息
+
 		plg, err := s.repo.FindByHash(ctx, req.Hash)
 		if err != nil {
 			return fmt.Errorf("failed to find plugin: %w", err)
@@ -809,11 +767,10 @@ func (s *service) Run(ctx *gin.Context, req *models.PluginRunRequest) error {
 			return fmt.Errorf("plugin not found")
 		}
 
-		// 只允许运行服务端插件
 		if plg.Type != "server" {
 			return fmt.Errorf("only server plugins can be run manually")
 		}
-		// 如果插件未加载，则加载它
+
 		plugin, err := plugins.LoadPlugin(plg.Source, plg.Hash)
 		if err != nil {
 			return fmt.Errorf("failed to load plugin: %w", err)
@@ -832,7 +789,7 @@ func (s *service) Run(ctx *gin.Context, req *models.PluginRunRequest) error {
 	if err != nil {
 		logger.Error("failed to update plugin", zap.Error(err))
 	}
-	// 执行插件
+
 	go func() {
 		err = plgRunner.Execute(options.NewOption(req.Hash))
 		if err != nil {

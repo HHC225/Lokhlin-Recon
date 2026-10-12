@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Autumn-27/ScopeSentry/internal/utils/helper"
 	"github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/bson"
+	"recon/internal/utils/helper"
 
-	"github.com/Autumn-27/ScopeSentry/internal/config"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/repositories/user"
 	"golang.org/x/crypto/bcrypt"
+	"recon/internal/config"
+	"recon/internal/models"
+	"recon/internal/repositories/user"
 )
 
 var (
@@ -57,7 +57,6 @@ func (s *service) Login(ctx context.Context, username, password string) (string,
 		return "", ErrInvalidPassword
 	}
 
-	// 生成JWT token
 	now := time.Now()
 	expire := now.Add(config.GlobalConfig.JWT.Expire)
 
@@ -79,12 +78,11 @@ func (s *service) Login(ctx context.Context, username, password string) (string,
 }
 
 func (s *service) Register(ctx context.Context, user *models.User) error {
-	// 验证用户数据
+
 	if user.Username == "" || user.Password == "" || user.Email == "" {
 		return ErrInvalidUserData
 	}
 
-	// 检查用户名是否已存在
 	existingUser, err := s.userRepo.FindByUsername(ctx, user.Username)
 	if err != nil {
 		return err
@@ -93,7 +91,6 @@ func (s *service) Register(ctx context.Context, user *models.User) error {
 		return ErrUsernameExists
 	}
 
-	// 加密密码
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
@@ -112,7 +109,7 @@ func (s *service) GetUserByID(ctx context.Context, id string) (*models.User, err
 }
 
 func (s *service) UpdateUser(ctx context.Context, id string, user *models.User) error {
-	// 检查用户是否存在
+
 	existingUser, err := s.userRepo.FindByID(ctx, id)
 	if err != nil {
 		return err
@@ -121,7 +118,6 @@ func (s *service) UpdateUser(ctx context.Context, id string, user *models.User) 
 		return ErrUserNotFound
 	}
 
-	// 如果更新了密码，需要重新加密
 	if user.Password != "" {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 		if err != nil {
@@ -134,7 +130,7 @@ func (s *service) UpdateUser(ctx context.Context, id string, user *models.User) 
 }
 
 func (s *service) DeleteUser(ctx context.Context, id string) error {
-	// 检查用户是否存在
+
 	existingUser, err := s.userRepo.FindByID(ctx, id)
 	if err != nil {
 		return err
@@ -146,7 +142,6 @@ func (s *service) DeleteUser(ctx context.Context, id string) error {
 	return s.userRepo.Delete(ctx, id)
 }
 
-// ChangePassword 仅更新密码字段，使用与登录一致的 SHA256 存储
 func (s *service) ChangePassword(ctx context.Context, id string, newPassword string) error {
 	if newPassword == "" {
 		return ErrInvalidUserData

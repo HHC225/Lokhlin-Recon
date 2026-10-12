@@ -1,7 +1,5 @@
 // sensitive_rule-------------------------------------
 // @file      : sensitive_rule.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/10/28 22:28
 // -------------------------------------------
 
@@ -9,14 +7,14 @@ package sensitive_rule
 
 import (
 	"errors"
-	"github.com/Autumn-27/ScopeSentry/internal/repositories/sensitive_rule"
+	"recon/internal/repositories/sensitive_rule"
 
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/services/node"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"recon/internal/models"
+	"recon/internal/services/node"
 )
 
 type Service interface {
@@ -68,7 +66,7 @@ func (s *service) RuleUpdate(ctx *gin.Context, id string, name, regular, color s
 	if err := s.repo.RuleUpdate(ctx, oid, update); err != nil {
 		return err
 	}
-	// 广播刷新
+
 	_ = s.nodeService.RefreshConfig(ctx, models.Message{Name: "all", Type: "sensitive"})
 	return nil
 }

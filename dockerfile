@@ -1,29 +1,34 @@
-FROM python:3.7-slim
+# syntax=docker/dockerfile:1
+FROM --platform=$BUILDPLATFORM node:22-bookworm-slim AS frontend
+WORKDIR /source/frontend
+ENV HUSKY=0
+COPY frontend/package.json frontend/package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm npm ci --ignore-scripts --no-audit --no-fund
+COPY frontend/ ./
+RUN npm run build:pro
 
-ENV TZ=Asia/Shanghai
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+FROM --platform=$BUILDPLATFORM golang:1.26.3-bookworm AS build
+ARG TARGETARCH
+WORKDIR /source
+COPY go.mod go.sum ./
+RUN --mount=type=cache,target=/go/pkg/mod go mod download
+COPY . .
+# Replace the old bundle before compiling the embedded frontend.
+RUN rm -rf ./cmd/main/static && mkdir -p ./cmd/main/static
+COPY --from=frontend /source/frontend/dist-pro/ ./cmd/main/static/
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} \
+    go build -p 2 -trimpath -ldflags "-s -w" -o /out/recon-server ./cmd/main
 
-# 更新包列表并安装必要的包，包括 nginx
-RUN apt-get update && \
-    apt-get install -y git curl ca-certificates libcurl4-openssl-dev vim unzip && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# 设置工作目录
-WORKDIR /opt/ScopeSentry/
-
-# 复制 ScopeSentry 项目文件到工作目录
-COPY dist/ScopeSentry_linux_amd64_v1/ScopeSentry /opt/ScopeSentry/
-
-RUN chmod +x /opt/ScopeSentry/ScopeSentry
-
-ENTRYPOINT ["/opt/ScopeSentry/ScopeSentry"]
-
-# # 复制 start.sh 脚本到容器
-# RUN cp /opt/ScopeSentry/start.sh /usr/local/bin/start.sh
-#
-# # 给 start.sh 脚本赋予执行权限
-# RUN chmod +x /usr/local/bin/start.sh
-#
-# # 使用 start.sh 启动容器
-# CMD ["/usr/local/bin/start.sh"]
+FROM debian:bookworm-slim
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      ca-certificates curl git tzdata unzip \
+    && rm -rf /var/lib/apt/lists/*
+ENV TZ=UTC RECON_STATE_DIR=/opt/recon
+WORKDIR /opt/recon
+COPY --from=build /out/recon-server /usr/local/bin/recon-server
+RUN mkdir -p files images uploads export
+VOLUME ["/opt/recon"]
+EXPOSE 8082
+ENTRYPOINT ["/usr/local/bin/recon-server"]

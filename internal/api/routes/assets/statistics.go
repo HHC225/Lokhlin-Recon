@@ -1,9 +1,9 @@
 package assets
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/handlers/assets/statistics"
-	"github.com/Autumn-27/ScopeSentry/internal/api/routes/common"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
+	"recon/internal/api/handlers/assets/statistics"
+	"recon/internal/api/routes/common"
+	"recon/internal/models"
 )
 
 func registerStatisticsRoutes() models.RouteGroup {
@@ -42,4 +42,4 @@ func registerStatisticsRoutes() models.RouteGroup {
 			},
 		},
 	}
-} 
+}

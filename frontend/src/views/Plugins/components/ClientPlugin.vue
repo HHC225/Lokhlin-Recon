@@ -1,4 +1,11 @@
 <script setup lang="tsx">
+import {
+  isConsoleGateway,
+  csrfHeaders,
+  resourcePath,
+  handleConsoleUploadError
+} from '@/integration/console'
+import { catalogWebPath } from '@/integration/catalog'
 import { ContentWrap } from '@/components/ContentWrap'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ref, reactive, onMounted, h, inject, computed, type Ref } from 'vue'
@@ -53,7 +60,6 @@ const handleSearch = () => {
   getList()
 }
 
-// 从父组件注入插件市场相关方法
 const openMarketDialog = inject<() => void>('openMarketDialog', () => {})
 const pendingPluginsCount = inject<Ref<number>>('pendingPluginsCount', ref(0))
 const pendingPluginsCountValue = computed(() => pendingPluginsCount.value)
@@ -77,7 +83,7 @@ const taskColums = reactive<TableColumn[]>([
     formatter: (row, __: TableColumn, value: string) => {
       return (
         <a
-          href={`https://plugin.scope-sentry.top/plugin/${row.hash}`}
+          href={catalogWebPath(`/plugin/${row.hash}`)}
           style="color: #409EFF; text-decoration: none;"
           target="_blank"
         >
@@ -90,7 +96,7 @@ const taskColums = reactive<TableColumn[]>([
     field: 'module',
     label: t('plugin.module'),
     formatter: (_, __: TableColumn, value: string) => {
-      const color = moduleColorMap[value] || '#FFFFFF' // 默认白色
+      const color = moduleColorMap[value] || '#FFFFFF'
       return <ElTag style={{ backgroundColor: color, color: '#000' }}>{value}</ElTag>
     }
   },
@@ -146,14 +152,7 @@ const taskColums = reactive<TableColumn[]>([
               {
                 style: { outline: 'none', boxShadow: 'none' }
               },
-              () => [
-                t('common.operation'), // 下拉菜单触发按钮文字
-                h(
-                  ElIcon,
-                  {},
-                  () => h(ArrowDown) // 向下箭头图标
-                )
-              ]
+              () => [t('common.operation'), h(ElIcon, {}, () => h(ArrowDown))]
             ),
           dropdown: () =>
             h(ElDropdownMenu, null, () => {
@@ -199,26 +198,26 @@ const taskColums = reactive<TableColumn[]>([
 ])
 
 const moduleColorMap = {
-  TargetHandler: '#2243dda6', // 浅红色
-  SubdomainScan: '#FF9B85', // 更深的浅橙色
-  SubdomainSecurity: '#FFFFBA', // 浅黄色
-  PortScanPreparation: '#BAFFB3', // 浅绿色
-  PortScan: '#BAE1FF', // 浅蓝色
-  AssetMapping: '#e3ffba', // 浅粉红色
-  URLScan: '#D1BAFF', // 浅紫色
-  WebCrawler: '#FFABAB', // 浅红
-  DirScan: '#3ccde6', // 选择浅桃色
-  VulnerabilityScan: '#FF677D', // 浅粉色
-  AssetHandle: '#B2E1FF', // 浅青色
-  PortFingerprint: '#ffb5e4', // 更亮的浅橙色
-  URLSecurity: '#FFE4BA', // 浅米色
+  TargetHandler: '#2243dda6',
+  SubdomainScan: '#FF9B85',
+  SubdomainSecurity: '#FFFFBA',
+  PortScanPreparation: '#BAFFB3',
+  PortScan: '#BAE1FF',
+  AssetMapping: '#e3ffba',
+  URLScan: '#D1BAFF',
+  WebCrawler: '#FFABAB',
+  DirScan: '#3ccde6',
+  VulnerabilityScan: '#FF677D',
+  AssetHandle: '#B2E1FF',
+  PortFingerprint: '#ffb5e4',
+  URLSecurity: '#FFE4BA',
   PassiveScan: '#A2DFF7'
 }
 
 const { tableRegister, tableState, tableMethods } = useTable({
   fetchDataApi: async () => {
     const { currentPage, pageSize } = tableState
-    // 不传递 type 参数，默认为扫描端插件
+
     const res = await getPluginDataApi(search.value, currentPage.value, pageSize.value, 'scan')
     return {
       list: res.data.list,
@@ -328,6 +327,7 @@ const keyDialogVisible = ref(false)
 const pluginKey = ref('')
 
 const LoadPluginKey = () => {
+  if (isConsoleGateway) return
   const key = localStorage.getItem(`plugin_key`) as string
   if (!key) {
     keyDialogVisible.value = true
@@ -336,6 +336,7 @@ const LoadPluginKey = () => {
 }
 
 const savePluginKey = async () => {
+  if (isConsoleGateway) return
   if (pluginKey.value) {
     const res = await checkKeyApi(pluginKey.value)
     if (res.code == 200) {
@@ -346,6 +347,7 @@ const savePluginKey = async () => {
 }
 
 const handlePluginKeyChange = () => {
+  if (isConsoleGateway) return
   if (pluginKey.value) {
     localStorage.setItem('plugin_key', pluginKey.value)
   } else {
@@ -382,7 +384,7 @@ const openLogDialogVisible = async (data) => {
   logHash.value = data.hash
   await refreshLog()
   logDialogVisible.value = true
-  // 等待DOM更新后滚动到底部
+
   setTimeout(() => {
     scrollToBottom()
   }, 100)
@@ -426,7 +428,6 @@ const copyLog = async () => {
   }
 }
 
-// 过滤后的日志内容（用于搜索高亮）
 const filteredLogContent = computed(() => {
   if (!logSearchText.value || !logContent.value) {
     return logContent.value
@@ -436,7 +437,6 @@ const filteredLogContent = computed(() => {
   return lines.filter((line) => line.toLowerCase().includes(searchText.toLowerCase())).join('\n')
 })
 
-// 高亮搜索关键词
 const highlightLog = (text: string) => {
   if (!logSearchText.value || !text) {
     return text
@@ -446,7 +446,7 @@ const highlightLog = (text: string) => {
   return text.replace(regex, '<mark>$1</mark>')
 }
 const userStore = useUserStore()
-const uploadHeaders = { Authorization: `${userStore.getToken}` }
+const uploadHeaders = isConsoleGateway ? csrfHeaders('POST') : { Authorization: userStore.getToken }
 const upload = ref<UploadInstance>()
 const handleExceed: UploadProps['onExceed'] = (files) => {
   upload.value!.clearFiles()
@@ -473,7 +473,6 @@ const handleFileChange = (_file, fileList) => {
   }
 }
 
-// 暴露刷新列表方法给父组件
 defineExpose({
   refreshList: getList
 })
@@ -493,10 +492,10 @@ defineExpose({
           >Search</ElButton
         >
       </ElCol>
-      <ElCol :span="1" style="position: relative; left: 32px">
+      <ElCol v-if="!isConsoleGateway" :span="1" style="position: relative; left: 32px">
         <ElText class="mx-1" style="position: relative; top: 8px">{{ t('plugin.key') }}:</ElText>
       </ElCol>
-      <ElCol :span="5" style="position: relative; left: 32px">
+      <ElCol v-if="!isConsoleGateway" :span="5" style="position: relative; left: 32px">
         <ElInput
           v-model="pluginKey"
           :placeholder="t('plugin.key')"
@@ -533,8 +532,9 @@ defineExpose({
           <ElUpload
             ref="upload"
             class="flex items-center"
-            :action="'/api/plugin/import?key=' + (pluginKey || '')"
+            :action="resourcePath('/api/plugin/import') + (isConsoleGateway ? '' : '?key=' + encodeURIComponent(pluginKey || ''))"
             :headers="uploadHeaders"
+            @error="handleConsoleUploadError"
             :on-success="handleUploadSuccess"
             :limit="1"
             :on-exceed="handleExceed"

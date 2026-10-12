@@ -3,8 +3,8 @@ package scheduler
 import (
 	"fmt"
 
-	"github.com/Autumn-27/ScopeSentry/internal/database/mongodb"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
+	"recon/internal/database/mongodb"
+	"recon/internal/models"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -35,7 +35,6 @@ func NewRepository() Repository {
 	}
 }
 
-// Count 统计文档数量
 func (r *repository) Count(ctx *gin.Context, filter interface{}) (int64, error) {
 	count, err := r.collection.CountDocuments(ctx, filter)
 	if err != nil {
@@ -44,7 +43,6 @@ func (r *repository) Count(ctx *gin.Context, filter interface{}) (int64, error) 
 	return count, nil
 }
 
-// Find 查询文档列表
 func (r *repository) Find(ctx *gin.Context, filter interface{}, opts *options.FindOptions) ([]models.Task, error) {
 	cursor, err := r.collection.Find(ctx, filter, opts)
 	if err != nil {
@@ -60,7 +58,6 @@ func (r *repository) Find(ctx *gin.Context, filter interface{}, opts *options.Fi
 	return results, nil
 }
 
-// FindOne 查询单个文档
 func (r *repository) FindOne(ctx *gin.Context, filter interface{}) (*models.Task, error) {
 	var result models.Task
 	err := r.collection.FindOne(ctx, filter).Decode(&result)
@@ -73,7 +70,6 @@ func (r *repository) FindOne(ctx *gin.Context, filter interface{}) (*models.Task
 	return &result, nil
 }
 
-// Insert 插入文档
 func (r *repository) Insert(ctx *gin.Context, task *models.Task) error {
 	_, err := r.collection.InsertOne(ctx, task)
 	if err != nil {
@@ -82,7 +78,6 @@ func (r *repository) Insert(ctx *gin.Context, task *models.Task) error {
 	return nil
 }
 
-// UpdateOne 更新单个文档
 func (r *repository) UpdateOne(ctx *gin.Context, filter interface{}, update interface{}) error {
 	_, err := r.collection.UpdateOne(ctx, filter, bson.M{"$set": update})
 	if err != nil {
@@ -91,7 +86,6 @@ func (r *repository) UpdateOne(ctx *gin.Context, filter interface{}, update inte
 	return nil
 }
 
-// DeleteMany 删除多个文档
 func (r *repository) DeleteMany(ctx *gin.Context, filter interface{}) error {
 	_, err := r.collection.DeleteMany(ctx, filter)
 	if err != nil {
@@ -100,7 +94,6 @@ func (r *repository) DeleteMany(ctx *gin.Context, filter interface{}) error {
 	return nil
 }
 
-// CountPageMonit 统计PageMonitoring文档数量
 func (r *repository) CountPageMonit(ctx *gin.Context, filter interface{}) (int64, error) {
 	collection := mongodb.DB.Collection("PageMonitoring")
 	count, err := collection.CountDocuments(ctx, filter)
@@ -110,7 +103,6 @@ func (r *repository) CountPageMonit(ctx *gin.Context, filter interface{}) (int64
 	return count, nil
 }
 
-// FindPageMonit 查询PageMonitoring文档列表
 func (r *repository) FindPageMonit(ctx *gin.Context, filter interface{}, opts *options.FindOptions) ([]models.PageMonitoringTask, error) {
 	collection := mongodb.DB.Collection("PageMonitoring")
 	cursor, err := collection.Find(ctx, filter, opts)
@@ -127,7 +119,6 @@ func (r *repository) FindPageMonit(ctx *gin.Context, filter interface{}, opts *o
 	return results, nil
 }
 
-// InsertPageMonit 插入PageMonitoring文档
 func (r *repository) InsertPageMonit(ctx *gin.Context, task *models.PageMonitoringTask) error {
 	collection := mongodb.DB.Collection("PageMonitoring")
 	_, err := collection.InsertOne(ctx, task)
@@ -137,7 +128,6 @@ func (r *repository) InsertPageMonit(ctx *gin.Context, task *models.PageMonitori
 	return nil
 }
 
-// DeletePageMonit 删除PageMonitoring文档
 func (r *repository) DeletePageMonit(ctx *gin.Context, filter interface{}) error {
 	collection := mongodb.DB.Collection("PageMonitoring")
 	_, err := collection.DeleteMany(ctx, filter)

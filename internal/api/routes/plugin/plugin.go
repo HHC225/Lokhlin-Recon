@@ -1,19 +1,18 @@
 package plugin
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/handlers/plugin"
-	"github.com/Autumn-27/ScopeSentry/internal/api/routes/common"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/handlers/plugin"
+	"recon/internal/api/routes/common"
+	"recon/internal/models"
 )
 
-// RegisterPluginRoutes 注册插件相关路由
 func RegisterPluginRoutes(api *gin.RouterGroup) {
-	// 定义用户路由组
+
 	pluginRoutes := models.RouteGroup{
 		Path: "/plugin",
 		Routes: []models.Route{
-			// 需要认证和user:read权限的路由
+
 			{
 				Method:      "POST",
 				Path:        "",
@@ -119,6 +118,5 @@ func RegisterPluginRoutes(api *gin.RouterGroup) {
 		},
 	}
 
-	// 注册用户路由组
 	common.RegisterRouteGroup(api, pluginRoutes)
 }

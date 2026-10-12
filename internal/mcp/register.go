@@ -3,12 +3,12 @@ package mcp
 import (
 	"net/http"
 
-	"github.com/Autumn-27/ScopeSentry/internal/api/middleware"
 	"github.com/gin-gonic/gin"
 	mcpSDK "github.com/modelcontextprotocol/go-sdk/mcp"
+	"recon/internal/api/middleware"
+	"recon/internal/mcpboundary"
 )
 
-// RegisterRoutes 注册 MCP Streamable HTTP 路由
 func RegisterRoutes(router *gin.Engine) {
 	handler := mcpSDK.NewStreamableHTTPHandler(
 		func(_ *http.Request) *mcpSDK.Server { return newServer() },
@@ -16,7 +16,7 @@ func RegisterRoutes(router *gin.Engine) {
 	)
 
 	mcpGroup := router.Group("/mcp")
-	mcpGroup.Use(middleware.MCPAPIKeyMiddleware())
+	mcpGroup.Use(mcpboundary.RouteMiddleware(middleware.MCPAPIKeyMiddleware()))
 	mcpGroup.Any("", gin.WrapH(handler))
 	mcpGroup.Any("/*filepath", gin.WrapH(handler))
 }

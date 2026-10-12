@@ -3,6 +3,7 @@ import { ElMessage } from 'element-plus'
 import qs from 'qs'
 import { SUCCESS_CODE } from '@/constants'
 import { useUserStoreWithOut } from '@/store/modules/user'
+import { isConsoleGateway, expireConsoleSession } from '@/integration/console'
 
 const defaultRequestInterceptors = (config: InternalAxiosRequestConfig) => {
   if (
@@ -32,7 +33,6 @@ const defaultResponseInterceptors = (response: AxiosResponse) => {
     return response
   }
   if (response?.config?.responseType === 'blob') {
-    // 如果是文件流，直接过
     return response
   } else if (response.data.code === SUCCESS_CODE) {
     if (response?.data?.message) {
@@ -40,6 +40,10 @@ const defaultResponseInterceptors = (response: AxiosResponse) => {
     }
     return response.data
   } else {
+    if (isConsoleGateway && [401, 403].includes(response?.data?.code)) {
+      expireConsoleSession(response.data.code)
+      return Promise.reject(new Error('Console session is unavailable'))
+    }
     ElMessage.error(response?.data?.message)
     if (response?.data?.code === 401) {
       const userStore = useUserStoreWithOut()

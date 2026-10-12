@@ -28,11 +28,11 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
     env = loadEnv(mode, root)
   }
   return {
-    base: env.VITE_BASE_PATH,
+    base: env.VITE_BASE_PATH || '/recon/',
     plugins: [
       Vue({
         script: {
-          // 开启defineModel
+
           defineModel: true
         }
       }),
@@ -74,7 +74,7 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
       //     `
       // }),
       ViteEjsPlugin({
-        title: env.VITE_APP_TITLE
+        title: env.VITE_APP_TITLE || 'Recon'
       }),
       UnoCSS(),
       // sveltekit(),
@@ -116,7 +116,7 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
     server: {
       port: 4000,
       proxy: {
-        // 选项写法
+
         '/api': {
           target: 'http://127.0.0.1:8082',
           changeOrigin: true
@@ -140,7 +140,7 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
         'vue',
         'vue-router',
         'vue-types',
-        'element-plus/es/locale/lang/zh-cn',
+        'element-plus/es/locale/lang/ko',
         'element-plus/es/locale/lang/en',
         '@iconify/iconify',
         '@vueuse/core',

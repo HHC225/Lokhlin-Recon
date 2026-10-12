@@ -1,7 +1,5 @@
 // plugins-------------------------------------
 // @file      : custom_plugin.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/12/3 20:44
 // -------------------------------------------
 
@@ -9,13 +7,13 @@ package plugins
 
 import (
 	"fmt"
-	"github.com/Autumn-27/ScopeSentry/internal/config"
-	"github.com/Autumn-27/ScopeSentry/internal/database/redis"
-	"github.com/Autumn-27/ScopeSentry/internal/interfaces"
-	"github.com/Autumn-27/ScopeSentry/internal/logger"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/options"
-	"github.com/Autumn-27/ScopeSentry/internal/utils/helper"
+	"recon/internal/config"
+	"recon/internal/database/redis"
+	"recon/internal/interfaces"
+	"recon/internal/logger"
+	"recon/internal/models"
+	"recon/internal/options"
+	"recon/internal/utils/helper"
 )
 
 type Plugin struct {
@@ -67,7 +65,7 @@ func (p *Plugin) GetName() string {
 func (p *Plugin) Log(msg string, tp ...string) {
 	var logTp string
 	if len(tp) > 0 {
-		logTp = tp[0] // 使用传入的参数
+		logTp = tp[0]
 	} else {
 		logTp = "i"
 	}

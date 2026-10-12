@@ -6,13 +6,13 @@ module.exports = {
     {
       type: 'input',
       name: 'path',
-      message: '请输入路径（Please enter a path）',
+      message: 'Please enter a path',
       default: 'views'
     },
     {
       type: 'input',
       name: 'name',
-      message: '请输入模块名称（Please enter module name）'
+      message: 'Please enter module name'
     }
   ],
   actions: (data) => {

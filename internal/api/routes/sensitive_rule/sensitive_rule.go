@@ -1,10 +1,10 @@
 package sensitive_rule
 
 import (
-	handler "github.com/Autumn-27/ScopeSentry/internal/api/handlers/sensitiveRule"
-	"github.com/Autumn-27/ScopeSentry/internal/api/routes/common"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
 	"github.com/gin-gonic/gin"
+	handler "recon/internal/api/handlers/sensitiveRule"
+	"recon/internal/api/routes/common"
+	"recon/internal/models"
 )
 
 func RegisterSensitiveRuleRoutes(api *gin.RouterGroup) {

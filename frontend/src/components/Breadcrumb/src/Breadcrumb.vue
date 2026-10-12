@@ -17,7 +17,6 @@ const prefixCls = getPrefixCls('breadcrumb')
 
 const appStore = useAppStore()
 
-// 面包屑图标
 const breadcrumbIcon = computed(() => appStore.getBreadcrumbIcon)
 
 export default defineComponent({

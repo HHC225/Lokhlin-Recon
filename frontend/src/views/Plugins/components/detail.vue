@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onBeforeMount, watch } from 'vue'
+import { isConsoleGateway } from '@/integration/console'
 import {
   ElForm,
   ElFormItem,
@@ -25,7 +26,6 @@ import type { fileData, portDictData } from '@/api/DictionaryManagement/types'
 
 const { t } = useI18n()
 
-// 接收父组件传递的 id
 const props = defineProps<{
   closeDialog: () => void
   getList: () => void
@@ -34,7 +34,6 @@ const props = defineProps<{
   hash?: string
 }>()
 
-// 参数类型定义
 interface ParameterItem {
   name: string
   type: 'string' | 'bool' | 'dict' | 'port'
@@ -44,7 +43,6 @@ interface ParameterItem {
   portName?: string
 }
 
-// 表单数据
 const form = ref({
   name: '',
   version: '',
@@ -57,7 +55,7 @@ const form = ref({
 })
 
 const resetForm = () => {
-  console.log('清空')
+  console.log('Reset')
   form.value = {
     name: '',
     version: '',
@@ -68,17 +66,15 @@ const resetForm = () => {
     source: '',
     parameterList: []
   }
-  content.value = '' // 清空 Codemirror 编辑器内容
+  content.value = ''
 }
 
-// 校验规则
 const rules = ref({
   name: [{ required: true, message: '', trigger: 'blur' }],
   module: [{ required: props.tp == 'scan' ? true : false, message: '', trigger: 'change' }],
   source: [{ required: true, message: '', trigger: 'blur' }]
 })
 
-// 模块选项
 const moduleOptions = ref([
   { label: 'TargetHandler', value: 'TargetHandler' },
   { label: 'SubdomainScan', value: 'SubdomainScan' },
@@ -96,15 +92,12 @@ const moduleOptions = ref([
   { label: 'PassiveScan', value: 'PassiveScan' }
 ])
 
-// Codemirror 配置
 const content = ref('')
 const extensions = [javascript(), oneDark]
 
-// 字典和端口数据
 const dictList = ref<fileData[]>([])
 const portList = ref<portDictData[]>([])
 
-// 加载字典列表
 const loadDictList = async () => {
   try {
     const res = await getManagetListApi()
@@ -112,11 +105,10 @@ const loadDictList = async () => {
       dictList.value = res.data.list
     }
   } catch (error) {
-    console.error('加载字典列表失败:', error)
+    console.error('Failed to load dictionaries:', error)
   }
 }
 
-// 加载端口列表
 const loadPortList = async () => {
   try {
     const res = await getPortDictDataApi('', 1, 1000)
@@ -124,11 +116,10 @@ const loadPortList = async () => {
       portList.value = res.data.list
     }
   } catch (error) {
-    console.error('加载端口列表失败:', error)
+    console.error('Failed to load ports:', error)
   }
 }
 
-// 格式化参数列表为参数字符串
 const formatParameters = (params: ParameterItem[]): string => {
   if (!params || params.length === 0) {
     return ''
@@ -137,20 +128,18 @@ const formatParameters = (params: ParameterItem[]): string => {
     .filter((param) => param && param.name && param.type)
     .map((param) => {
       if (param.type === 'dict') {
-        // dict 类型：-name {dict.分类.名称}
         if (param.dictCategory && param.dictName) {
           return `-${param.name} {dict.${param.dictCategory}.${param.dictName}}`
         }
         return null
       }
       if (param.type === 'port') {
-        // port 类型：-name {port.name}
         if (param.portName) {
           return `-${param.name} {port.${param.portName}}`
         }
         return null
       }
-      // string 和 bool 类型：只有当默认值有值时才格式化
+
       if (
         param.defaultValue !== undefined &&
         param.defaultValue !== null &&
@@ -164,7 +153,6 @@ const formatParameters = (params: ParameterItem[]): string => {
     .join(' ')
 }
 
-// 处理参数列表变化，更新 parameter 字段
 const handleParameterListChange = () => {
   setTimeout(() => {
     const formattedParams = formatParameters(form.value.parameterList)
@@ -172,7 +160,6 @@ const handleParameterListChange = () => {
   }, 0)
 }
 
-// 添加参数
 const addParameter = () => {
   form.value.parameterList.push({
     name: '',
@@ -181,13 +168,11 @@ const addParameter = () => {
   handleParameterListChange()
 }
 
-// 删除参数
 const removeParameter = (index: number) => {
   form.value.parameterList.splice(index, 1)
   handleParameterListChange()
 }
 
-// 参数类型改变时清空相关字段
 const handleParameterTypeChange = (index: number) => {
   const param = form.value.parameterList[index]
   param.defaultValue = undefined
@@ -197,7 +182,6 @@ const handleParameterTypeChange = (index: number) => {
   handleParameterListChange()
 }
 
-// 根据分类筛选字典名称
 const getFilteredDictNames = (category: string | undefined) => {
   if (!category) {
     return []
@@ -205,34 +189,32 @@ const getFilteredDictNames = (category: string | undefined) => {
   return dictList.value.filter((dict) => (dict.category || dict.name) === category)
 }
 
-// 处理分类改变，清空名称
 const handleDictCategoryChange = (index: number) => {
   const param = form.value.parameterList[index]
   param.dictName = undefined
   handleParameterListChange()
 }
 
-// 检查是新建还是编辑
 onBeforeMount(async () => {
   resetForm()
-  // 加载字典和端口列表
+
   await loadDictList()
   await loadPortList()
   if (props.id) {
-    // 如果有 id，则查询该 id 的内容
     await fetchData(props.id)
   }
 })
 const pluginKey = ref('')
 
 const LoadPluginKey = () => {
+  if (isConsoleGateway) return
   const key = localStorage.getItem(`plugin_key`) as string
   pluginKey.value = key
 }
 LoadPluginKey()
 const isSystem = ref(false)
 const activeTab = ref('basic')
-// 根据 id 查询配置数据
+
 const fetchData = async (id: string) => {
   try {
     const res = await getPluginDetailApi(id)
@@ -246,28 +228,27 @@ const fetchData = async (id: string) => {
       form.value.introduction = data.introduction
       content.value = data.source
       isSystem.value = data.isSystem
-      // 解析 parameterList JSON 字符串
+
       if (data.parameterList) {
         try {
           form.value.parameterList = JSON.parse(data.parameterList) as ParameterItem[]
         } catch (error) {
-          console.error('解析 parameterList 失败:', error)
+          console.error('Failed to parse parameterList:', error)
           form.value.parameterList = []
         }
       } else {
         form.value.parameterList = []
       }
     } else {
-      ElMessage.error(`数据加载失败：${res.message}`)
+      ElMessage.error(`${t('console.loadFailed')} ${res.message}`)
     }
   } catch (error) {
-    console.error('查询数据时发生错误:', error)
+    console.error('Failed to query data:', error)
   }
 }
 
 const saveLoading = ref(false)
 
-// 监听 id 的变化，如果 id 变化则重新获取数据
 watch(
   () => props.id,
   async (newId) => {
@@ -279,26 +260,25 @@ watch(
   }
 )
 const save = async () => {
-  saveLoading.value = true // 开始加载状态
+  saveLoading.value = true
   if (form.value.name == '') {
-    ElMessage.error('name 不能为空')
-    saveLoading.value = false // 结束加载状态
+    ElMessage.error(t('console.nameRequired'))
+    saveLoading.value = false
     return
   }
   if (form.value.module == '' && props.tp == 'scan') {
-    ElMessage.error('module 不能为空')
-    saveLoading.value = false // 结束加载状态
+    ElMessage.error(t('console.moduleRequired'))
+    saveLoading.value = false
     return
   }
   if (!isSystem.value) {
     if (content.value == '') {
-      ElMessage.error('源码 不能为空')
-      saveLoading.value = false // 结束加载状态
+      ElMessage.error(t('console.sourceRequired'))
+      saveLoading.value = false
       return
     }
   }
   try {
-    // 将 parameterList 序列化为 JSON 字符串
     const parameterListStr = JSON.stringify(form.value.parameterList)
     const res = await savePluginDataApi(
       props.id,
@@ -320,10 +300,10 @@ const save = async () => {
     props.closeDialog()
     props.getList()
   } catch (error) {
-    console.error('保存数据时发生错误:', error)
-    ElMessage.error('保存失败，请稍后再试。')
+    console.error('Failed to save data:', error)
+    ElMessage.error(t('console.saveFailed'))
   } finally {
-    saveLoading.value = false // 结束加载状态
+    saveLoading.value = false
   }
 }
 </script>
@@ -331,7 +311,6 @@ const save = async () => {
 <template>
   <ElForm :model="form" :rules="rules" label-width="100px">
     <ElTabs v-model="activeTab">
-      <!-- 基础信息标签页 -->
       <ElTabPane :label="t('plugin.basicInfo')" name="basic">
         <ElRow :gutter="20">
           <!-- Name -->
@@ -376,7 +355,6 @@ const save = async () => {
             </ElFormItem>
           </ElCol>
 
-          <!-- 参数配置 -->
           <ElCol :span="24" v-if="props.tp == 'scan'">
             <ElFormItem :label="t('plugin.parameterConfig')">
               <ElRow :gutter="20">
@@ -406,7 +384,6 @@ const save = async () => {
                           </ElSelect>
                         </ElFormItem>
 
-                        <!-- string 和 bool 类型的默认值 -->
                         <template v-if="param.type === 'string' || param.type === 'bool'">
                           <ElFormItem
                             :prop="`parameterList.${index}.defaultValue`"
@@ -432,7 +409,6 @@ const save = async () => {
                           </ElFormItem>
                         </template>
 
-                        <!-- dict 类型的分类和名称 -->
                         <template v-if="param.type === 'dict'">
                           <ElFormItem
                             :prop="`parameterList.${index}.dictCategory`"
@@ -475,7 +451,6 @@ const save = async () => {
                           </ElFormItem>
                         </template>
 
-                        <!-- port 类型的 name -->
                         <template v-if="param.type === 'port'">
                           <ElFormItem
                             :prop="`parameterList.${index}.portName`"
@@ -518,7 +493,6 @@ const save = async () => {
             </ElFormItem>
           </ElCol>
 
-          <!-- Parameter (只读，由参数配置自动生成) -->
           <ElCol :span="24" v-if="props.tp == 'scan'">
             <ElFormItem :label="t('plugin.parameter')" prop="parameter">
               <ElInput
@@ -536,7 +510,6 @@ const save = async () => {
         </ElRow>
       </ElTabPane>
 
-      <!-- 源码标签页 -->
       <ElTabPane :label="t('plugin.sourceCode')" name="source" v-if="!isSystem">
         <div class="code-editor-container">
           <codemirror
@@ -552,7 +525,6 @@ const save = async () => {
       </ElTabPane>
     </ElTabs>
 
-    <!-- 固定在底部的操作栏 -->
     <div class="action-bar">
       <ElButton @click="props.closeDialog">{{ t('common.cancel') }}</ElButton>
       <ElButton type="primary" @click="save" :loading="saveLoading">
@@ -570,7 +542,6 @@ const save = async () => {
   height: 100%;
 }
 
-/* 源码编辑器容器 */
 .code-editor-container {
   height: calc(100vh - 300px);
   min-height: 500px;
@@ -585,7 +556,6 @@ const save = async () => {
   width: 100%;
 }
 
-/* 固定底部操作栏 */
 .action-bar {
   position: sticky;
   bottom: 0;
@@ -599,12 +569,10 @@ const save = async () => {
   z-index: 10;
 }
 
-/* 确保标签页内容有足够的内边距 */
 :deep(.el-tabs__content) {
   padding: 20px 0;
 }
 
-/* 改进代码编辑器样式 */
 :deep(.cm-editor) {
   height: 100%;
   font-size: 14px;
@@ -619,7 +587,6 @@ const save = async () => {
   outline: none;
 }
 
-/* 响应式调整 */
 @media (max-height: 800px) {
   .code-editor-container {
     height: calc(100vh - 250px);

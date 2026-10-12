@@ -1,9 +1,9 @@
 package assets
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/handlers/assets/page_monitoring"
-	"github.com/Autumn-27/ScopeSentry/internal/api/routes/common"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
+	"recon/internal/api/handlers/assets/page_monitoring"
+	"recon/internal/api/routes/common"
+	"recon/internal/models"
 )
 
 func registerPageMonitoringRoutes() models.RouteGroup {

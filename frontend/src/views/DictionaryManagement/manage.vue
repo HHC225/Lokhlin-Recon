@@ -1,4 +1,10 @@
 <script setup lang="tsx">
+import {
+  isConsoleGateway,
+  csrfHeaders,
+  resourcePath,
+  handleConsoleUploadError
+} from '@/integration/console'
 import { ContentWrap } from '@/components/ContentWrap'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ref, reactive, h } from 'vue'
@@ -29,7 +35,7 @@ import {
 import { useUserStore } from '@/store/modules/user'
 const { t } = useI18n()
 const userStore = useUserStore()
-const uploadHeaders = { Authorization: `${userStore.getToken}` }
+const uploadHeaders = isConsoleGateway ? csrfHeaders('POST') : { Authorization: userStore.getToken }
 const nodeColums = reactive<TableColumn[]>([
   {
     field: 'selection',
@@ -68,7 +74,9 @@ const nodeColums = reactive<TableColumn[]>([
     field: 'upload',
     label: t('common.upload'),
     formatter: (row, __: TableColumn, _: string) => {
-      const uploadAction = `/api/dictionary/manage/save?id=${row.id}`
+      const uploadAction = resourcePath(
+        `/api/dictionary/manage/save?id=${encodeURIComponent(row.id)}`
+      )
       return h('div', [
         h(
           ElUpload,
@@ -86,7 +94,8 @@ const nodeColums = reactive<TableColumn[]>([
               getList()
             },
             onError: (err) => {
-              // 如果上传失败，触发该回调
+              handleConsoleUploadError(err)
+
               ElMessage.error(`Upload failed: ${err}`)
             }
           },
@@ -193,9 +202,9 @@ async function customRequest(option) {
     formData.append('file', file)
     formData.append('name', form.value.name)
     formData.append('category', form.value.category)
-    // 在这里可以处理实际的文件数据
-    await createDictApi(formData) // 传递文件和其他参数
-    getList() // 假设 getList 是一个用于获取更新后的数据的函数
+
+    await createDictApi(formData)
+    getList()
     dialogVisible.value = false
     ElMessage.success('Upload success')
   } catch (error) {
@@ -216,7 +225,7 @@ const downloadFile = async (id, name) => {
   const url = window.URL.createObjectURL(new Blob([response.data]))
   const link = document.createElement('a')
   link.href = url
-  link.setAttribute('download', name) // 设置文件名
+  link.setAttribute('download', name)
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)

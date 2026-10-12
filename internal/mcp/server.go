@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/Autumn-27/ScopeSentry/internal/constants"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"recon/internal/constants"
 )
 
 func newServer() *mcp.Server {
 	server := mcp.NewServer(&mcp.Implementation{
-		Name:    "scopesentry",
+		Name:    "recon",
 		Version: constants.Version,
 	}, nil)
 

@@ -4,16 +4,15 @@ import (
 	"context"
 	"strings"
 
-	"github.com/Autumn-27/ScopeSentry/internal/utils/helper"
+	"recon/internal/utils/helper"
 
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/repositories/assets/subdomain"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"recon/internal/models"
+	"recon/internal/repositories/assets/subdomain"
 )
 
-// Service 定义子域名服务接口
 type Service interface {
 	GetSubdomains(ctx context.Context, query models.SearchRequest) ([]models.Subdomain, error)
 	GetTaskTarget(ctx context.Context, query models.SearchRequest) (string, error)
@@ -24,7 +23,6 @@ type service struct {
 	repo subdomain.Repository
 }
 
-// NewService 创建子域名服务实例
 func NewService() Service {
 	return &service{
 		repo: subdomain.NewRepository(),
@@ -36,7 +34,6 @@ func (s *service) GetTaskTargetByIDs(ctx context.Context, ids []string) (string,
 		return "", nil
 	}
 
-	// 将字符串ID转换为ObjectID
 	var objectIDs []primitive.ObjectID
 	for _, id := range ids {
 		objectID, err := primitive.ObjectIDFromHex(id)
@@ -46,13 +43,11 @@ func (s *service) GetTaskTargetByIDs(ctx context.Context, ids []string) (string,
 		objectIDs = append(objectIDs, objectID)
 	}
 
-	// 构建查询条件
 	filter := bson.M{"_id": bson.M{"$in": objectIDs}}
 	projection := bson.M{
 		"host": 1,
 	}
 
-	// 执行查询
 	opts := options.Find().
 		SetProjection(projection)
 
@@ -61,7 +56,6 @@ func (s *service) GetTaskTargetByIDs(ctx context.Context, ids []string) (string,
 		return "", err
 	}
 
-	// 将 Host 拼接成字符串
 	var builder strings.Builder
 	for i, subDomain := range subDomains {
 		builder.WriteString(subDomain.Host)
@@ -72,9 +66,8 @@ func (s *service) GetTaskTargetByIDs(ctx context.Context, ids []string) (string,
 	return builder.String(), nil
 }
 
-// GetSubdomains 获取子域名列表
 func (s *service) GetSubdomains(ctx context.Context, query models.SearchRequest) ([]models.Subdomain, error) {
-	// 构建查询条件
+
 	query.Index = "subdomain"
 	searchQuery, err := helper.GetSearchQuery(query)
 	if err != nil {
@@ -91,7 +84,7 @@ func (s *service) GetSubdomains(ctx context.Context, query models.SearchRequest)
 		"time":  1,
 		"tags":  1,
 	}
-	// 分页查询
+
 	opts := options.Find().
 		SetProjection(projection).
 		SetSkip(int64((query.PageIndex - 1) * query.PageSize)).
@@ -112,7 +105,6 @@ func (s *service) GetTaskTarget(ctx context.Context, query models.SearchRequest)
 		"host": 1,
 	}
 
-	// 执行查询
 	opts := options.Find().
 		SetProjection(projection)
 

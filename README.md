@@ -1,181 +1,42 @@
-<div align=center>
-	<img src="docs/images/favicon.ico"/>
-</div>
+# Recon 수집 서비스
 
-English | [中文](./README_CN.md)
+프로젝트, 자산, 하위 도메인, URL, 스캔 작업, 템플릿, 노드와 설정을 관리하는
+내부 수집 서비스입니다. Vue 화면, Go REST·MCP 서버, MongoDB, Redis와 별도 스캐너를 사용합니다.
+최종 제품명은 콘솔의 표시 이름 설정에서 관리합니다.
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Autumn-27/ScopeSentry-Scan)
+콘솔 관리자의 수집 탭에서 기존 로그인 세션으로 전체 화면을 사용합니다.
+서버와 MCP는 내부 네트워크에 있으며, 콘솔 게이트웨이가 60초짜리 서명된 사용자 정보를 전달합니다.
 
-## Introduction
-Scope Sentry is a tool with functions such as asset mapping, subdomain enumeration, information leakage detection, vulnerability scanning, directory scanning, subdomain takeover, crawler, and page monitoring. By building multiple nodes, users can freely choose nodes to run scanning tasks. When new vulnerabilities emerge, it can quickly check whether the concerned assets have related components.
+## 소스로 이미지 만들기
 
-Distributed Implementation Reference Articles: [https://mp.weixin.qq.com/s/xfgRxUjljoQ8KzacblktxA](https://mp.weixin.qq.com/s/xfgRxUjljoQ8KzacblktxA)
-
-Server Recommendation: [lightnode](https://www.lightnode.com/?inviteCode=CQ11JU&promoteWay=LINK)
-
-## Discord:
-
-[https://discord.gg/GWVwSBBm48](https://discord.gg/GWVwSBBm48)
-
-## Language
-Server：python - FastApi
-
-Scan：go
-
-Front-end：vue - vue-element-plus-admin
-
-## Website
-
-- Official Website: [https://www.scope-sentry.top](https://www.scope-sentry.top/en/)
-- Github: [https://github.com/Autumn-27/ScopeSentry](https://github.com/Autumn-27/ScopeSentry)
-- Scanner source code: [https://github.com/Autumn-27/ScopeSentry-Scan](https://github.com/Autumn-27/ScopeSentry-Scan)
-- UI source code: [https://github.com/Autumn-27/ScopeSentry-UI](https://github.com/Autumn-27/ScopeSentry-UI)
-- Plugin Market: [Plugin Market](https://plugin.scope-sentry.top/en)
-- Plugin Template：[https://github.com/Autumn-27/ScopeSentry-Plugin-Template](https://github.com/Autumn-27/ScopeSentry-Plugin-Template)
-
-## Install
-```
-git clone https://github.com/Autumn-27/ScopeSentry.git
-cd ScopeSentry
-# Change the MongoDB and Redis account passwords in the. env file.
-docker-compose -f single-host-deployment.yml up -d
-```
-After running, there will be four containers: mongodb, redis, scope-sentry (server), and scopesentry-scan (scan). By default, there will be one scanning node.
-
-View the initial user password and the secondary verification password of the plug-in
-
-```docker logs scope-sentry```
-
-**Add new nodes(Optional)**
-
-```
-git clone https://github.com/Autumn-27/ScopeSentry-Scan.git
-cd ScopeSentry-Scan/build
-# Edit the connection information for MongoDB and Redis in the .env file. NodeName is the node name, and each node name should be unique (if it is empty, it will be randomly generated, and you can change the name in the web interface).
-docker-compose -f scan-docker-compose.yml up -d
+```sh
+docker build -f dockerfile -t recon-server:local .
 ```
 
-## Plugin Flowchart
+Node 22로 `frontend`를 빌드한 결과를 `cmd/main/static`에 넣고 `./cmd/main`을 Go로 컴파일합니다.
+완성된 이미지의 실행 파일은 `recon-server`이며, 실행 중 소스 저장소는 필요하지 않습니다.
+`RECON_STATE_DIR=/opt/recon` 볼륨에 설정, 키와 파일을 저장합니다.
 
-<img src="流程图.svg"/>
+콘솔 저장소의 [로컬 수집 서비스 안내](../../artext/docs/recon-local.md)에는
+스캐너 이미지 빌드, 비밀키 생성, 기존 콘솔 Compose에 연결하는 명령이 있습니다.
+형제 저장소 위치가 다르면 `RECON_SOURCE_DIR`와 `RECON_WORKER_SOURCE_DIR`를 지정합니다.
 
-## Current Features
-- Plugin System (Add any tool through extension)
-- Subdomain Enumeration
-- Subdomain Takeover Detection
-- Port Scanning
-- Asset Identification
-- Directory Scanning
-- Vulnerability Scanning
-- Sensitive Information Leakage Detection
-- URL Extraction
-- Crawler
-- Page Monitoring
-- Custom WEB Fingerprint
-- POC Import
-- Asset Grouping
-- Multi-Node Scanning
-- Webhook
+## 서버 연결 설정
 
-## To Do
-- Weak Password Cracking
-- 
-## Installation
+- `RECON_GATEWAY_SECRET`: 콘솔과 공유하는 최소 32바이트 비밀값.
+- `MONGODB_IP`, `MONGODB_PORT`, `MONGODB_DATABASE`, `MONGODB_USER`, `MONGODB_PASSWORD`.
+- `REDIS_IP`, `REDIS_PORT`, `REDIS_PASSWORD`.
+- 새 저장소의 DB 기본 이름은 `Recon`; 기존 데이터에는 실제 DB 이름을 지정합니다.
 
-For installation instructions, see the [official website](https://www.scope-sentry.top)
+수집 서버와 스캐너는 같은 MongoDB와 Redis에 연결해야 합니다.
+`single-host-deployment.yml`은 네 서비스를 소스로 빌드하며 호스트 포트를 공개하지 않습니다.
+콘솔에서 접근하려면 콘솔의 `docker-compose.recon.yml` 오버레이를 사용합니다.
 
-## Communication
+## 수집 흐름
 
-Discord:
+프로젝트의 수집 범위를 등록하고, 모듈과 플러그인으로 스캔 템플릿을 구성한 뒤
+온라인 노드를 선택해 작업을 만듭니다. 결과는 프로젝트·자산·작업 화면에 모입니다.
+하위 도메인 열거, 하위 도메인 탈취 탐지, 포트·서비스 식별, 디렉터리 탐색, 취약점 템플릿,
+민감 정보 탐지, 크롤링, 페이지 모니터링과 사용자 플러그인을 지원합니다.
 
-[https://discord.gg/agsYdAyN](https://discord.gg/agsYdAyN)
-
-
-## Screenshots
-
-### Login
-
-![alt text](docs/images/login.png)
-
-### Homepage Dashboard
-![alt text](docs/images/index-en.png)
-
-## Plugin System
-![alt text](docs/images/plugin-cn.png)
-![alt text](docs/images/plugin-m-en.png)
-## Asset Data
-### Assets
-![alt text](docs/images/asset-en.png)
-![alt text](docs/images/asset-s-en.png)
-![alt text](docs/images/asset-s2-en.png)
-
-### Quick syntax search：
-![alt text](docs/images/search.gif)
-
-## Root Domain
-![alt text](docs/images/rootdomain-cn.png)
-
-### Subdomains
-![alt text](docs/images/subdomain-en.png)
-
-### Subdomain Takeover
-![alt text](docs/images/subt-en.png)
-
-### APP
-![alt text](docs/images/app-cn.png)
-
-### 小程序
-![alt text](docs/images/mp-cn.png)
-
-### URL
-![alt text](docs/images/craw-cn.png)
-
-### Crawler
-![alt text](docs/images/craw-en.png)
-
-### Sensitive Information
-![alt text](docs/images/sns-cn.png)
-
-### Directory Scanning
-![alt text](docs/images/dir-cn.png)
-
-### Vulnerabilities
-![alt text](docs/images/vul-en.png)
-
-### Page Monitoring
-![alt text](docs/images/page-en.png)
-![alt text](docs/images/page-change.png)
-## Projects
-
-![](docs/images/project-cn.png)
-
-## Project asset aggregation
-### Panel - Overview
-![](docs/images/project-dsh.png)
-### Subdomains
-![](docs/images/project-subdomain.png)
-### Port
-![](docs/images/project-port.png)
-### Service
-![](docs/images/project-server.png)
-
-## Tasks
-
-![](docs/images/create-task-en.png)
-
-## Task Progress
-
-![](docs/images/task-pg-en.png)
-
-## Nodes
-
-![](docs/images/node-cn.png)
-
-
-#License
-
-All branches of this project follow AGPL-3.0, and additional terms need to be followed:
-1. The commercial use of this software requires a separate commercial license.
-2. Companies, organizations, and for-profit entities must obtain a commercial license before using, distributing, or modifying this software.
-Individuals and non-profit organizations are free to use this software in accordance with the terms of AGPL-3.0.
-4. If you have any commercial license inquiries, please contact rainy-autumn@outlook.com .
+MCP 사용법은 [SKILL.md](SKILL.md)를 확인하세요.

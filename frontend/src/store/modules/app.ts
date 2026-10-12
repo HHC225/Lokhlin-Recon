@@ -6,6 +6,7 @@ import { colorIsDark, hexToRGB, lighten, mix } from '@/utils/color'
 import { unref } from 'vue'
 import { useCssVar } from '@vueuse/core'
 import { useStorage } from '@/hooks/web/useStorage'
+import { isConsoleGateway, displayName } from '@/integration/console'
 
 const { setStorage } = useStorage('localStorage')
 
@@ -41,58 +42,57 @@ export const useAppStore = defineStore('app', {
   state: (): AppState => {
     return {
       sizeMap: ['default', 'large', 'small'],
-      mobile: false, // 是否是移动端
-      title: import.meta.env.VITE_APP_TITLE, // 标题
-      pageLoading: false, // 路由跳转loading
-      breadcrumb: true, // 面包屑
-      breadcrumbIcon: true, // 面包屑图标
-      collapse: false, // 折叠菜单
-      uniqueOpened: false, // 是否只保持一个子菜单的展开
-      hamburger: true, // 折叠图标
-      screenfull: true, // 全屏图标
-      size: true, // 尺寸图标
-      locale: true, // 多语言图标
-      tagsView: true, // 标签页
-      tagsViewIcon: false, // 是否显示标签图标
+      mobile: false,
+      title: displayName,
+      pageLoading: false,
+      breadcrumb: true,
+      breadcrumbIcon: true,
+      collapse: false,
+      uniqueOpened: false,
+      hamburger: true,
+      screenfull: true,
+      size: true,
+      locale: true,
+      tagsView: true,
+      tagsViewIcon: false,
       logo: true, // logo
-      fixedHeader: true, // 固定toolheader
-      footer: true, // 显示页脚
-      greyMode: false, // 是否开始灰色模式，用于特殊悼念日
-      dynamicRouter: false, // 是否动态路由
-      serverDynamicRouter: false, // 是否服务端渲染动态路由
-      fixedMenu: false, // 是否固定菜单
+      fixedHeader: true,
+      footer: true,
+      greyMode: false,
+      dynamicRouter: false,
+      serverDynamicRouter: false,
+      fixedMenu: false,
 
-      layout: 'classic', // layout布局
-      isDark: false, // 是否是暗黑模式
-      currentSize: 'default', // 组件尺寸
+      layout: 'classic',
+      isDark: false,
+      currentSize: 'default',
       theme: {
-        // 主题色
-        elColorPrimary: '#409eff',
-        // 左侧菜单边框颜色
+        elColorPrimary: '#171717',
+
         leftMenuBorderColor: 'inherit',
-        // 左侧菜单背景颜色
+
         leftMenuBgColor: '#fff',
-        // 左侧菜单浅色背景颜色
+
         leftMenuBgLightColor: '#0f2438',
-        // 左侧菜单选中背景颜色
+
         leftMenuBgActiveColor: 'var(--el-color-primary)',
-        // 左侧菜单收起选中背景颜色
+
         leftMenuCollapseBgActiveColor: 'var(--el-color-primary)',
-        // 左侧菜单字体颜色
+
         leftMenuTextColor: '#bfcbd9',
-        // 左侧菜单选中字体颜色
+
         leftMenuTextActiveColor: '#fff',
-        // logo字体颜色
+
         logoTitleTextColor: '#fff',
-        // logo边框颜色
+
         logoBorderColor: 'inherit',
-        // 头部背景颜色
+
         topHeaderBgColor: '#fff',
-        // 头部字体颜色
+
         topHeaderTextColor: 'inherit',
-        // 头部悬停颜色
+
         topHeaderHoverColor: '#f6f6f6',
-        // 头部边框颜色
+
         topToolBorderColor: '#eee'
       }
     }
@@ -153,7 +153,7 @@ export const useAppStore = defineStore('app', {
       return this.layout
     },
     getTitle(): string {
-      return 'Scope Sentry'
+      return displayName
     },
     getIsDark(): boolean {
       return this.isDark
@@ -228,7 +228,7 @@ export const useAppStore = defineStore('app', {
     },
     setLayout(layout: LayoutType) {
       if (this.mobile && layout !== 'classic') {
-        ElMessage.warning('移动端模式下不支持切换其它布局')
+        ElMessage.warning('모바일 화면에서는 기본 레이아웃을 사용합니다.')
         return
       }
       this.layout = layout
@@ -238,7 +238,7 @@ export const useAppStore = defineStore('app', {
     },
     setIsDark(isDark: boolean) {
       this.isDark = isDark
-      // 保存到 localStorage
+
       setStorage('isDark', isDark)
       if (this.isDark) {
         document.documentElement.classList.add('dark')
@@ -279,27 +279,26 @@ export const useAppStore = defineStore('app', {
       const primaryColor = useCssVar('--el-color-primary', document.documentElement)
       const isDarkColor = colorIsDark(color)
       const theme: Recordable = {
-        // 左侧菜单边框颜色
         leftMenuBorderColor: isDarkColor ? 'inherit' : '#eee',
-        // 左侧菜单背景颜色
+
         leftMenuBgColor: color,
-        // 左侧菜单浅色背景颜色
+
         leftMenuBgLightColor: isDarkColor ? lighten(color!, 6) : color,
-        // 左侧菜单选中背景颜色
+
         leftMenuBgActiveColor: isDarkColor
           ? 'var(--el-color-primary)'
           : hexToRGB(unref(primaryColor), 0.1),
-        // 左侧菜单收起选中背景颜色
+
         leftMenuCollapseBgActiveColor: isDarkColor
           ? 'var(--el-color-primary)'
           : hexToRGB(unref(primaryColor), 0.1),
-        // 左侧菜单字体颜色
+
         leftMenuTextColor: isDarkColor ? '#bfcbd9' : '#333',
-        // 左侧菜单选中字体颜色
+
         leftMenuTextActiveColor: isDarkColor ? '#fff' : 'var(--el-color-primary)',
-        // logo字体颜色
+
         logoTitleTextColor: isDarkColor ? '#fff' : 'inherit',
-        // logo边框颜色
+
         logoBorderColor: isDarkColor ? color : '#eee'
       }
       this.setTheme(theme)
@@ -327,7 +326,7 @@ export const useAppStore = defineStore('app', {
       this.footer = footer
     }
   },
-  persist: true
+  persist: !isConsoleGateway
 })
 
 export const useAppStoreWithOut = () => {

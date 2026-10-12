@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Autumn-27/ScopeSentry/internal/services/apikey"
 	"github.com/gin-gonic/gin"
+	"recon/internal/services/apikey"
 )
 
 var mcpApiKeyService apikey.Service
@@ -14,9 +14,11 @@ func init() {
 	mcpApiKeyService = apikey.NewService()
 }
 
-// MCPAPIKeyMiddleware MCP 端点 API Key 认证中间件
 func MCPAPIKeyMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if authenticateGateway(c) {
+			return
+		}
 		rawKey := extractAPIKey(c)
 		if rawKey == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{

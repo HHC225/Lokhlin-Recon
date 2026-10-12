@@ -88,17 +88,6 @@ export function getBoundingClientRect(element: Element): DOMRect | number {
   return element.getBoundingClientRect()
 }
 
-/**
- * 获取当前元素的left、top偏移
- *   left：元素最左侧距离文档左侧的距离
- *   top:元素最顶端距离文档顶端的距离
- *   right:元素最右侧距离文档右侧的距离
- *   bottom：元素最底端距离文档底端的距离
- *   rightIncludeBody：元素最左侧距离文档右侧的距离
- *   bottomIncludeBody：元素最底端距离文档最底部的距离
- *
- * @description:
- */
 export function getViewportOffset(element: Element): ViewportOffsetResult {
   const doc = document.documentElement
 

@@ -1,7 +1,5 @@
 // utils-------------------------------------
 // @file      : requests.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/12/22 22:14
 // -------------------------------------------
 
@@ -60,7 +58,7 @@ type GetHttpResponse struct {
 
 func (r *request) HttpGet(uri string) (GetHttpResponse, error) {
 	req, resp := fasthttp.AcquireRequest(), fasthttp.AcquireResponse()
-	// 最后需要归还req、resp到池中
+
 	defer func() {
 		fasthttp.ReleaseRequest(req)
 		fasthttp.ReleaseResponse(resp)
@@ -148,7 +146,7 @@ func fixJSONNewlines(b []byte) []byte {
 		}
 
 		if inString && (c == '\n' || c == '\r') {
-			// 转义换行
+
 			out = append(out, '\\', 'n')
 			continue
 		}

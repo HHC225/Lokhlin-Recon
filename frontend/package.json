@@ -1,20 +1,19 @@
 {
-  "name": "vue-element-plus-admin",
+  "name": "recon-frontend",
   "version": "2.5.2",
-  "description": "一套基于vue3、element-plus、typesScript、vite4的后台集成方案。",
-  "author": "Archer <502431556@qq.com>",
-  "private": false,
+  "description": "Internal collection workspace",
+  "private": true,
   "scripts": {
-    "i": "pnpm install",
-    "dev": "pnpm vite --mode base",
-    "ts:check": "pnpm vue-tsc --noEmit --skipLibCheck",
-    "build:pro": "pnpm vite build --mode pro",
-    "build:gitee": "pnpm vite build --mode gitee",
-    "build:dev": "pnpm vite build --mode dev",
-    "build:test": "pnpm run ts:check && vite build --mode test",
-    "serve:pro": "pnpm vite preview --mode pro",
-    "serve:dev": "pnpm vite preview --mode dev",
-    "serve:test": "pnpm vite preview --mode test",
+    "i": "npm ci --ignore-scripts",
+    "dev": "vite --mode base",
+    "ts:check": "vue-tsc --noEmit --skipLibCheck",
+    "build:pro": "vite build --mode pro",
+    "build:gitee": "vite build --mode gitee",
+    "build:dev": "vite build --mode dev",
+    "build:test": "vue-tsc --noEmit --skipLibCheck && vite build --mode test",
+    "serve:pro": "vite preview --mode pro",
+    "serve:dev": "vite preview --mode dev",
+    "serve:test": "vite preview --mode test",
     "npm:check": "pnpx npm-check-updates -u",
     "clean": "pnpx rimraf node_modules",
     "clean:cache": "pnpx rimraf node_modules/.cache",
@@ -24,7 +23,8 @@
     "lint:lint-staged": "lint-staged -c ./.husky/lintstagedrc.js",
     "prepare": "husky install",
     "p": "plop",
-    "icon": "esno ./scripts/icon.ts"
+    "icon": "esno ./scripts/icon.ts",
+    "test:integration": "node --test tests/console-integration.test.mjs"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.1",
@@ -124,18 +124,8 @@
     "vite-plugin-svg-icons": "^2.0.1",
     "vue-tsc": "^1.8.25"
   },
-  "packageManager": "pnpm@9.1.1",
   "engines": {
     "node": ">=18.0.0",
     "pnpm": ">=8.1.0"
-  },
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kailong321200875/vue-element-plus-admin.git"
-  },
-  "bugs": {
-    "url": "https://github.com/kailong321200875/vue-element-plus-admin/issues"
-  },
-  "homepage": "https://github.com/kailong321200875/vue-element-plus-admin"
+  }
 }

@@ -13,22 +13,18 @@ export type CrudSchema = Omit<TableColumn, 'children'> & {
 }
 
 interface CrudSearchParams extends Omit<FormSchema, 'field'> {
-  // 是否隐藏在查询项
   hidden?: boolean
 }
 
 interface CrudTableParams extends Omit<TableColumn, 'field'> {
-  // 是否隐藏表头
   hidden?: boolean
 }
 
 interface CrudFormParams extends Omit<FormSchema, 'field'> {
-  // 是否隐藏表单项
   hidden?: boolean
 }
 
 interface CrudDescriptionsParams extends Omit<DescriptionsSchema, 'field'> {
-  // 是否隐藏表单项
   hidden?: boolean
 }
 
@@ -39,13 +35,11 @@ interface AllSchemas {
   detailSchema: DescriptionsSchema[]
 }
 
-// 过滤所有结构
 export const useCrudSchemas = (
   crudSchema: CrudSchema[]
 ): {
   allSchemas: AllSchemas
 } => {
-  // 所有结构数据
   const allSchemas = reactive<AllSchemas>({
     searchSchema: [],
     tableColumns: [],
@@ -71,14 +65,13 @@ export const useCrudSchemas = (
   }
 }
 
-// 过滤 Search 结构
 const filterSearchSchema = (crudSchema: CrudSchema[]): FormSchema[] => {
   const searchSchema: FormSchema[] = []
   const length = crudSchema.length
 
   for (let i = 0; i < length; i++) {
     const schemaItem = crudSchema[i]
-    // 判断是否隐藏
+
     if (!schemaItem?.search?.hidden) {
       const searchSchemaItem = {
         component: schemaItem?.search?.component || 'Input',
@@ -87,7 +80,6 @@ const filterSearchSchema = (crudSchema: CrudSchema[]): FormSchema[] => {
         label: schemaItem.search?.label || schemaItem.label
       }
 
-      // 删除不必要的字段
       delete searchSchemaItem.hidden
 
       searchSchema.push(searchSchemaItem)
@@ -97,7 +89,6 @@ const filterSearchSchema = (crudSchema: CrudSchema[]): FormSchema[] => {
   return searchSchema
 }
 
-// 过滤 table 结构
 const filterTableSchema = (crudSchema: CrudSchema[]): TableColumn[] => {
   const tableColumns = treeMap<CrudSchema>(crudSchema, {
     conversion: (schema: CrudSchema) => {
@@ -110,7 +101,6 @@ const filterTableSchema = (crudSchema: CrudSchema[]): TableColumn[] => {
     }
   })
 
-  // 第一次过滤会有 undefined 所以需要二次过滤
   return filter<TableColumn>(tableColumns as TableColumn[], (data) => {
     if (data.children === void 0) {
       delete data.children
@@ -119,14 +109,13 @@ const filterTableSchema = (crudSchema: CrudSchema[]): TableColumn[] => {
   })
 }
 
-// 过滤 form 结构
 const filterFormSchema = (crudSchema: CrudSchema[]): FormSchema[] => {
   const formSchema: FormSchema[] = []
   const length = crudSchema.length
 
   for (let i = 0; i < length; i++) {
     const formItem = crudSchema[i]
-    // 判断是否隐藏
+
     if (!formItem?.form?.hidden) {
       const formSchemaItem = {
         component: formItem?.form?.component || 'Input',
@@ -135,7 +124,6 @@ const filterFormSchema = (crudSchema: CrudSchema[]): FormSchema[] => {
         label: formItem.form?.label || formItem.label
       }
 
-      // 删除不必要的字段
       delete formSchemaItem.hidden
 
       formSchema.push(formSchemaItem)
@@ -145,12 +133,10 @@ const filterFormSchema = (crudSchema: CrudSchema[]): FormSchema[] => {
   return formSchema
 }
 
-// 过滤 descriptions 结构
 const filterDescriptionsSchema = (crudSchema: CrudSchema[]): DescriptionsSchema[] => {
   const descriptionsSchema: FormSchema[] = []
 
   eachTree(crudSchema, (schemaItem: CrudSchema) => {
-    // 判断是否隐藏
     if (!schemaItem?.detail?.hidden) {
       const descriptionsSchemaItem = {
         ...schemaItem.detail,
@@ -158,7 +144,6 @@ const filterDescriptionsSchema = (crudSchema: CrudSchema[]): DescriptionsSchema[
         label: schemaItem.detail?.label || schemaItem.label
       }
 
-      // 删除不必要的字段
       delete descriptionsSchemaItem.hidden
 
       descriptionsSchema.push(descriptionsSchemaItem)

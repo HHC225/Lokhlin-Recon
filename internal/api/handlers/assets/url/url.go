@@ -1,10 +1,10 @@
 package url
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/response"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/services/assets/url"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/response"
+	"recon/internal/models"
+	"recon/internal/services/assets/url"
 )
 
 var urlService url.Service
@@ -14,12 +14,12 @@ func init() {
 }
 
 // GetURLs godoc
-// @Summary 获取URL列表
-// @Description 获取URL列表，支持分页、排序和过滤
+// @Summary List URLs
+// @Description List URLs，Supports pagination, sorting and filtering
 // @Tags URL
 // @Accept json
 // @Produce json
-// @Param query body models.SearchRequest true "查询参数"
+// @Param query body models.SearchRequest true "Query parameters"
 // @Success 200 {object} response.SuccessResponse{data=object{list=[]models.URL}}
 // @Failure 400 {object} response.BadRequestResponse
 // @Failure 500 {object} response.InternalServerErrorResponse

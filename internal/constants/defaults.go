@@ -1,7 +1,5 @@
 // Package constants -----------------------------
 // @file      : dicts.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/4/25 17:05
 // -------------------------------------------
 package constants
@@ -10,7 +8,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
+	"recon/internal/models"
 )
 
 //go:embed assets/dir
@@ -21,18 +19,17 @@ var DomainDict string
 
 var Version string
 
-//go:embed assets/ScopeSentry.SensitiveRule.json
+//go:embed assets/sensitive-rules.json
 var SensData string
 
 func GetSensitive() ([]interface{}, error) {
-	// 将字符串转成字节数组
+
 	fileData := []byte(SensData)
 
-	// 定义一个空的 interface{} 切片来解析
 	var data []interface{}
 	err := json.Unmarshal(fileData, &data)
 	if err != nil {
-		return nil, fmt.Errorf("解析 JSON 失败: %v", err)
+		return nil, fmt.Errorf("Failed to parse JSON: %v", err)
 	}
 
 	return data, nil
@@ -68,14 +65,12 @@ var FingerprintData string
 func GetFingerprintData() ([]interface{}, error) {
 	fileData := []byte(FingerprintData)
 
-	// 解析 JSON 数据到 Fingerprint 结构体切片
 	var data []models.FingerprintRule
 	err := json.Unmarshal(fileData, &data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse JSON data: %v", err)
 	}
 
-	// 将 []models.Fingerprint 转换为 []interface{}
 	var interfaceData []interface{}
 	for _, item := range data {
 		interfaceData = append(interfaceData, item)
@@ -84,31 +79,31 @@ func GetFingerprintData() ([]interface{}, error) {
 	return interfaceData, nil
 }
 
-var ModulesConfig = `maxGoroutineCount: 3 # 最大目标并发
+var ModulesConfig = `maxGoroutineCount: 3
 subdomainScan:
-  goroutineCount: 3  # 设置"子域名扫描"模块最大并发
+  goroutineCount: 3
 subdomainSecurity:
-  goroutineCount: 10  # 设置"子域名结果处理"模块最大并发
+  goroutineCount: 10
 assetMapping:
-  goroutineCount: 5  # 设置"资产测绘"模块最大并发
+  goroutineCount: 5
 assetHandle:
-  goroutineCount: 30  # 设置"资产结果处理"模块最大并发
+  goroutineCount: 30
 portScanPreparation:
-  goroutineCount: 30  # 设置"端口扫描预处理"模块最大并发
+  goroutineCount: 30
 portScan:
-  goroutineCount: 2  # 设置"端口扫描"模块最大并发
+  goroutineCount: 2
 portFingerprint:
-  goroutineCount: 10  # 设置"端口指纹识别"模块最大并发
+  goroutineCount: 10
 URLScan:
-  goroutineCount: 5  # 设置"URL扫描"模块最大并发
+  goroutineCount: 5
 URLSecurity:
-  goroutineCount: 15  # 设置"URL扫描结果处理"模块最大并发
+  goroutineCount: 15
 webCrawler:
-  goroutineCount: 2  # 设置"爬虫扫描"模块最大并发
+  goroutineCount: 2
 dirScan:
-  goroutineCount: 3  # 设置"目录扫描"模块最大并发
+  goroutineCount: 3
 vulnerabilityScan:
-  goroutineCount: 2  # 设置"漏洞扫描"模块最大并发`
+  goroutineCount: 2`
 
 var Plugins = []models.Plugin{
 	{
@@ -116,8 +111,8 @@ var Plugins = []models.Plugin{
 		Name:         "WebFingerprint",
 		Hash:         "80718cc3fcb4827d942e6300184707e2",
 		Parameter:    "",
-		Help:         "无需参数",
-		Introduction: "web指纹识别",
+		Help:         "No parameters required",
+		Introduction: "Web fingerprint detection",
 		IsSystem:     true,
 		Version:      "1.0",
 		Source:       "",
@@ -127,8 +122,8 @@ var Plugins = []models.Plugin{
 		Name:         "httpx",
 		Hash:         "3a0d994a12305cb15a5cb7104d819623",
 		Parameter:    "-cdncheck true -screenshot false -tlsprobe false",
-		Help:         "-cdncheck 是否开启cdn检测 -screenshot 是否开启截图，默认关闭,开启需要安装chromium -tlsprobe 从tls信息发送http探测默认true",
-		Introduction: "资产测绘",
+		Help:         "-cdncheck enable CDN detection; -screenshot enable screenshots (disabled by default, requires Chromium); -tlsprobe probe HTTP from TLS information (true by default)",
+		Introduction: "Asset mapping",
 		IsSystem:     true,
 		Version:      "1.0",
 		Source:       "",
@@ -138,8 +133,8 @@ var Plugins = []models.Plugin{
 		Name:         "SentryDir",
 		Hash:         "920546788addc6d29ea63e4a314a1b85",
 		Parameter:    "-d {dict.dir.default} -t 10",
-		Help:         "-d 目录扫描字典 -t 扫描并发限制",
-		Introduction: "目录扫描",
+		Help:         "-d directory wordlist; -t scan concurrency limit",
+		Introduction: "Directory scan",
 		IsSystem:     true,
 		Version:      "1.0",
 		Source:       "",
@@ -149,8 +144,8 @@ var Plugins = []models.Plugin{
 		Name:         "fingerprintx",
 		Hash:         "648a6f49eed57b1737ac702e02985b00",
 		Parameter:    "",
-		Help:         "无需参数",
-		Introduction: "端口指纹识别",
+		Help:         "No parameters required",
+		Introduction: "Port fingerprint detection",
 		IsSystem:     true,
 		Version:      "1.0",
 		Source:       "",
@@ -160,8 +155,8 @@ var Plugins = []models.Plugin{
 		Name:         "RustScan",
 		Hash:         "66b4ddeb983387df2b7ee7726653874d",
 		Parameter:    "-port {port.top1000} -b 500 -t 5000",
-		Help:         "-port 端口扫描范围 -b 端口扫描并发数量  -t 超时时间",
-		Introduction: "端口存活扫描",
+		Help:         "-port port ranges; -b port scan concurrency; -t timeout",
+		Introduction: "Port availability scan",
 		IsSystem:     true,
 		Version:      "1.0",
 		Source:       "",
@@ -171,8 +166,8 @@ var Plugins = []models.Plugin{
 		Name:         "SkipCdn",
 		Hash:         "9b91e0f18ac9043ec9fe250a39b4a2d9",
 		Parameter:    "",
-		Help:         "无需参数",
-		Introduction: "检测是否cdn，跳过cdn的端口扫描",
+		Help:         "No parameters required",
+		Introduction: "Detect CDNs and skip their port scans",
 		IsSystem:     true,
 		Version:      "1.0",
 		Source:       "",
@@ -182,8 +177,8 @@ var Plugins = []models.Plugin{
 		Name:         "subfinder",
 		Hash:         "d60ba73c70aac430a0a54e796e7e19b8",
 		Parameter:    "-t 10 -timeout 20 -max-time 10",
-		Help:         "-t 扫描线程  -timeout 超时时间 -max-time 最大等待时间",
-		Introduction: "子域名扫描",
+		Help:         "-t scan threads; -timeout timeout; -max-time maximum wait",
+		Introduction: "Subdomain scan",
 		IsSystem:     true,
 		Version:      "1.0",
 		Source:       "",
@@ -193,8 +188,8 @@ var Plugins = []models.Plugin{
 		Name:         "ksubdomain",
 		Hash:         "e8f55f5e0e9f4af1ca40eb19048b8c82",
 		Parameter:    "-subfile {dict.subdomain.default} -et 60",
-		Help:         "-subfile 子域名字典 -et 最长运行时间(分钟)",
-		Introduction: "子域名爆破",
+		Help:         "-subfile subdomain wordlist; -et maximum runtime in minutes",
+		Introduction: "Subdomain brute force",
 		IsSystem:     true,
 		Version:      "1.0",
 		Source:       "",
@@ -204,8 +199,8 @@ var Plugins = []models.Plugin{
 		Name:         "SubdomainTakeover",
 		Hash:         "c0c71c101271f38b8be1767f3626d291",
 		Parameter:    "",
-		Help:         "无需参数",
-		Introduction: "子域名接管检测",
+		Help:         "No parameters required",
+		Introduction: "Subdomain takeover detection",
 		IsSystem:     true,
 		Version:      "1.0",
 		Source:       "",
@@ -215,8 +210,8 @@ var Plugins = []models.Plugin{
 		Name:         "wayback",
 		Hash:         "ef244b3462744dad3040f9dcf3194eb1",
 		Parameter:    "",
-		Help:         "无需参数",
-		Introduction: "url扫描从Waybackarchive、Alienvault、Commoncrawl获取历史url",
+		Help:         "No parameters required",
+		Introduction: "Collect historical URLs from Wayback Archive, AlienVault and Common Crawl",
 		IsSystem:     true,
 		Version:      "1.0",
 		Source:       "",
@@ -226,8 +221,8 @@ var Plugins = []models.Plugin{
 		Name:         "katana",
 		Hash:         "9669d0dcc52a5ca6dbbe580ffc99c364",
 		Parameter:    "-t 10 -timeout 5 -depth 5 -et 20 -rs 3",
-		Help:         "-t 并发数 -timeout 超时时间 -et 最长运行时间(分钟) -rs 读取页面大小(MB)",
-		Introduction: "url爬取",
+		Help:         "-t concurrency; -timeout timeout; -et maximum runtime in minutes; -rs page size limit in MB",
+		Introduction: "URL crawling",
 		IsSystem:     true,
 		Version:      "1.0",
 		Source:       "",
@@ -237,8 +232,8 @@ var Plugins = []models.Plugin{
 		Name:         "sensitive",
 		Hash:         "2949994c04a4e124b9c98383489510f0",
 		Parameter:    "",
-		Help:         "无需参数",
-		Introduction: "敏感信息泄露检测",
+		Help:         "No parameters required",
+		Introduction: "Sensitive information leak detection",
 		IsSystem:     true,
 		Version:      "1.0",
 		Source:       "",
@@ -248,8 +243,8 @@ var Plugins = []models.Plugin{
 		Name:         "PageMonitoring",
 		Hash:         "e52b8b16d49912ca564c22319c495403",
 		Parameter:    "",
-		Help:         "无需参数",
-		Introduction: "页面监控，将所有url放入页面监控的计划任务中",
+		Help:         "No parameters required",
+		Introduction: "Page monitoring: add all URLs to a scheduled monitoring task",
 		IsSystem:     true,
 		Version:      "1.0",
 		Source:       "",
@@ -259,8 +254,8 @@ var Plugins = []models.Plugin{
 		Name:         "trufflehog",
 		Hash:         "1aa212b9578dc3fb1409ee8de8ed005e",
 		Parameter:    "-pdf false -verify false",
-		Help:         "-pdf 开启pdf检测 -exclude 排除提取的规则(name1,name2) -verify 是否进行验证（验证通过再统计结果）",
-		Introduction: "trufflehog密钥提取，如果设置了排除规则，需要重新安装才能重新启用被排除的规则",
+		Help:         "-pdf enable PDF detection; -exclude skip named rules (name1,name2); -verify count only verified results",
+		Introduction: "TruffleHog secret extraction. Reinstall to re-enable previously excluded rules.",
 		IsSystem:     true,
 		Version:      "1.0",
 		Source:       "",
@@ -270,8 +265,8 @@ var Plugins = []models.Plugin{
 		Name:         "nuclei",
 		Hash:         "ed93b8af6b72fe54a60efdb932cf6fbc",
 		Parameter:    "-s high,critical",
-		Help:         "参考官方支持t, s, es, tags, etags, rl, rld, bs, c, hbs, headc, jsc, pc, prc参数",
-		Introduction: "漏洞扫描",
+		Help:         "See the official parameters: t, s, es, tags, etags, rl, rld, bs, c, hbs, headc, jsc, pc, prc",
+		Introduction: "Vulnerability scan",
 		IsSystem:     true,
 		Version:      "1.0",
 		Source:       "",
@@ -281,8 +276,8 @@ var Plugins = []models.Plugin{
 		Name:         "rad",
 		Hash:         "4b292861d3228af0e4da8e7ef979497c",
 		Parameter:    "",
-		Help:         "参考插件市场说明",
-		Introduction: "爬虫",
+		Help:         "See the plugin documentation",
+		Introduction: "Web crawler",
 		IsSystem:     true,
 		Version:      "1.0",
 		Source:       "",
@@ -412,67 +407,67 @@ virustotal: []
 whoisxmlapi: []
 zoomeyeapi: []`
 
-var RadConfig = `exec_path: ""                     # 启动chrome的路径
-disable_headless: false           # 禁用无头模式
-subdomain: false                   # 是否自动爬取子域
-leakless: true                    # 实验性功能，防止内存泄露，可能造成卡住的现象
-force_sandbox: false              # 强制开启sandbox；为 false 时默认开启沙箱，但在容器中会关闭沙箱。为true时强制启用沙箱，可能导致在docker中无法使用。
-enable_image: false               # 启用图片显示
-parent_path_detect: false          # 是否启用父目录探测功能
-proxy: ""                         # 代理配置
-user_agent: ""                    # 请求user-agent配置
-domain_headers:                   # 请求头配置:[]{domain,map[headerKey]HeaderValue}
-- domain: '*'                     # 为哪些域名设置header，glob语法
-headers: {}                     # 请求头，map[key]value
-max_depth: 5                     # 最大页面深度限制
-navigate_timeout_second: 5       # 访问超时时间，单位秒
-load_timeout_second: 5           # 加载超时时间，单位秒
-retry: 0                          # 页面访问失败后的重试次数
-page_analyze_timeout_second: 10  # 页面分析超时时间，单位秒
-max_interactive: 100             # 单个页面最大交互次数
-max_interactive_depth: 5         # 页面交互深度限制
-max_page_concurrent: 5           # 最大页面并发（不大于10）
-max_page_visit: 1000              # 总共允许访问的页面数量
-max_page_visit_per_site: 500     # 每个站点最多访问的页面数量
-element_filter_strength: 3        # 过滤同站点相似元素强度，1-7取值，强度逐步增大，为0时不进行跨页面元素过滤
-new_task_filter_config:           # 检查某个链接是否应该被加入爬取队列
-hostname_allowed: []            # 允许访问的 Hostname，支持格式如 t.com、*.t.com、1.1.1.1、1.1.1.1/24、1.1-4.1.1-8
-hostname_disallowed: []         # 不允许访问的 Hostname，支持格式如 t.com、*.t.com、1.1.1.1、1.1.1.1/24、1.1-4.1.1-8
-port_allowed: []                # 允许访问的端口, 支持的格式如: 80、80-85
-port_disallowed: []             # 不允许访问的端口, 支持的格式如: 80、80-85
-path_allowed: []                # 允许访问的路径，支持的格式如: test、*test*
-path_disallowed: []             # 不允许访问的路径, 支持的格式如: test、*test*
-query_key_allowed: []           # 允许访问的 Query Key，支持的格式如: test、*test*
-query_key_disallowed: []        # 不允许访问的 Query Key, 支持的格式如: test、*test*
-fragment_allowed: []            # 允许访问的 Fragment, 支持的格式如: test、*test*
-fragment_disallowed: []         # 不允许访问的 Fragment, 支持的格式如: test、*test*
-post_key_allowed: []            # 允许访问的 Post Body 中的参数, 支持的格式如: test、*test*
-post_key_disallowed: []         # 不允许访问的 Post Body 中的参数, 支持的格式如: test、*test*
-request_send_filter_config:       # 检查某个请求是否应该被发送
-hostname_allowed: []            # 允许访问的 Hostname，支持格式如 t.com、*.t.com、1.1.1.1、1.1.1.1/24、1.1-4.1.1-8
-hostname_disallowed: []         # 不允许访问的 Hostname，支持格式如 t.com、*.t.com、1.1.1.1、1.1.1.1/24、1.1-4.1.1-8
-port_allowed: []                # 允许访问的端口, 支持的格式如: 80、80-85
-port_disallowed: []             # 不允许访问的端口, 支持的格式如: 80、80-85
-path_allowed: []                # 允许访问的路径，支持的格式如: test、*test*
-path_disallowed: []             # 不允许访问的路径, 支持的格式如: test、*test*
-query_key_allowed: []           # 允许访问的 Query Key，支持的格式如: test、*test*
-query_key_disallowed: []        # 不允许访问的 Query Key, 支持的格式如: test、*test*
-fragment_allowed: []            # 允许访问的 Fragment, 支持的格式如: test、*test*
-fragment_disallowed: []         # 不允许访问的 Fragment, 支持的格式如: test、*test*
-post_key_allowed: []            # 允许访问的 Post Body 中的参数, 支持的格式如: test、*test*
-post_key_disallowed: []         # 不允许访问的 Post Body 中的参数, 支持的格式如: test、*test*
-request_output_filter_config:     # 检查某个请求是否应该被输出
-hostname_allowed: []            # 允许访问的 Hostname，支持格式如 t.com、*.t.com、1.1.1.1、1.1.1.1/24、1.1-4.1.1-8
-hostname_disallowed: []         # 不允许访问的 Hostname，支持格式如 t.com、*.t.com、1.1.1.1、1.1.1.1/24、1.1-4.1.1-8
-port_allowed: []                # 允许访问的端口, 支持的格式如: 80、80-85
-port_disallowed: []             # 不允许访问的端口, 支持的格式如: 80、80-85
-path_allowed: []                # 允许访问的路径，支持的格式如: test、*test*
-path_disallowed: []             # 不允许访问的路径, 支持的格式如: test、*test*
-query_key_allowed: []           # 允许访问的 Query Key，支持的格式如: test、*test*
-query_key_disallowed: []        # 不允许访问的 Query Key, 支持的格式如: test、*test*
-fragment_allowed: []            # 允许访问的 Fragment, 支持的格式如: test、*test*
-fragment_disallowed: []         # 不允许访问的 Fragment, 支持的格式如: test、*test*
-post_key_allowed: []            # 允许访问的 Post Body 中的参数, 支持的格式如: test、*test*
-post_key_disallowed: []         # 不允许访问的 Post Body 中的参数, 支持的格式如: test、*test*
-entrance_retry: 0                 # 入口重试次数
-max_similar_request: 0            # 最大相似fetch/XHR请求数（小于等于0时不限制）`
+var RadConfig = `exec_path: ""
+disable_headless: false
+subdomain: false
+leakless: true
+force_sandbox: false
+enable_image: false
+parent_path_detect: false
+proxy: ""
+user_agent: ""
+domain_headers:
+- domain: '*'
+headers: {}
+max_depth: 5
+navigate_timeout_second: 5
+load_timeout_second: 5
+retry: 0
+page_analyze_timeout_second: 10
+max_interactive: 100
+max_interactive_depth: 5
+max_page_concurrent: 5
+max_page_visit: 1000
+max_page_visit_per_site: 500
+element_filter_strength: 3
+new_task_filter_config:
+hostname_allowed: []
+hostname_disallowed: []
+port_allowed: []
+port_disallowed: []
+path_allowed: []
+path_disallowed: []
+query_key_allowed: []
+query_key_disallowed: []
+fragment_allowed: []
+fragment_disallowed: []
+post_key_allowed: []
+post_key_disallowed: []
+request_send_filter_config:
+hostname_allowed: []
+hostname_disallowed: []
+port_allowed: []
+port_disallowed: []
+path_allowed: []
+path_disallowed: []
+query_key_allowed: []
+query_key_disallowed: []
+fragment_allowed: []
+fragment_disallowed: []
+post_key_allowed: []
+post_key_disallowed: []
+request_output_filter_config:
+hostname_allowed: []
+hostname_disallowed: []
+port_allowed: []
+port_disallowed: []
+path_allowed: []
+path_disallowed: []
+query_key_allowed: []
+query_key_disallowed: []
+fragment_allowed: []
+fragment_disallowed: []
+post_key_allowed: []
+post_key_disallowed: []
+entrance_retry: 0
+max_similar_request: 0`

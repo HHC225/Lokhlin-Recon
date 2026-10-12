@@ -7,6 +7,7 @@ import { useWindowSize } from '@vueuse/core'
 import { useAppStore } from '@/store/modules/app'
 import { setCssVar } from '@/utils'
 import { useDesign } from '@/hooks/web/useDesign'
+import { isConsoleGateway } from '@/integration/console'
 
 const { variables } = useDesign()
 
@@ -18,14 +19,12 @@ const props = defineProps({
 
 provide('configGlobal', props)
 
-// 初始化所有主题色
 onMounted(() => {
-  appStore.setCssVarTheme()
+  if (!isConsoleGateway) appStore.setCssVarTheme()
 })
 
 const { width } = useWindowSize()
 
-// 监听窗口变化
 watch(
   () => width.value,
   (width: number) => {
@@ -44,7 +43,6 @@ watch(
   }
 )
 
-// 多语言相关
 const localeStore = useLocaleStore()
 
 const currentLocale = computed(() => localeStore.currentLocale)

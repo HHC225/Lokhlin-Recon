@@ -1,0 +1,1 @@
+import{_ as s}from"./Error.vue_vue_type_script_setup_true_lang-Blh2m0uJ.js";import{d as r,u as a,s as t,o as e,i as o,a as u}from"./index-C20hTL6e.js";const p=r({__name:"500",setup(r){const{push:p}=a(),_=t(),n=()=>{var s;p(null==(s=_.addRouters[0])?void 0:s.path)};return(r,a)=>(e(),o(u(s),{type:"500",onErrorClick:n}))}});export{p as default};

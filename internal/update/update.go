@@ -1,7 +1,5 @@
 // config-------------------------------------
 // @file      : update.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/5/10 20:32
 // -------------------------------------------
 
@@ -10,11 +8,11 @@ package update
 import (
 	"context"
 	"errors"
-	"github.com/Autumn-27/ScopeSentry/internal/constants"
-	"github.com/Autumn-27/ScopeSentry/internal/database/mongodb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/mod/semver"
+	"recon/internal/constants"
+	"recon/internal/database/mongodb"
 	"strings"
 )
 
@@ -26,7 +24,7 @@ func normalizeVersion(version string) string {
 }
 
 func Update() error {
-	// 确保 API Key 索引存在（幂等操作）
+
 	Update20()
 
 	configColl := mongodb.DB.Collection("config")
@@ -37,7 +35,7 @@ func Update() error {
 	}
 	err := configColl.FindOne(context.Background(), bson.M{"name": "version"}).Decode(&result)
 	if errors.Is(err, mongo.ErrNoDocuments) {
-		// 如果不存在记录，插入新记录
+
 		_, err = configColl.InsertOne(context.Background(), bson.M{
 			"name":    "version",
 			"version": constants.Version,
@@ -78,7 +76,6 @@ func Update() error {
 			Update19()
 		}
 
-		// 更新数据库记录
 		_, err := configColl.UpdateOne(context.Background(), bson.M{"name": "version"}, bson.M{
 			"$set": bson.M{
 				"version": constants.Version,

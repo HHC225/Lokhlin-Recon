@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/repositories/apikey"
-	"github.com/Autumn-27/ScopeSentry/internal/utils/random"
 	mongodriver "go.mongodb.org/mongo-driver/mongo"
+	"recon/internal/models"
+	"recon/internal/repositories/apikey"
+	"recon/internal/utils/random"
 )
 
 const keyPrefix = "ssk_"
@@ -105,7 +105,6 @@ func hashKey(rawKey string) string {
 	return hex.EncodeToString(sum[:])
 }
 
-// IsAPIKeyFormat 判断 token 是否为 API Key 格式（非 JWT）
 func IsAPIKeyFormat(token string) bool {
 	return strings.HasPrefix(token, keyPrefix)
 }

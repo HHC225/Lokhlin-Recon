@@ -4,7 +4,6 @@ import { defineComponent } from 'vue'
 
 export const useRenderCheckbox = () => {
   const renderCheckboxOptions = (item: FormSchema) => {
-    // 如果有别名，就取别名
     const componentProps = item?.componentProps as CheckboxGroupComponentProps
     const valueAlias = componentProps?.props?.value || 'value'
     const labelAlias = componentProps?.props?.label || 'label'

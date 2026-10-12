@@ -1,9 +1,9 @@
 package task
 
 import (
-	taskHandler "github.com/Autumn-27/ScopeSentry/internal/api/handlers/task"
-	"github.com/Autumn-27/ScopeSentry/internal/api/routes/common"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
+	taskHandler "recon/internal/api/handlers/task"
+	"recon/internal/api/routes/common"
+	"recon/internal/models"
 )
 
 func registerTemplateRoutes() models.RouteGroup {

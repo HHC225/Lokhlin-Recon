@@ -1,16 +1,14 @@
 // assets-------------------------------------
 // @file      : dirscan.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/5/17 15:20
 // -------------------------------------------
 
 package assets
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/handlers/assets/dirscan"
-	"github.com/Autumn-27/ScopeSentry/internal/api/routes/common"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
+	"recon/internal/api/handlers/assets/dirscan"
+	"recon/internal/api/routes/common"
+	"recon/internal/models"
 )
 
 func registerDirscanRoutes() models.RouteGroup {

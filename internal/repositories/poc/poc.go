@@ -4,15 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Autumn-27/ScopeSentry/internal/database/mongodb"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
+	"recon/internal/database/mongodb"
+	"recon/internal/models"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// Repository 定义POC仓库接口
 type Repository interface {
 	FindWithPagination(ctx context.Context, query bson.M, opts *options.FindOptions) ([]models.Poc, error)
 	Count(ctx context.Context, query bson.M) (int64, error)
@@ -30,7 +29,6 @@ type repository struct {
 	collection *mongo.Collection
 }
 
-// NewRepository 创建新的POC仓库实例
 func NewRepository() Repository {
 	return &repository{
 		collection: mongodb.DB.Collection("PocList"),
@@ -86,7 +84,7 @@ func (r *repository) DeleteMany(ctx context.Context, filter bson.M) (*mongo.Dele
 }
 
 func (r *repository) GetAllPocData(ctx context.Context) ([]models.Poc, error) {
-	// 设置投影，只返回需要的字段
+
 	projection := bson.M{
 		"_id":         1,
 		"name":        1,
@@ -112,7 +110,7 @@ func (r *repository) GetAllPocData(ctx context.Context) ([]models.Poc, error) {
 }
 
 func (r *repository) GetAllTemplateId(ctx context.Context) ([]string, error) {
-	// 设置投影，只返回hash字段
+
 	projection := bson.M{
 		"id":  1,
 		"_id": 0,
@@ -141,8 +139,6 @@ func (r *repository) GetAllTemplateId(ctx context.Context) ([]string, error) {
 	return hashes, nil
 }
 
-// TemplateIdExists 高性能检查TemplateId是否存在
-// 使用CountDocuments而不是FindOne，因为只需要知道是否存在，不需要返回文档
 func (r *repository) TemplateIdExists(ctx context.Context, templateId string) (bool, error) {
 	filter := bson.M{"id": templateId}
 	count, err := r.collection.CountDocuments(ctx, filter, options.Count().SetLimit(1))

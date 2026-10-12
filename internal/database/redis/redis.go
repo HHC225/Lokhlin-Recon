@@ -3,23 +3,22 @@ package redis
 import (
 	"context"
 	"fmt"
-	"github.com/Autumn-27/ScopeSentry/internal/logger"
+	"recon/internal/logger"
 
-	"github.com/Autumn-27/ScopeSentry/internal/config"
 	"github.com/redis/go-redis/v9"
+	"recon/internal/config"
 )
 
 var Client *redis.Client
 
 func init() {
-	// 创建 Redis 客户端
+
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", config.GlobalConfig.Redis.IP, config.GlobalConfig.Redis.Port),
 		Password: config.GlobalConfig.Redis.Password,
 		DB:       0,
 	})
 
-	// 测试连接
 	if err := client.Ping(context.Background()).Err(); err != nil {
 		logger.Error(fmt.Sprintf("failed to connect to Redis: %v", err))
 		return

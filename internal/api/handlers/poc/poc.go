@@ -7,12 +7,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Autumn-27/ScopeSentry/internal/api/response"
-	"github.com/Autumn-27/ScopeSentry/internal/logger"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/services/poc"
-	"github.com/Autumn-27/ScopeSentry/internal/utils/random"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/response"
+	"recon/internal/logger"
+	"recon/internal/models"
+	"recon/internal/services/poc"
+	"recon/internal/utils/random"
 )
 
 var pocService poc.Service
@@ -22,12 +22,12 @@ func init() {
 }
 
 // GetPocList godoc
-// @Summary 获取POC列表
-// @Description 获取POC列表，支持分页和搜索
-// @Tags POC管理
+// @Summary List POCs
+// @Description List POCs，Supports pagination and search
+// @Tags POC management
 // @Accept json
 // @Produce json
-// @Param request body poc.PocListRequest true "请求参数"
+// @Param request body poc.PocListRequest true "Request parameters"
 // @Success 200 {object} response.Response{data=poc.PocListResponse}
 // @Router /poc [post]
 func GetPocList(c *gin.Context) {
@@ -49,12 +49,12 @@ func GetPocList(c *gin.Context) {
 }
 
 // GetPocDetail godoc
-// @Summary 获取POC详情
-// @Description 根据ID获取POC详情
-// @Tags POC管理
+// @Summary Get POC details
+// @Description Get POC details by ID
+// @Tags POC management
 // @Accept json
 // @Produce json
-// @Param request body poc.PocDetailRequest true "请求参数"
+// @Param request body poc.PocDetailRequest true "Request parameters"
 // @Success 200 {object} response.Response{data=poc.Poc}
 // @Router /poc/detail [post]
 func GetPocDetail(c *gin.Context) {
@@ -74,12 +74,12 @@ func GetPocDetail(c *gin.Context) {
 }
 
 // UpdatePoc godoc
-// @Summary 更新POC
-// @Description 更新POC信息
-// @Tags POC管理
+// @Summary Update POC
+// @Description Update POC information
+// @Tags POC management
 // @Accept json
 // @Produce json
-// @Param request body poc.PocUpdateRequest true "请求参数"
+// @Param request body poc.PocUpdateRequest true "Request parameters"
 // @Success 200 {object} response.Response
 // @Router /poc/update [post]
 func UpdatePoc(c *gin.Context) {
@@ -98,12 +98,12 @@ func UpdatePoc(c *gin.Context) {
 }
 
 // AddPoc godoc
-// @Summary 添加POC
-// @Description 添加新的POC
-// @Tags POC管理
+// @Summary Add POC
+// @Description Create a POC
+// @Tags POC management
 // @Accept json
 // @Produce json
-// @Param request body poc.PocAddRequest true "请求参数"
+// @Param request body poc.PocAddRequest true "Request parameters"
 // @Success 200 {object} response.Response
 // @Router /api/poc/add [post]
 func AddPoc(c *gin.Context) {
@@ -122,12 +122,12 @@ func AddPoc(c *gin.Context) {
 }
 
 // DeletePoc godoc
-// @Summary 删除POC
-// @Description 删除指定的POC
-// @Tags POC管理
+// @Summary Delete POC
+// @Description Delete specified POC
+// @Tags POC management
 // @Accept json
 // @Produce json
-// @Param request body poc.PocDeleteRequest true "请求参数"
+// @Param request body poc.PocDeleteRequest true "Request parameters"
 // @Success 200 {object} response.Response
 // @Router /poc/delete [post]
 func DeletePoc(c *gin.Context) {
@@ -146,9 +146,9 @@ func DeletePoc(c *gin.Context) {
 }
 
 // GetAllPocData godoc
-// @Summary 获取所有POC数据
-// @Description 获取所有POC数据，包含id、name、time、tags字段
-// @Tags POC管理
+// @Summary List all POC data
+// @Description List all POCs with id, name, time and tags
+// @Tags POC management
 // @Accept json
 // @Produce json
 // @Success 200 {object} response.Response{data=map[string]interface{}}
@@ -167,16 +167,16 @@ func GetAllPocData(c *gin.Context) {
 }
 
 // ImportPoc godoc
-// @Summary 导入POC文件
-// @Description 上传ZIP文件并导入POC
-// @Tags POC管理
+// @Summary Import POC files
+// @Description Upload ZIP and import POC files
+// @Tags POC management
 // @Accept multipart/form-data
 // @Produce json
-// @Param file formData file true "POC文件(ZIP格式)"
+// @Param file formData file true "POCFile(ZIP format)"
 // @Success 200 {object} response.Response{data=models.PocImportResponse}
 // @Router /poc/data/import [post]
 func ImportPoc(c *gin.Context) {
-	// 获取上传的文件
+
 	file, err := c.FormFile("file")
 	if err != nil {
 		logger.Error(fmt.Sprintf("ImportPoc get file error %v", err))
@@ -184,19 +184,16 @@ func ImportPoc(c *gin.Context) {
 		return
 	}
 
-	// 检查文件扩展名
 	if !strings.HasSuffix(strings.ToLower(file.Filename), ".zip") {
 		response.BadRequest(c, "api.bad_request", fmt.Errorf("file must be zip format"))
 		return
 	}
 
-	// 检查文件名安全性
 	if strings.Contains(file.Filename, "..") || strings.Contains(file.Filename, "/") || strings.Contains(file.Filename, "\\") {
 		response.BadRequest(c, "api.bad_request", fmt.Errorf("unsafe filename"))
 		return
 	}
 
-	// 使用系统临时目录
 	tempDir := os.TempDir()
 	fileName := random.GenerateString(5) + ".zip"
 	filePath := filepath.Join(tempDir, fileName)
@@ -207,7 +204,6 @@ func ImportPoc(c *gin.Context) {
 		return
 	}
 
-	// 异步处理导入
 	go func() {
 		result, err := pocService.ImportPoc(c, filePath)
 		if err != nil {

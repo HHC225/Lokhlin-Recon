@@ -1,7 +1,5 @@
 // common-------------------------------------
 // @file      : common.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/6/9 21:03
 // -------------------------------------------
 
@@ -11,23 +9,22 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/Autumn-27/ScopeSentry/internal/logger"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/repositories/task/task"
-	"github.com/Autumn-27/ScopeSentry/internal/services/assets/asset"
-	"github.com/Autumn-27/ScopeSentry/internal/services/assets/root_domain"
-	"github.com/Autumn-27/ScopeSentry/internal/services/assets/subdomain"
-	"github.com/Autumn-27/ScopeSentry/internal/services/assets/url"
-	"github.com/Autumn-27/ScopeSentry/internal/services/dictionary"
-	"github.com/Autumn-27/ScopeSentry/internal/services/node"
-	"github.com/Autumn-27/ScopeSentry/internal/services/project"
-	"github.com/Autumn-27/ScopeSentry/internal/utils/helper"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"recon/internal/logger"
+	"recon/internal/models"
+	"recon/internal/repositories/task/task"
+	"recon/internal/services/assets/asset"
+	"recon/internal/services/assets/root_domain"
+	"recon/internal/services/assets/subdomain"
+	"recon/internal/services/assets/url"
+	"recon/internal/services/dictionary"
+	"recon/internal/services/node"
+	"recon/internal/services/project"
+	"recon/internal/utils/helper"
 	"regexp"
 	"strings"
 )
 
-// Service 定义任务服务接口
 type Service interface {
 	Insert(ctx context.Context, task *models.Task) (string, error)
 	CreateTaskScan(ctx context.Context, task models.Task, id string, stopToStart bool) (int64, error)
@@ -47,7 +44,6 @@ type service struct {
 	portsService      dictionary.PortService
 }
 
-// NewService 创建任务服务实例
 func NewService() Service {
 	return &service{
 		taskRepo:          task.NewRepository(),
@@ -62,7 +58,7 @@ func NewService() Service {
 }
 
 func (s *service) Insert(ctx context.Context, task *models.Task) (string, error) {
-	// task.TargetSource 分为普通、从资产选择数据进行创建（支持资产、根域名、子域名、url 这里修改原始逻辑 统一为后边的情况）、从项目、从资产、从根域名、从子域名、从url
+
 	var query models.SearchRequest
 	var target string
 	var err error
@@ -82,33 +78,33 @@ func (s *service) Insert(ctx context.Context, task *models.Task) (string, error)
 		query.Filter["project"] = projects
 	}
 	if task.TargetSource == "general" {
-		//普通的情况不需要做改变
+
 	} else if task.TargetSource == "project" {
-		// 从项目中获取数据，读取projet的目标
+
 		target, err = s.projectService.GetTargets(ctx, task.Project)
 		if err != nil {
 			return "", err
 		}
 	} else if task.TargetSource == "asset" || (task.TargetSource == "assetSource" && task.TargetTp == "search") {
-		// 从资产处创建
+
 		target, err = s.assetService.GetTaskTarget(ctx, query)
 		if err != nil {
 			return "", err
 		}
 	} else if task.TargetSource == "RootDomain" || (task.TargetSource == "RootDomainSource" && task.TargetTp == "search") {
-		// 从根域名创建
+
 		target, err = s.rootDomainService.GetTaskTarget(ctx, query)
 		if err != nil {
 			return "", err
 		}
 	} else if task.TargetSource == "subdomain" || (task.TargetSource == "subdomainSource" && task.TargetTp == "search") {
-		// 从子域名处创建
+
 		target, err = s.subdomainService.GetTaskTarget(ctx, query)
 		if err != nil {
 			return "", err
 		}
 	} else if task.TargetSource == "UrlScan" || (task.TargetSource == "UrlScanSource" && task.TargetTp == "search") {
-		// 从url扫描处创建
+
 		target, err = s.urlService.GetTaskTarget(ctx, query)
 		if err != nil {
 			return "", err
@@ -171,7 +167,7 @@ func (s *service) CreateTaskScan(ctx context.Context, task models.Task, id strin
 	task.ID, _ = primitive.ObjectIDFromHex(id)
 	task.IsStart = stopToStart
 	if task.AllNode {
-		// 选择自动加入后 获取所有节点
+
 		allNode, err := s.nodeService.GetNodeData(ctx, false)
 		if err != nil {
 			return 0, err
@@ -188,14 +184,13 @@ func (s *service) CreateTaskScan(ctx context.Context, task models.Task, id strin
 		}
 	}
 
-	// 如果是暂停之后再开始的，则不需要删除缓存和填入目标
 	if !stopToStart {
-		// 删除缓存
+
 		err := s.taskRepo.ClearTaskCache(ctx, id)
 		if err != nil {
 			return 0, err
 		}
-		// 生成原始target
+
 		targets, err := helper.GetTargetList(task.Target, task.Ignore)
 		if err != nil {
 			return 0, err
@@ -260,9 +255,8 @@ func (s *service) GetScanTemplate(ctx context.Context, task *models.Task) (*mode
 
 var placeholderRegex = regexp.MustCompile(`\{(.*?)\}`)
 
-// ParameterParser 解析参数中的字典和端口引用
 func (s *service) ParameterParser(ctx context.Context, parameters models.Parameters) (models.Parameters, error) {
-	// 1. 获取字典数据
+
 	dictList := make(map[string]string)
 	dicts, err := s.dictionaryService.List(ctx)
 	if err != nil {
@@ -272,7 +266,6 @@ func (s *service) ParameterParser(ctx context.Context, parameters models.Paramet
 		dictList[strings.ToLower(dict.Category+"."+dict.Name)] = dict.ID.Hex()
 	}
 
-	// 2. 获取端口数据
 	portList := make(map[string]string)
 	ports, _, err := s.portsService.Get(ctx, "", 1, 1000)
 	if err != nil {
@@ -282,11 +275,10 @@ func (s *service) ParameterParser(ctx context.Context, parameters models.Paramet
 		portList[strings.ToLower(port.Name)] = port.Value
 	}
 
-	// 公共处理函数
 	processMap := func(m map[string]string) {
 		for k, v := range m {
 			newValue := placeholderRegex.ReplaceAllStringFunc(v, func(match string) string {
-				// match 就是 {dict.xxx} 或 {port.xxx}
+
 				inner := strings.Trim(match, "{}")
 				parts := strings.SplitN(inner, ".", 2)
 				if len(parts) != 2 {
@@ -301,12 +293,12 @@ func (s *service) ParameterParser(ctx context.Context, parameters models.Paramet
 					if real, ok := dictList[val]; ok {
 						return real
 					}
-					logger.Error(fmt.Sprintf("未找到字典参数: %s", val))
+					logger.Error(fmt.Sprintf("Dictionary parameter not found: %s", val))
 				case "port":
 					if real, ok := portList[val]; ok {
 						return real
 					}
-					logger.Error(fmt.Sprintf("未找到端口参数: %s", val))
+					logger.Error(fmt.Sprintf("Port parameter not found: %s", val))
 				}
 				return match
 			})
@@ -314,7 +306,6 @@ func (s *service) ParameterParser(ctx context.Context, parameters models.Paramet
 		}
 	}
 
-	// 3. 自动批量处理所有字段（集中在一个 slice 中，方便以后加字段）
 	allMaps := []*map[string]string{
 		&parameters.TargetHandler,
 		&parameters.SubdomainScan,

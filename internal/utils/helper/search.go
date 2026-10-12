@@ -1,7 +1,5 @@
 // Package helper -----------------------------
 // @file      : search.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/5/2 14:34
 // -------------------------------------------
 package helper
@@ -9,15 +7,14 @@ package helper
 import (
 	"errors"
 	"fmt"
-	"github.com/Autumn-27/ScopeSentry/internal/logger"
+	"recon/internal/logger"
 	"regexp"
 	"strings"
 	"sync"
 
-	"github.com/Autumn-27/ScopeSentry/internal/models"
+	"recon/internal/models"
 )
 
-// SearchKey 定义了不同类型数据的字段映射关系
 var SearchKey = map[string]map[string]string{
 	"SensitiveResult": {
 		"url":   "url",
@@ -117,7 +114,6 @@ var SearchKey = map[string]map[string]string{
 	},
 }
 
-// 缓存常用映射，避免重复创建
 var (
 	filterKeyCache = map[string]string{
 		"app":        "technologies",
@@ -149,7 +145,6 @@ var (
 		"service_ip":      "ip,host",
 	}
 
-	// 预编译正则表达式
 	regexCache = struct {
 		sync.RWMutex
 		m map[string]*regexp.Regexp
@@ -158,7 +153,6 @@ var (
 	}
 )
 
-// getRegex 获取或创建正则表达式，使用缓存
 func getRegex(pattern string) (*regexp.Regexp, error) {
 	regexCache.RLock()
 	if re, ok := regexCache.m[pattern]; ok {
@@ -170,7 +164,6 @@ func getRegex(pattern string) (*regexp.Regexp, error) {
 	regexCache.Lock()
 	defer regexCache.Unlock()
 
-	// 双重检查
 	if re, ok := regexCache.m[pattern]; ok {
 		return re, nil
 	}
@@ -183,20 +176,17 @@ func getRegex(pattern string) (*regexp.Regexp, error) {
 	return re, nil
 }
 
-// StringToPostfix 将中缀表达式转换为后缀表达式
 func StringToPostfix(expression string) ([]string, error) {
 	if expression == "" {
 		return nil, nil
 	}
 
-	// 预分配足够的容量，减少扩容
 	operandsStack := make([]string, 0, 16)
 	expressionStack := make([]string, 0, 32)
 	startChar := 0
 	skipFlag := false
 	expFlag := false
 
-	// 使用rune来处理Unicode字符
 	runes := []rune(expression)
 	for i := 0; i < len(runes); i++ {
 		char := runes[i]
@@ -283,7 +273,6 @@ func StringToPostfix(expression string) ([]string, error) {
 		}
 	}
 
-	// 预分配结果切片
 	result := make([]string, 0, len(expressionStack))
 	for _, key := range expressionStack {
 		if key != "" && key != " " {
@@ -299,7 +288,6 @@ func StringToPostfix(expression string) ([]string, error) {
 	return result, nil
 }
 
-// SearchToMongoDB 将搜索表达式转换为MongoDB查询
 func SearchToMongoDB(expressionRaw string, keyword map[string]string) ([]map[string]interface{}, error) {
 	if expressionRaw == "" {
 		return []map[string]interface{}{{}}, nil
@@ -314,7 +302,6 @@ func SearchToMongoDB(expressionRaw string, keyword map[string]string) ([]map[str
 		return nil, err
 	}
 
-	// 预分配栈空间
 	stack := make([]map[string]interface{}, 0, len(expression))
 
 	for _, expr := range expression {
@@ -419,7 +406,6 @@ func SearchToMongoDB(expressionRaw string, keyword map[string]string) ([]map[str
 	return stack, nil
 }
 
-// GetSearchQuery 构建完整的搜索查询
 func GetSearchQuery(req models.SearchRequest) (map[string]interface{}, error) {
 	logger.Logger.Info(fmt.Sprintf("search query: %v", req))
 	if req.Index == "" {
@@ -442,7 +428,6 @@ func GetSearchQuery(req models.SearchRequest) (map[string]interface{}, error) {
 
 	result := query[0]
 
-	// 处理过滤条件
 	if len(req.Filter) > 0 {
 		if _, ok := result["$and"]; !ok {
 			result["$and"] = make([]map[string]interface{}, 0, len(req.Filter))
@@ -476,7 +461,6 @@ func GetSearchQuery(req models.SearchRequest) (map[string]interface{}, error) {
 		}
 	}
 
-	// 处理模糊查询
 	if len(req.FuzzyQuery) > 0 {
 		if _, ok := result["$and"]; !ok {
 			result["$and"] = make([]map[string]interface{}, 0, len(req.FuzzyQuery))
@@ -484,7 +468,7 @@ func GetSearchQuery(req models.SearchRequest) (map[string]interface{}, error) {
 
 		for q, value := range req.FuzzyQuery {
 			if value != "" {
-				tmpFq := make([]map[string]interface{}, 0, 3) // 预分配空间
+				tmpFq := make([]map[string]interface{}, 0, 3)
 				if mongoKey, ok := fuzzyQueryKeyCache[q]; ok {
 					if strings.Contains(mongoKey, ",") {
 						keys := strings.Split(mongoKey, ",")

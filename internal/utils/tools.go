@@ -1,7 +1,5 @@
 // utils-------------------------------------
 // @file      : tools.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/12/22 20:24
 // -------------------------------------------
 

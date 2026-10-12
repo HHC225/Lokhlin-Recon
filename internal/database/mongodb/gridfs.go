@@ -7,7 +7,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/gridfs"
 )
 
-// CreateGridFSFile 创建 GridFS 文件
 func CreateGridFSFile(db *mongo.Database, filename string, content []byte) error {
 	bucket, err := gridfs.NewBucket(db)
 	if err != nil {
@@ -27,7 +26,6 @@ func CreateGridFSFile(db *mongo.Database, filename string, content []byte) error
 	return nil
 }
 
-// ReadGridFSFile 读取 GridFS 文件
 func ReadGridFSFile(db *mongo.Database, filename string) ([]byte, error) {
 	bucket, err := gridfs.NewBucket(db)
 	if err != nil {
@@ -49,7 +47,6 @@ func ReadGridFSFile(db *mongo.Database, filename string) ([]byte, error) {
 	return buffer, nil
 }
 
-// DeleteGridFSFile 删除 GridFS 文件
 func DeleteGridFSFile(db *mongo.Database, filename string) error {
 	bucket, err := gridfs.NewBucket(db)
 	if err != nil {

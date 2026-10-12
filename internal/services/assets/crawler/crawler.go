@@ -2,12 +2,12 @@ package crawler
 
 import (
 	"context"
-	"github.com/Autumn-27/ScopeSentry/internal/utils/helper"
+	"recon/internal/utils/helper"
 
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/repositories/assets/crawler"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"recon/internal/models"
+	"recon/internal/repositories/assets/crawler"
 )
 
 type Service interface {
@@ -25,7 +25,7 @@ func NewService() Service {
 }
 
 func (s *service) GetCrawlers(ctx context.Context, query models.SearchRequest) ([]models.CrawlerResult, error) {
-	// 构建查询条件
+
 	query.Index = "crawler"
 	searchQuery, err := helper.GetSearchQuery(query)
 	if err != nil {
@@ -41,7 +41,7 @@ func (s *service) GetCrawlers(ctx context.Context, query models.SearchRequest) (
 		"tags":   1,
 		"time":   1,
 	}
-	// 分页查询
+
 	opts := options.Find().
 		SetProjection(projection).
 		SetSkip(int64((query.PageIndex - 1) * query.PageSize)).

@@ -5,27 +5,26 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Autumn-27/ScopeSentry/internal/logger"
-	"github.com/Autumn-27/ScopeSentry/internal/services/node"
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
+	"recon/internal/logger"
+	"recon/internal/services/node"
 
 	"archive/zip"
 	"io"
 	"os"
 	"path/filepath"
 
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/repositories/poc"
-	"github.com/Autumn-27/ScopeSentry/internal/utils/helper"
-	"github.com/Autumn-27/ScopeSentry/internal/utils/random"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"recon/internal/models"
+	"recon/internal/repositories/poc"
+	"recon/internal/utils/helper"
+	"recon/internal/utils/random"
 )
 
-// Service 定义POC服务接口
 type Service interface {
 	GetPocList(ctx *gin.Context, req *models.PocListRequest) (*models.PocListResponse, error)
 	GetPocDetail(ctx *gin.Context, req *models.PocDetailRequest) (*models.Poc, error)
@@ -42,7 +41,6 @@ type service struct {
 	nodeService node.Service
 }
 
-// NewService 创建新的POC服务实例
 func NewService() Service {
 	return &service{
 		repo:        poc.NewRepository(),
@@ -216,57 +214,49 @@ func (s *service) GetAllPocData(ctx context.Context) ([]models.Poc, error) {
 	return result, nil
 }
 
-// ImportPoc 导入POC文件
 func (s *service) ImportPoc(ctx context.Context, filePath string) (*models.PocImportResponse, error) {
-	logger.Info("POC导入开始")
+	logger.Info("Starting POC import")
 
-	// 生成随机文件名
 	fileName := random.GenerateString(11)
 
-	// 使用系统临时目录而不是相对路径
 	tempDir := os.TempDir()
 
-	// 解压路径也使用临时目录
 	unzipPath := filepath.Join(tempDir, fileName)
 	extractPath := unzipPath
 
-	// 确保目录存在
 	if err := os.MkdirAll(extractPath, 0755); err != nil {
 		return nil, fmt.Errorf("failed to create extract directory: %w", err)
 	}
 
-	// 解压ZIP文件
 	yamlFiles, err := s.extractZipFile(filePath, extractPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract zip file: %w", err)
 	}
 
-	// 获取现有POC的ID列表
 	templateIds, err := s.repo.GetAllTemplateId(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get existing poc hashes: %w", err)
 	}
 
-	// 处理YAML文件
 	successNum := 0
 	errorNum := 0
 	repeatNum := 0
 	pocDataList := []models.Poc{}
 
-	logger.Info(fmt.Sprintf("共%d个POC", len(yamlFiles)))
+	logger.Info(fmt.Sprintf("Total POCs: %d", len(yamlFiles)))
 
 	for _, yamlFile := range yamlFiles {
 
 		content, err := os.ReadFile(yamlFile)
 		if err != nil {
-			logger.Error(fmt.Sprintf("POC导入 读取文件失败: %s", yamlFile), zap.Error(err))
+			logger.Error(fmt.Sprintf("POC import: failed to read file: %s", yamlFile), zap.Error(err))
 			errorNum++
 			continue
 		}
-		// 解析YAML
+
 		var pt models.PocTemplate
 		if err := yaml.Unmarshal(content, &pt); err != nil {
-			logger.Error(fmt.Sprintf("POC导入 解析YAML失败: %s", yamlFile), zap.Error(err))
+			logger.Error(fmt.Sprintf("POC import: failed to parse YAML: %s", yamlFile), zap.Error(err))
 			errorNum++
 			continue
 		}
@@ -274,19 +264,18 @@ func (s *service) ImportPoc(ctx context.Context, filePath string) (*models.PocIm
 			errorNum++
 			continue
 		}
-		// 检查是否重复
+
 		if helper.StringInSlice(pt.ID, templateIds) {
 			repeatNum++
 			continue
 		}
 		templateIds = append(templateIds, pt.ID)
-		// 获取严重程度
+
 		severity := "unknown"
 		if pt.Info.Severity != "" {
 			severity = strings.ToLower(pt.Info.Severity)
 		}
 
-		// 处理标签
 		tags := []string{}
 		if pt.Info.Tags != "" {
 			tagList := strings.Split(pt.Info.Tags, ",")
@@ -309,7 +298,6 @@ func (s *service) ImportPoc(ctx context.Context, filePath string) (*models.PocIm
 		pocDataList = append(pocDataList, pocData)
 	}
 
-	// 批量插入POC数据
 	if len(pocDataList) > 0 {
 		result, err := s.repo.InsertMany(ctx, pocDataList)
 		if err != nil {
@@ -319,7 +307,6 @@ func (s *service) ImportPoc(ctx context.Context, filePath string) (*models.PocIm
 		if result.InsertedIDs != nil {
 			successNum = len(result.InsertedIDs)
 
-			// 异步刷新配置
 			go func() {
 				insertedIDs := make([]string, len(result.InsertedIDs))
 				for i, id := range result.InsertedIDs {
@@ -339,7 +326,6 @@ func (s *service) ImportPoc(ctx context.Context, filePath string) (*models.PocIm
 		}
 	}
 
-	// 清理临时文件
 	s.cleanupTempFiles(filePath, extractPath)
 
 	logger.Info(fmt.Sprintf("POC import completed: %d succeeded, %d duplicate, %d failed", successNum, repeatNum, errorNum))
@@ -353,12 +339,10 @@ func (s *service) ImportPoc(ctx context.Context, filePath string) (*models.PocIm
 	}, nil
 }
 
-// TemplateIdExists 高性能检查TemplateId是否存在
 func (s *service) TemplateIdExists(ctx context.Context, templateId string) (bool, error) {
 	return s.repo.TemplateIdExists(ctx, templateId)
 }
 
-// extractZipFile 解压ZIP文件并返回YAML文件列表
 func (s *service) extractZipFile(zipPath, extractPath string) ([]string, error) {
 	reader, err := zip.OpenReader(zipPath)
 	if err != nil {
@@ -368,33 +352,28 @@ func (s *service) extractZipFile(zipPath, extractPath string) ([]string, error) 
 
 	var yamlFiles []string
 
-	// 确保解压路径是绝对路径
 	absExtractPath, err := filepath.Abs(extractPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get absolute path: %w", err)
 	}
 
 	for _, file := range reader.File {
-		// 检查文件名是否包含路径穿越字符
+
 		cleanName := filepath.Clean(file.Name)
 		if strings.HasPrefix(cleanName, "..") || strings.Contains(cleanName, ".."+string(os.PathSeparator)) {
 			logger.Error("Path traversal detected in ZIP file", zap.String("path", file.Name))
 			continue
 		}
 
-		// 构建安全的文件路径
 		filePath := filepath.Join(absExtractPath, file.Name)
 
-		// 规范化路径
 		filePath = filepath.Clean(filePath)
 
-		// 安全检查：确保解压路径在目标目录内
 		if !strings.HasPrefix(filePath, absExtractPath) {
 			logger.Error("Path traversal detected in ZIP file", zap.String("path", file.Name), zap.String("resolved", filePath))
 			continue
 		}
 
-		// 额外检查：确保路径不包含任何可疑的目录遍历
 		if strings.Contains(filePath, "..") {
 			logger.Error("Path traversal detected after resolution", zap.String("path", file.Name), zap.String("resolved", filePath))
 			continue
@@ -408,14 +387,12 @@ func (s *service) extractZipFile(zipPath, extractPath string) ([]string, error) 
 			continue
 		}
 
-		// 创建父目录
 		parentDir := filepath.Dir(filePath)
 		if err := os.MkdirAll(parentDir, 0755); err != nil {
 			logger.Error("Failed to create parent directory", zap.String("path", parentDir), zap.Error(err))
 			continue
 		}
 
-		// 解压文件
 		rc, err := file.Open()
 		if err != nil {
 			logger.Error("Failed to open file in ZIP", zap.String("path", file.Name), zap.Error(err))
@@ -438,7 +415,6 @@ func (s *service) extractZipFile(zipPath, extractPath string) ([]string, error) 
 			continue
 		}
 
-		// 如果是YAML文件，添加到列表
 		if strings.HasSuffix(strings.ToLower(file.Name), ".yaml") || strings.HasSuffix(strings.ToLower(file.Name), ".yml") {
 			yamlFiles = append(yamlFiles, filePath)
 		}
@@ -447,30 +423,25 @@ func (s *service) extractZipFile(zipPath, extractPath string) ([]string, error) 
 	return yamlFiles, nil
 }
 
-// cleanupTempFiles 清理临时文件
 func (s *service) cleanupTempFiles(zipPath, extractPath string) {
-	// 删除ZIP文件
+
 	if err := os.Remove(zipPath); err != nil {
-		logger.Error("删除POC ZIP文件出错", zap.Error(err))
+		logger.Error("Failed to delete POC ZIP file", zap.Error(err))
 	}
 
-	// 删除解压目录
 	if err := os.RemoveAll(extractPath); err != nil {
-		logger.Error("删除POC解压目录出错", zap.Error(err))
+		logger.Error("Failed to delete extracted POC directory", zap.Error(err))
 	}
 }
 
-// isSafeFilePath 检查文件路径是否安全
 func (s *service) isSafeFilePath(filePath string) bool {
-	// 检查路径是否包含危险字符
+
 	if strings.Contains(filePath, "..") {
 		return false
 	}
 
-	// 规范化路径
 	cleanPath := filepath.Clean(filePath)
 
-	// 检查规范化后的路径是否仍然包含危险字符
 	if strings.Contains(cleanPath, "..") {
 		return false
 	}

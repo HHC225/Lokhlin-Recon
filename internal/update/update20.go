@@ -3,7 +3,7 @@ package update
 import (
 	"context"
 
-	"github.com/Autumn-27/ScopeSentry/internal/repositories/apikey"
+	"recon/internal/repositories/apikey"
 )
 
 func Update20() {

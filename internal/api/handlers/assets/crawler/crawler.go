@@ -1,10 +1,10 @@
 package crawler
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/response"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/services/assets/crawler"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/response"
+	"recon/internal/models"
+	"recon/internal/services/assets/crawler"
 )
 
 var crawlerService crawler.Service
@@ -14,12 +14,12 @@ func init() {
 }
 
 // GetCrawlers godoc
-// @Summary 获取爬虫任务列表
-// @Description 获取爬虫任务列表，支持分页、排序和过滤
+// @Summary List crawler tasks
+// @Description List crawler tasks，Supports pagination, sorting and filtering
 // @Tags Crawler
 // @Accept json
 // @Produce json
-// @Param query body models.SearchRequest true "查询参数"
+// @Param query body models.SearchRequest true "Query parameters"
 // @Success 200 {object} response.SuccessResponse{data=object{list=[]models.CrawlerResult}}
 // @Failure 400 {object} response.BadRequestResponse
 // @Failure 500 {object} response.InternalServerErrorResponse

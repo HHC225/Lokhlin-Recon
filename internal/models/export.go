@@ -1,7 +1,5 @@
 // models-------------------------------------
 // @file      : export.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/5/25 14:41
 // -------------------------------------------
 
@@ -9,13 +7,12 @@ package models
 
 import "go.mongodb.org/mongo-driver/bson"
 
-// ExportRequest 导出请求结构体
 type ExportRequest struct {
 	Index            string `json:"index" binding:"required" example:"asset"`
 	SearchExpression string `json:"search"`
-	// Filter 过滤条件
+
 	Filter map[string][]interface{} `json:"filter"`
-	// FuzzyQuery 模糊查询条件
+
 	FuzzyQuery map[string]string `json:"-"`
 	Quantity   int               `json:"quantity" binding:"required" example:"100"`
 	Type       string            `json:"type" binding:"required" example:"search"`
@@ -23,7 +20,6 @@ type ExportRequest struct {
 	Field      []string          `json:"field" binding:"required" example:"['host','ip']"`
 }
 
-// ExportResponse 导出响应结构体
 type ExportResponse struct {
 	Message string `json:"message"`
 	Code    int    `json:"code"`

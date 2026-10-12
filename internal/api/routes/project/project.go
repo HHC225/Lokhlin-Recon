@@ -1,25 +1,23 @@
 // project-------------------------------------
 // @file      : project.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/5/13 21:22
 // -------------------------------------------
 
 package project
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/handlers/project"
-	"github.com/Autumn-27/ScopeSentry/internal/api/routes/common"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/handlers/project"
+	"recon/internal/api/routes/common"
+	"recon/internal/models"
 )
 
 func RegisterProjectRoutes(api *gin.RouterGroup) {
-	// 定义用户路由组
+
 	projectRoutes := models.RouteGroup{
 		Path: "/project",
 		Routes: []models.Route{
-			// 公开路由
+
 			{
 				Method:      "GET",
 				Path:        "/all",
@@ -59,6 +57,5 @@ func RegisterProjectRoutes(api *gin.RouterGroup) {
 		},
 	}
 
-	// 注册用户路由组
 	common.RegisterRouteGroup(api, projectRoutes)
 }

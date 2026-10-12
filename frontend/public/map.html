@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="ko">
+  <head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Recon</title></head>
+  <body>
+    <p>자산 연결 지도를 불러오는 중...</p>
+    <script>
+      const base = location.pathname.startsWith('/recon/') ? '/recon/' : '/'
+      location.replace(base + location.search + '#/asset-map/index')
+    </script>
+  </body>
+</html>

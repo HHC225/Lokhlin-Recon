@@ -1,9 +1,9 @@
 package assets
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/handlers/assets/asset"
-	"github.com/Autumn-27/ScopeSentry/internal/api/routes/common"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
+	"recon/internal/api/handlers/assets/asset"
+	"recon/internal/api/routes/common"
+	"recon/internal/models"
 )
 
 func registerAssetRoutes() models.RouteGroup {

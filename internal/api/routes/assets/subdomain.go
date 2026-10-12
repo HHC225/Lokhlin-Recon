@@ -1,16 +1,14 @@
 // assets-------------------------------------
 // @file      : subdomain.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/5/13 23:32
 // -------------------------------------------
 
 package assets
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/handlers/assets/subdomain"
-	"github.com/Autumn-27/ScopeSentry/internal/api/routes/common"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
+	"recon/internal/api/handlers/assets/subdomain"
+	"recon/internal/api/routes/common"
+	"recon/internal/models"
 )
 
 func registerSubDomainRoutes() models.RouteGroup {

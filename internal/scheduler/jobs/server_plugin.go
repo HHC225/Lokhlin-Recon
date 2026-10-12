@@ -1,7 +1,5 @@
 // jobs-------------------------------------
 // @file      : server_plugin.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/12/20 0:14
 // -------------------------------------------
 
@@ -9,13 +7,13 @@ package jobs
 
 import (
 	"fmt"
-	"github.com/Autumn-27/ScopeSentry/internal/database/mongodb"
-	"github.com/Autumn-27/ScopeSentry/internal/logger"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/options"
-	"github.com/Autumn-27/ScopeSentry/internal/plugins"
-	"github.com/Autumn-27/ScopeSentry/internal/utils/helper"
 	"go.mongodb.org/mongo-driver/bson"
+	"recon/internal/database/mongodb"
+	"recon/internal/logger"
+	"recon/internal/models"
+	"recon/internal/options"
+	"recon/internal/plugins"
+	"recon/internal/utils/helper"
 )
 
 func ServerPluginRunner(id string, nextTime string) error {

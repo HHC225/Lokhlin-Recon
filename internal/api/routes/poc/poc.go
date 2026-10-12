@@ -1,19 +1,18 @@
 package poc
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/handlers/poc"
-	"github.com/Autumn-27/ScopeSentry/internal/api/routes/common"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/handlers/poc"
+	"recon/internal/api/routes/common"
+	"recon/internal/models"
 )
 
-// RegisterPocRoutes 注册POC相关路由
 func RegisterPocRoutes(api *gin.RouterGroup) {
-	// 定义POC路由组
+
 	pocRoutes := models.RouteGroup{
 		Path: "/poc",
 		Routes: []models.Route{
-			// 需要认证和user:read权限的路由
+
 			{
 				Method:      "POST",
 				Path:        "",
@@ -59,6 +58,5 @@ func RegisterPocRoutes(api *gin.RouterGroup) {
 		},
 	}
 
-	// 注册POC路由组
 	common.RegisterRouteGroup(api, pocRoutes)
 }

@@ -1,0 +1,1 @@
+import{l as a}from"./index-C20hTL6e.js";const o="".replace(/\/$/,""),e="".replace(/\/$/,""),r=Boolean(o),l=e=>{if(!o)throw new Error(a().t("console.catalogUnavailable"));return`${o}${e}`},s=a=>e?`${e}${a}`:void 0;export{e as a,s as b,r as c,l as d};

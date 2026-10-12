@@ -6,7 +6,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// SensitiveInfo 表示一条敏感信息记录
 type SensitiveChild struct {
 	ID     primitive.ObjectID `bson:"_id" json:"id"`
 	Match  []string           `bson:"match" json:"match"`
@@ -38,20 +37,18 @@ type SensitiveInfo struct {
 	Children []SensitiveChild `bson:"children" json:"children"`
 }
 
-// SensitiveRule 表示一条敏感信息检测规则
 type SensitiveRule struct {
 	ID          primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Name        string             `bson:"name" json:"name"`               // 规则名称
-	Type        string             `bson:"type" json:"type"`               // 规则类型
-	Pattern     string             `bson:"pattern" json:"pattern"`         // 匹配模式（正则表达式）
-	Description string             `bson:"description" json:"description"` // 规则描述
-	Level       string             `bson:"level" json:"level"`             // 敏感等级（high/medium/low）
-	State       string             `bson:"state" json:"state"`             // 规则状态（enabled/disabled）
-	CreatedAt   time.Time          `bson:"created_at" json:"created_at"`   // 创建时间
-	UpdatedAt   time.Time          `bson:"updated_at" json:"updated_at"`   // 更新时间
+	Name        string             `bson:"name" json:"name"`
+	Type        string             `bson:"type" json:"type"`
+	Pattern     string             `bson:"pattern" json:"pattern"`
+	Description string             `bson:"description" json:"description"`
+	Level       string             `bson:"level" json:"level"`
+	State       string             `bson:"state" json:"state"`
+	CreatedAt   time.Time          `bson:"created_at" json:"created_at"`
+	UpdatedAt   time.Time          `bson:"updated_at" json:"updated_at"`
 }
 
-// SensitiveRuleItem 用于前端规则管理（映射 Python 的 SensitiveRule 集合）
 type SensitiveRuleItem struct {
 	ID      primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Name    string             `bson:"name" json:"name"`

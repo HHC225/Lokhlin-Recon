@@ -1,94 +1,126 @@
-version: "3.5"
+# Private source-built collection services; see README for the console overlay.
+services:
+  recon:
+    build:
+      context: ${RECON_SOURCE_DIR:-.}
+      dockerfile: dockerfile
+    image: ${RECON_SERVER_IMAGE:-recon-server:local}
+    pull_policy: never
+    environment:
+      TZ: UTC
+      RECON_STATE_DIR: /opt/recon
+      RECON_GATEWAY_SECRET: ${RECON_GATEWAY_SECRET:?Run scripts/setup_recon_secrets.sh and load .secrets/recon.env}
+      MONGODB_IP: recon-mongodb
+      MONGODB_PORT: "27017"
+      MONGODB_DATABASE: ${RECON_MONGO_DATABASE:-Recon}
+      MONGODB_USER: ${RECON_MONGO_USER:-recon}
+      MONGODB_PASSWORD: ${RECON_MONGO_PASSWORD:?Set RECON_MONGO_PASSWORD in the private environment file}
+      REDIS_IP: recon-redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ${RECON_REDIS_PASSWORD:?Set RECON_REDIS_PASSWORD in the private environment file}
+    volumes:
+      - recon-server-state:/opt/recon
+    depends_on:
+      recon-mongodb:
+        condition: service_healthy
+      recon-redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:8082/"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 90s
+    restart: unless-stopped
+    networks:
+      - recon-backend
+      - recon-egress
+
+  recon-worker:
+    build:
+      context: ${RECON_WORKER_SOURCE_DIR:-../../artext/services/recon-worker}
+      dockerfile: dockerfile
+    image: ${RECON_WORKER_IMAGE:-recon-worker:local}
+    pull_policy: never
+    init: true
+    # Raw DNS enumeration needs packet access only inside its network namespace.
+    cap_add:
+      - NET_RAW
+    environment:
+      TZ: UTC
+      NodeName: ${RECON_NODE_NAME:-recon-node-1}
+      TimeZoneName: UTC
+      RECON_WORKER_STATE_DIR: /opt/recon-worker
+      RECON_BUNDLED_TOOLS_DIR: /opt/recon-tools
+      MONGODB_IP: recon-mongodb
+      MONGODB_PORT: "27017"
+      MONGODB_DATABASE: ${RECON_MONGO_DATABASE:-Recon}
+      MONGODB_USER: ${RECON_MONGO_USER:-recon}
+      MONGODB_PASSWORD: ${RECON_MONGO_PASSWORD:?Set RECON_MONGO_PASSWORD in the private environment file}
+      REDIS_IP: recon-redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ${RECON_REDIS_PASSWORD:?Set RECON_REDIS_PASSWORD in the private environment file}
+    volumes:
+      - recon-worker-state:/opt/recon-worker
+    depends_on:
+      recon:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "test -s /opt/recon-worker/config/config.yaml && pgrep -x recon-worker >/dev/null"]
+      interval: 10s
+      timeout: 3s
+      retries: 30
+      start_period: 120s
+    ulimits:
+      core:
+        soft: 0
+        hard: 0
+    restart: unless-stopped
+    networks:
+      - recon-backend
+      - recon-egress
+
+  recon-mongodb:
+    image: mongo:7.0.28
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${RECON_MONGO_USER:-recon}
+      MONGO_INITDB_ROOT_PASSWORD: ${RECON_MONGO_PASSWORD:?Set RECON_MONGO_PASSWORD in the private environment file}
+    volumes:
+      - recon-mongo-data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --username \"$${MONGO_INITDB_ROOT_USERNAME}\" --password \"$${MONGO_INITDB_ROOT_PASSWORD}\" --authenticationDatabase admin --eval \"quit(db.adminCommand({ping:1}).ok ? 0 : 1)\""]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - recon-backend
+
+  recon-redis:
+    image: redis:7.0.11
+    environment:
+      REDIS_PASSWORD: ${RECON_REDIS_PASSWORD:?Set RECON_REDIS_PASSWORD in the private environment file}
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${RECON_REDIS_PASSWORD:?Set RECON_REDIS_PASSWORD in the private environment file}"]
+    volumes:
+      - recon-redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "REDISCLI_AUTH=\"$${REDIS_PASSWORD}\" redis-cli ping | grep -q PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    networks:
+      - recon-backend
+
+volumes:
+  recon-server-state:
+  recon-worker-state:
+  recon-mongo-data:
+  recon-redis-data:
 
 networks:
-  scopesentry-network:
-    name: scopesentry-network
+  recon-backend:
+    internal: true
+  recon-egress:
     driver: bridge
-
-services:
-  mongodb:
-    image: mongo:7.0.4
-    container_name: scopesentry-mongodb
-    restart: always
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-    volumes:
-      - ./data/mongodb:/data/db
-    healthcheck:
-      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    networks:
-      - scopesentry-network
-
-  redis:
-    image: redis:7.0.11
-    container_name: scopesentry-redis
-    restart: always
-    ports:
-      - "6379:6379"
-    command: redis-server --requirepass ${REDIS_PASSWORD}
-    volumes:
-      - ./data/redis/data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - scopesentry-network
-
-  scope-sentry:
-    image: autumn27/scopesentry:latest
-    container_name: scope-sentry
-    restart: always
-    ports:
-      - "8082:8082"
-    environment:
-      TIMEZONE: Asia/Shanghai
-      MONGODB_IP: scopesentry-mongodb
-      MONGODB_PORT: 27017
-      MONGODB_DATABASE: ScopeSentry
-      MONGODB_USER: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGODB_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      REDIS_IP: scopesentry-redis
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8082 || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-    depends_on:
-      - redis
-      - mongodb
-    volumes:
-      - ./data/files:/opt/ScopeSentry/files
-      - ./data/images:/opt/ScopeSentry/images
-      - ./data/uploads:/opt/ScopeSentry/uploads
-    networks:
-      - scopesentry-network
-
-  scopesentry-scan:
-    image: autumn27/scopesentry-scan:latest
-    network_mode: host
-    container_name: scopesentry-scan
-    restart: always
-    environment:
-      NodeName: node-test
-      TimeZoneName: Asia/Shanghai
-      MONGODB_IP: 127.0.0.1
-      MONGODB_PORT: 27017
-      MONGODB_DATABASE: ScopeSentry
-      MONGODB_USER: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGODB_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      REDIS_IP: 127.0.0.1
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-    depends_on:
-      - redis
-      - scope-sentry

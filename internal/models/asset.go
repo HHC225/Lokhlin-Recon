@@ -4,7 +4,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// Asset 表示一个资产的基本信息
 type Asset struct {
 	ID               primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Time             string             `bson:"time" json:"time"`
@@ -45,7 +44,6 @@ type HttpBody struct {
 	Content  string `bson:"content,omitempty" json:"content,omitempty"`
 }
 
-// AssetChangeLog 表示资产变更日志
 type FieldChange struct {
 	FieldName string `bson:"fieldname" json:"fieldname"`
 	Old       string `bson:"old" json:"old"`
@@ -58,7 +56,6 @@ type AssetChangeLog struct {
 	Change    []FieldChange `bson:"change" json:"change"`
 }
 
-// AssetSearchQuery 表示资产搜索查询参数
 type AssetSearchQuery struct {
 	PageIndex  int                    `json:"pageIndex"`
 	PageSize   int                    `json:"pageSize"`
@@ -68,7 +65,6 @@ type AssetSearchQuery struct {
 	SearchText string                 `json:"searchText"`
 }
 
-// AssetResponse 表示资产API响应
 type AssetResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message,omitempty"`

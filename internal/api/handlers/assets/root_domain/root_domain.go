@@ -2,11 +2,11 @@ package root_domain
 
 import (
 	"fmt"
-	"github.com/Autumn-27/ScopeSentry/internal/api/response"
-	"github.com/Autumn-27/ScopeSentry/internal/logger"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/services/assets/root_domain"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/response"
+	"recon/internal/logger"
+	"recon/internal/models"
+	"recon/internal/services/assets/root_domain"
 )
 
 var rootDomainService root_domain.Service
@@ -16,15 +16,15 @@ func init() {
 }
 
 // GetRootDomainData godoc
-// @Summary 获取根域名数据
-// @Description 分页获取根域名数据列表
-// @Tags 根域名管理
+// @Summary List root domain data
+// @Description List root domains with pagination
+// @Tags Root domain management
 // @Accept json
 // @Produce json
-// @Param request body GetRootDomainDataRequest true "请求参数"
-// @Success 200 {object} response.Response{data=map[string]interface{}} "成功"
-// @Failure 400 {object} response.Response "请求参数错误"
-// @Failure 500 {object} response.Response "服务器内部错误"
+// @Param request body GetRootDomainDataRequest true "Request parameters"
+// @Success 200 {object} response.Response{data=map[string]interface{}} "Success"
+// @Failure 400 {object} response.Response "Invalid request parameters"
+// @Failure 500 {object} response.Response "Internal server error"
 // @Security ApiKeyAuth
 // @Router /api/assets/root_domain [post]
 func GetRootDomainData(c *gin.Context) {

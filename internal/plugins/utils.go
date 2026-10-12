@@ -1,7 +1,5 @@
 // plugins-------------------------------------
 // @file      : utils.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/12/20 20:15
 // -------------------------------------------
 
@@ -12,14 +10,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Autumn-27/ScopeSentry/internal/database/mongodb"
-	"github.com/Autumn-27/ScopeSentry/internal/logger"
-	plgOption "github.com/Autumn-27/ScopeSentry/internal/options"
-	"github.com/Autumn-27/ScopeSentry/internal/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	mongoOptions "go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
+	"recon/internal/database/mongodb"
+	"recon/internal/logger"
+	plgOption "recon/internal/options"
+	"recon/internal/utils"
 )
 
 func SetStringVariable(key, value string) {
@@ -54,7 +52,7 @@ func GetStringVariable(key string) string {
 }
 
 func RunPluginOnce(hash string) {
-	// 判断插件状态 如果是开启 再运行
+
 	var result PluginInfo
 	ctx := context.Background()
 	collection := mongodb.DB.Collection("plugins")
@@ -73,7 +71,7 @@ func RunPluginOnce(hash string) {
 	plg, flag := GlobalPluginManager.GetPlugin(hash)
 	if flag {
 		go func() {
-			// 根据hash查看是否存在上下文 存在上下文说明 插件已经在运行了 需要暂停之后 再重新开始 上下文的创建一般是在插件内部进行创建的
+
 			flag := utils.HasContext(hash)
 			if flag {
 				utils.CancelContext(hash)

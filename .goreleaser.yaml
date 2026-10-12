@@ -7,7 +7,7 @@ before:
     - go mod tidy
 
 builds:
-  - id: ScopeSentry
+  - id: recon-server
     goos:
       - windows
       - linux
@@ -16,26 +16,23 @@ builds:
       - amd64
     env:
       - GOAMD64=v1
-    main: ./cmd/main/main.go
-    binary: ScopeSentry
+    main: ./cmd/main
+    binary: recon-server
     ldflags:
       - -s -w
-      - -X github.com/Autumn-27/ScopeSentry/internal/constants.Version={{.Version}}
+      - -X recon/internal/constants.Version={{.Version}}
 
 archives:
   - id: default
     builds:
-      - ScopeSentry
+      - recon-server
     format: zip
-    name_template: "ScopeSentry_{{ .Os }}_{{ .Arch }}"
+    name_template: "recon-server_{{ .Os }}_{{ .Arch }}"
 
 changelog:
   disable: true
 
 release:
-  github:
-    owner: Autumn-27
-    name: ScopeSentry
-  name_template: "ScopeSentry {{.Version}}"
+  name_template: "Recon {{.Version}}"
 
 dist: ./dist

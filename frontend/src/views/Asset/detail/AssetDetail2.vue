@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useI18n } from '@/hooks/web/useI18n'
+const { t } = useI18n()
 import {
   ElCard,
   ElTabPane,
@@ -32,21 +34,19 @@ const detailJson = ref('')
 const getAssetDetail = async () => {
   const res = await getAssetDetailApi(props.id)
   if (res.code == 200) {
-    // 格式化 JSON，使用 2 个空格缩进
     detailJson.value = JSON.stringify(res.data, null, 2)
   }
 }
 getAssetDetail()
 
 const assetChangeLog = ref<AssetChangeLog[]>([])
-// 获取资产变更日志
+
 const getAssetChangeLog = async () => {
   const res = await getAssetChangeLogApi(props.id)
   if (res.code === 200) {
-    // 在获取到数据后，添加 isExpanded 属性
     assetChangeLog.value = res.data.map((log) => ({
-      ...log, // 保留原始的 log 数据
-      isExpanded: false // 添加 isExpanded 属性，默认是 false
+      ...log,
+      isExpanded: false
     }))
   }
 }
@@ -61,7 +61,7 @@ const handleImageClick = (screenshot: string) => {
 
 <template>
   <ElTabs type="border-card" tab-position="left">
-    <ElTabPane label="原始数据">
+    <ElTabPane :label="t('console.rawData')">
       <Codemirror
         v-model="detailJson"
         :extensions="extensions"
@@ -71,7 +71,7 @@ const handleImageClick = (screenshot: string) => {
         :style="{ height: '550px', width: '100%' }"
       />
     </ElTabPane>
-    <ElTabPane label="资产变更">
+    <ElTabPane :label="t('console.assetChanges')">
       <ElRow style="margin-bottom: 20px">
         <ElCol :offset="2">
           <ElSpace>
@@ -84,7 +84,6 @@ const handleImageClick = (screenshot: string) => {
       <ElRow>
         <ElCol>
           <ElTimeline>
-            <!-- 动态渲染每个变更 -->
             <ElTimelineItem
               v-for="(log, index) in assetChangeLog"
               :key="index"
@@ -97,7 +96,6 @@ const handleImageClick = (screenshot: string) => {
                   style="display: flex; flex-wrap: wrap; gap: 10px; flex-grow: 1"
                   @click="log.isExpanded = !log.isExpanded"
                 >
-                  <!-- 添加箭头图标，控制展开收起 -->
                   <ElIcon :style="{ marginLeft: '10px' }">
                     <ArrowRight v-if="!log.isExpanded" />
                     <ArrowDown v-if="log.isExpanded" />
@@ -114,16 +112,14 @@ const handleImageClick = (screenshot: string) => {
 
                 <div class="p-6" v-if="log.isExpanded">
                   <div class="grid grid-cols-2 gap-6">
-                    <!-- 旧值部分 -->
                     <div class="space-y-2">
                       <div class="el-card border-gray-200" style="border-radius: 12px">
                         <div
                           class="px-4 py-2 bg-gray-100 border-b border-gray-200 font-medium text-sm"
                         >
-                          旧值
+                          {{ t('console.oldValue') }}
                         </div>
                         <div class="p-4 text-sm whitespace-pre-wrap">
-                          <!-- 遍历并输出 fieldname: old -->
                           <div v-for="(change, index) in log.change" :key="'old-' + index">
                             <strong>{{ change.fieldname }}:</strong>
                             <template v-if="change.fieldname === 'Screenshot'">
@@ -142,16 +138,14 @@ const handleImageClick = (screenshot: string) => {
                       </div>
                     </div>
 
-                    <!-- 新值部分 -->
                     <div class="space-y-2">
                       <div class="el-card border-gray-200" style="border-radius: 12px">
                         <div
                           class="px-4 py-2 bg-blue-100 border-b border-blue-200 font-medium text-sm"
                         >
-                          新值
+                          {{ t('console.newValue') }}
                         </div>
                         <div class="p-4 text-sm whitespace-pre-wrap">
-                          <!-- 遍历并输出 fieldname: new -->
                           <div v-for="(change, index) in log.change" :key="'new-' + index">
                             <strong>{{ change.fieldname }}:</strong>
                             <template v-if="change.fieldname === 'Screenshot'">

@@ -3,18 +3,17 @@ package root_domain
 import (
 	"context"
 	"fmt"
-	"github.com/Autumn-27/ScopeSentry/internal/bootstrap"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/repositories/assets/root_domain"
-	"github.com/Autumn-27/ScopeSentry/internal/utils/helper"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"recon/internal/bootstrap"
+	"recon/internal/models"
+	"recon/internal/repositories/assets/root_domain"
+	"recon/internal/utils/helper"
 	"strings"
 )
 
-// Service 定义根域名服务接口
 type Service interface {
 	GetRootDomainData(ctx *gin.Context, query models.SearchRequest) (*models.RootDomainResponse, error)
 	GetTaskTarget(ctx context.Context, query models.SearchRequest) (string, error)
@@ -25,7 +24,6 @@ type service struct {
 	rootDomainRepo root_domain.Repository
 }
 
-// NewService 创建根域名服务实例
 func NewService() Service {
 	return &service{
 		rootDomainRepo: root_domain.NewRepository(),
@@ -37,7 +35,6 @@ func (s *service) GetTaskTargetByIDs(ctx context.Context, ids []string) (string,
 		return "", nil
 	}
 
-	// 将字符串ID转换为ObjectID
 	var objectIDs []primitive.ObjectID
 	for _, id := range ids {
 		objectID, err := primitive.ObjectIDFromHex(id)
@@ -47,13 +44,11 @@ func (s *service) GetTaskTargetByIDs(ctx context.Context, ids []string) (string,
 		objectIDs = append(objectIDs, objectID)
 	}
 
-	// 构建查询条件
 	filter := bson.M{"_id": bson.M{"$in": objectIDs}}
 	projection := bson.M{
 		"domain": 1,
 	}
 
-	// 执行查询
 	opts := options.Find().
 		SetProjection(projection)
 
@@ -62,7 +57,6 @@ func (s *service) GetTaskTargetByIDs(ctx context.Context, ids []string) (string,
 		return "", err
 	}
 
-	// 将 Host 拼接成字符串
 	var builder strings.Builder
 	for i, subDomain := range rootDomains {
 		builder.WriteString(subDomain.Domain)
@@ -73,23 +67,20 @@ func (s *service) GetTaskTargetByIDs(ctx context.Context, ids []string) (string,
 	return builder.String(), nil
 }
 
-// GetRootDomainData 获取根域名数据
 func (s *service) GetRootDomainData(ctx *gin.Context, query models.SearchRequest) (*models.RootDomainResponse, error) {
 	query.Index = "RootDomain"
-	// 构建查询条件
+
 	searchQuery, err := helper.GetSearchQuery(query)
 	if err != nil {
 		return nil, err
 	}
 	filter := bson.M(searchQuery)
 
-	// 获取总数
 	totalCount, err := s.rootDomainRepo.CountDocuments(ctx, searchQuery)
 	if err != nil {
 		return nil, fmt.Errorf("failed to count documents: %w", err)
 	}
 
-	// 构建投影
 	projection := bson.M{
 		"_id":     1,
 		"domain":  1,
@@ -100,20 +91,17 @@ func (s *service) GetRootDomainData(ctx *gin.Context, query models.SearchRequest
 		"tags":    1,
 	}
 
-	// 构建查询选项
 	opts := options.Find().
 		SetProjection(projection).
 		SetSkip(int64((query.PageIndex - 1) * query.PageSize)).
 		SetLimit(int64(query.PageSize)).
 		SetSort(bson.D{{"time", -1}})
 
-	// 获取分页数据
 	rootDomains, err := s.rootDomainRepo.FindWithPagination(ctx, filter, opts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find documents: %w", err)
 	}
 
-	// 处理项目名称映射
 	for i := range rootDomains {
 		if projectName, exists := bootstrap.ProjectList[rootDomains[i].Project]; exists {
 			rootDomains[i].Project = projectName
@@ -139,7 +127,6 @@ func (s *service) GetTaskTarget(ctx context.Context, query models.SearchRequest)
 		"domain": 1,
 	}
 
-	// 执行查询
 	opts := options.Find().
 		SetProjection(projection)
 

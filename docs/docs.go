@@ -9,16 +9,6 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "url": "http://www.swagger.io/support",
-            "email": "support@swagger.io"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -26,7 +16,7 @@ const docTemplate = `{
     "paths": {
         "/api/assets": {
             "post": {
-                "description": "创建新的资产",
+                "description": "Create an asset",
                 "consumes": [
                     "application/json"
                 ],
@@ -34,17 +24,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "资产"
+                    "Assets"
                 ],
-                "summary": "创建资产",
+                "summary": "Create asset",
                 "parameters": [
                     {
-                        "description": "资产信息",
+                        "description": "Asset information",
                         "name": "asset",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.Asset"
+                            "$ref": "#/definitions/recon_internal_models.Asset"
                         }
                     }
                 ],
@@ -54,13 +44,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse"
+                                    "$ref": "#/definitions/recon_internal_api_response.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.Asset"
+                                            "$ref": "#/definitions/recon_internal_models.Asset"
                                         }
                                     }
                                 }
@@ -70,13 +60,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.BadRequestResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.InternalServerErrorResponse"
                         }
                     }
                 }
@@ -84,7 +74,7 @@ const docTemplate = `{
         },
         "/api/assets/asset": {
             "post": {
-                "description": "获取资产列表，支持分页、排序和过滤",
+                "description": "List assets，Supports pagination, sorting and filtering",
                 "consumes": [
                     "application/json"
                 ],
@@ -92,17 +82,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "资产"
+                    "Assets"
                 ],
-                "summary": "获取资产列表",
+                "summary": "List assets",
                 "parameters": [
                     {
-                        "description": "查询参数",
+                        "description": "Query parameters",
                         "name": "query",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.SearchRequest"
+                            "$ref": "#/definitions/recon_internal_models.SearchRequest"
                         }
                     }
                 ],
@@ -112,7 +102,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse"
+                                    "$ref": "#/definitions/recon_internal_api_response.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
@@ -123,7 +113,7 @@ const docTemplate = `{
                                                 "list": {
                                                     "type": "array",
                                                     "items": {
-                                                        "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.Asset"
+                                                        "$ref": "#/definitions/recon_internal_models.Asset"
                                                     }
                                                 }
                                             }
@@ -136,13 +126,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.BadRequestResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.InternalServerErrorResponse"
                         }
                     }
                 }
@@ -150,7 +140,7 @@ const docTemplate = `{
         },
         "/api/assets/deduplicate/{assetType}": {
             "post": {
-                "description": "对指定类型的资产进行去重处理",
+                "description": "Deduplicate assets of the specified type",
                 "consumes": [
                     "application/json"
                 ],
@@ -158,19 +148,19 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "资产"
+                    "Assets"
                 ],
-                "summary": "资产去重",
+                "summary": "Deduplicate assets",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "资产类型",
+                        "description": "Asset type",
                         "name": "assetType",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "过滤条件",
+                        "description": "Filter conditions",
                         "name": "filter",
                         "in": "body",
                         "required": true,
@@ -180,7 +170,7 @@ const docTemplate = `{
                         }
                     },
                     {
-                        "description": "分组字段",
+                        "description": "Grouping fields",
                         "name": "groupFields",
                         "in": "body",
                         "required": true,
@@ -196,19 +186,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.BadRequestResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.InternalServerErrorResponse"
                         }
                     }
                 }
@@ -216,7 +206,7 @@ const docTemplate = `{
         },
         "/api/assets/{id}": {
             "get": {
-                "description": "根据ID获取单个资产的详细信息",
+                "description": "Get asset details by ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -224,13 +214,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "资产"
+                    "Assets"
                 ],
-                "summary": "获取单个资产",
+                "summary": "Get asset",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "资产ID",
+                        "description": "Asset ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -242,13 +232,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse"
+                                    "$ref": "#/definitions/recon_internal_api_response.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.Asset"
+                                            "$ref": "#/definitions/recon_internal_models.Asset"
                                         }
                                     }
                                 }
@@ -258,25 +248,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.BadRequestResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.NotFoundResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.InternalServerErrorResponse"
                         }
                     }
                 }
             },
             "put": {
-                "description": "更新指定ID的资产信息",
+                "description": "Update asset information by ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -284,24 +274,24 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "资产"
+                    "Assets"
                 ],
-                "summary": "更新资产",
+                "summary": "Update asset",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "资产ID",
+                        "description": "Asset ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "资产信息",
+                        "description": "Asset information",
                         "name": "asset",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.Asset"
+                            "$ref": "#/definitions/recon_internal_models.Asset"
                         }
                     }
                 ],
@@ -311,13 +301,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse"
+                                    "$ref": "#/definitions/recon_internal_api_response.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.Asset"
+                                            "$ref": "#/definitions/recon_internal_models.Asset"
                                         }
                                     }
                                 }
@@ -327,25 +317,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.BadRequestResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.NotFoundResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.InternalServerErrorResponse"
                         }
                     }
                 }
             },
             "delete": {
-                "description": "删除指定ID的资产",
+                "description": "Delete an asset by ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -353,13 +343,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "资产"
+                    "Assets"
                 ],
-                "summary": "删除资产",
+                "summary": "Delete asset",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "资产ID",
+                        "description": "Asset ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -369,25 +359,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.BadRequestResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.NotFoundResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.InternalServerErrorResponse"
                         }
                     }
                 }
@@ -395,7 +385,7 @@ const docTemplate = `{
         },
         "/api/assets/{id}/changelog": {
             "get": {
-                "description": "获取指定ID资产的变更历史记录",
+                "description": "Get asset change history by ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -403,13 +393,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "资产"
+                    "Assets"
                 ],
-                "summary": "获取资产变更日志",
+                "summary": "Get asset change log",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "资产ID",
+                        "description": "Asset ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -421,7 +411,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse"
+                                    "$ref": "#/definitions/recon_internal_api_response.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
@@ -429,7 +419,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.AssetChangeLog"
+                                                "$ref": "#/definitions/recon_internal_models.AssetChangeLog"
                                             }
                                         }
                                     }
@@ -440,19 +430,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.BadRequestResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.NotFoundResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.InternalServerErrorResponse"
                         }
                     }
                 }
@@ -460,7 +450,7 @@ const docTemplate = `{
         },
         "/api/assets/{id}/screenshot": {
             "get": {
-                "description": "获取指定ID资产的截图",
+                "description": "Get an asset screenshot by ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -468,13 +458,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "资产"
+                    "Assets"
                 ],
-                "summary": "获取资产截图",
+                "summary": "Get asset screenshot",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "资产ID",
+                        "description": "Asset ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -486,7 +476,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse"
+                                    "$ref": "#/definitions/recon_internal_api_response.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
@@ -502,19 +492,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.BadRequestResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.NotFoundResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.InternalServerErrorResponse"
                         }
                     }
                 }
@@ -527,7 +517,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "获取所有在线节点的数据",
+                "description": "List data for all online nodes",
                 "consumes": [
                     "application/json"
                 ],
@@ -543,7 +533,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse"
+                                    "$ref": "#/definitions/recon_internal_api_response.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
@@ -554,7 +544,7 @@ const docTemplate = `{
                                                 "list": {
                                                     "type": "array",
                                                     "items": {
-                                                        "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.NodeData"
+                                                        "$ref": "#/definitions/recon_internal_models.NodeData"
                                                     }
                                                 }
                                             }
@@ -567,13 +557,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.UnauthorizedResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.UnauthorizedResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.InternalServerErrorResponse"
                         }
                     }
                 }
@@ -581,7 +571,7 @@ const docTemplate = `{
         },
         "/page-monitoring/content": {
             "post": {
-                "description": "获取页面监控内容接口",
+                "description": "Get page monitoring content endpoint",
                 "consumes": [
                     "application/json"
                 ],
@@ -593,12 +583,12 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
-                        "description": "内容请求",
+                        "description": "Content request",
                         "name": "contentRequest",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.PageMonitoringContentRequest"
+                            "$ref": "#/definitions/recon_internal_models.PageMonitoringContentRequest"
                         }
                     }
                 ],
@@ -608,13 +598,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse"
+                                    "$ref": "#/definitions/recon_internal_api_response.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.PageMonitoringBody"
+                                            "$ref": "#/definitions/recon_internal_models.PageMonitoringBody"
                                         }
                                     }
                                 }
@@ -624,19 +614,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.BadRequestResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.NotFoundResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.InternalServerErrorResponse"
                         }
                     }
                 }
@@ -644,7 +634,7 @@ const docTemplate = `{
         },
         "/page-monitoring/diff": {
             "post": {
-                "description": "获取页面监控差异接口",
+                "description": "Get page monitoring diff endpoint",
                 "consumes": [
                     "application/json"
                 ],
@@ -656,12 +646,12 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
-                        "description": "差异请求",
+                        "description": "Diff request",
                         "name": "diffRequest",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.PageMonitoringDiffRequest"
+                            "$ref": "#/definitions/recon_internal_models.PageMonitoringDiffRequest"
                         }
                     }
                 ],
@@ -671,7 +661,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse"
+                                    "$ref": "#/definitions/recon_internal_api_response.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
@@ -692,19 +682,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.BadRequestResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.NotFoundResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.InternalServerErrorResponse"
                         }
                     }
                 }
@@ -712,7 +702,7 @@ const docTemplate = `{
         },
         "/page-monitoring/history": {
             "post": {
-                "description": "获取页面监控历史记录接口",
+                "description": "Get page monitoring history endpoint",
                 "consumes": [
                     "application/json"
                 ],
@@ -724,12 +714,12 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
-                        "description": "历史记录请求",
+                        "description": "History request",
                         "name": "historyRequest",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.PageMonitoringHistoryRequest"
+                            "$ref": "#/definitions/recon_internal_models.PageMonitoringHistoryRequest"
                         }
                     }
                 ],
@@ -739,7 +729,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse"
+                                    "$ref": "#/definitions/recon_internal_api_response.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
@@ -747,7 +737,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.PageMonitoring"
+                                                "$ref": "#/definitions/recon_internal_models.PageMonitoring"
                                             }
                                         }
                                     }
@@ -758,19 +748,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.BadRequestResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.NotFoundResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.InternalServerErrorResponse"
                         }
                     }
                 }
@@ -778,7 +768,7 @@ const docTemplate = `{
         },
         "/query": {
             "post": {
-                "description": "支持name字段模糊搜索与分页",
+                "description": "supports name partial field search and pagination",
                 "consumes": [
                     "application/json"
                 ],
@@ -788,10 +778,10 @@ const docTemplate = `{
                 "tags": [
                     "task"
                 ],
-                "summary": "获取任务列表",
+                "summary": "List tasks",
                 "parameters": [
                     {
-                        "description": "查询参数",
+                        "description": "Query parameters",
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -806,7 +796,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse"
+                                    "$ref": "#/definitions/recon_internal_api_response.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
@@ -817,7 +807,7 @@ const docTemplate = `{
                                                 "list": {
                                                     "type": "array",
                                                     "items": {
-                                                        "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.Task"
+                                                        "$ref": "#/definitions/recon_internal_models.Task"
                                                     }
                                                 },
                                                 "total": {
@@ -833,13 +823,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.BadRequestResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.InternalServerErrorResponse"
                         }
                     }
                 }
@@ -847,7 +837,7 @@ const docTemplate = `{
         },
         "/system/version": {
             "get": {
-                "description": "获取 ScopeSentry 服务端及所有节点的当前版本信息",
+                "description": "Get current versions of the Recon server and all scanner nodes",
                 "consumes": [
                     "application/json"
                 ],
@@ -863,7 +853,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse"
+                                    "$ref": "#/definitions/recon_internal_api_response.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
@@ -879,25 +869,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.BadRequestResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.UnauthorizedResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.UnauthorizedResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.NotFoundResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.InternalServerErrorResponse"
                         }
                     }
                 }
@@ -910,7 +900,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "获取用户列表接口",
+                "description": "List users endpoint",
                 "consumes": [
                     "application/json"
                 ],
@@ -924,14 +914,14 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "default": 1,
-                        "description": "页码",
+                        "description": "Page number",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 10,
-                        "description": "每页数量",
+                        "description": "Results per page",
                         "name": "size",
                         "in": "query"
                     }
@@ -942,7 +932,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse"
+                                    "$ref": "#/definitions/recon_internal_api_response.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
@@ -950,7 +940,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.User"
+                                                "$ref": "#/definitions/recon_internal_models.User"
                                             }
                                         }
                                     }
@@ -961,13 +951,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.UnauthorizedResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.UnauthorizedResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.InternalServerErrorResponse"
                         }
                     }
                 }
@@ -975,7 +965,7 @@ const docTemplate = `{
         },
         "/users/login": {
             "post": {
-                "description": "用户登录接口",
+                "description": "User login endpoint",
                 "consumes": [
                     "application/json"
                 ],
@@ -985,10 +975,10 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "用户登录",
+                "summary": "User login",
                 "parameters": [
                     {
-                        "description": "登录信息",
+                        "description": "Login information",
                         "name": "loginRequest",
                         "in": "body",
                         "required": true,
@@ -1003,7 +993,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse"
+                                    "$ref": "#/definitions/recon_internal_api_response.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
@@ -1024,19 +1014,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.BadRequestResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.NotFoundResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.InternalServerErrorResponse"
                         }
                     }
                 }
@@ -1044,7 +1034,7 @@ const docTemplate = `{
         },
         "/users/register": {
             "post": {
-                "description": "用户注册接口",
+                "description": "User registration endpoint",
                 "consumes": [
                     "application/json"
                 ],
@@ -1056,7 +1046,7 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
-                        "description": "注册信息",
+                        "description": "Registration information",
                         "name": "registerRequest",
                         "in": "body",
                         "required": true,
@@ -1071,13 +1061,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse"
+                                    "$ref": "#/definitions/recon_internal_api_response.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.User"
+                                            "$ref": "#/definitions/recon_internal_models.User"
                                         }
                                     }
                                 }
@@ -1087,25 +1077,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.BadRequestResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.UnauthorizedResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.UnauthorizedResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.NotFoundResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.InternalServerErrorResponse"
                         }
                     }
                 }
@@ -1118,7 +1108,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "获取单个用户接口",
+                "description": "Get user endpoint",
                 "consumes": [
                     "application/json"
                 ],
@@ -1131,7 +1121,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "用户ID",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1143,13 +1133,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse"
+                                    "$ref": "#/definitions/recon_internal_api_response.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.User"
+                                            "$ref": "#/definitions/recon_internal_models.User"
                                         }
                                     }
                                 }
@@ -1159,19 +1149,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.UnauthorizedResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.UnauthorizedResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.NotFoundResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.InternalServerErrorResponse"
                         }
                     }
                 }
@@ -1182,7 +1172,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "更新用户接口",
+                "description": "Update user endpoint",
                 "consumes": [
                     "application/json"
                 ],
@@ -1195,13 +1185,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "用户ID",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "更新信息",
+                        "description": "Update information",
                         "name": "updateRequest",
                         "in": "body",
                         "required": true,
@@ -1216,13 +1206,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse"
+                                    "$ref": "#/definitions/recon_internal_api_response.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.User"
+                                            "$ref": "#/definitions/recon_internal_models.User"
                                         }
                                     }
                                 }
@@ -1232,25 +1222,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.BadRequestResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.UnauthorizedResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.UnauthorizedResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.NotFoundResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.InternalServerErrorResponse"
                         }
                     }
                 }
@@ -1261,7 +1251,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "删除用户接口",
+                "description": "Delete user endpoint",
                 "consumes": [
                     "application/json"
                 ],
@@ -1274,7 +1264,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "用户ID",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -1284,25 +1274,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.SuccessResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.UnauthorizedResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.UnauthorizedResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.NotFoundResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse"
+                            "$ref": "#/definitions/recon_internal_api_response.InternalServerErrorResponse"
                         }
                     }
                 }
@@ -1310,85 +1300,85 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse": {
+        "recon_internal_api_response.BadRequestResponse": {
             "type": "object",
             "properties": {
                 "code": {
-                    "description": "请求错误状态码",
+                    "description": "Invalid request status code",
                     "type": "integer",
                     "example": 400
                 },
                 "message": {
-                    "description": "错误消息",
+                    "description": "Error message",
                     "type": "string",
-                    "example": "请求错误"
+                    "example": "Invalid request"
                 }
             }
         },
-        "github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse": {
+        "recon_internal_api_response.InternalServerErrorResponse": {
             "type": "object",
             "properties": {
                 "code": {
-                    "description": "服务器错误状态码",
+                    "description": "Server error status code",
                     "type": "integer",
                     "example": 500
                 },
                 "message": {
-                    "description": "错误消息",
+                    "description": "Error message",
                     "type": "string",
-                    "example": "服务器内部错误"
+                    "example": "Internal server error"
                 }
             }
         },
-        "github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse": {
+        "recon_internal_api_response.NotFoundResponse": {
             "type": "object",
             "properties": {
                 "code": {
-                    "description": "未找到状态码",
+                    "description": "Not found status code",
                     "type": "integer",
                     "example": 404
                 },
                 "message": {
-                    "description": "错误消息",
+                    "description": "Error message",
                     "type": "string",
-                    "example": "资源未找到"
+                    "example": "Resource not found"
                 }
             }
         },
-        "github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse": {
+        "recon_internal_api_response.SuccessResponse": {
             "type": "object",
             "properties": {
                 "code": {
-                    "description": "成功状态码",
+                    "description": "Success status code",
                     "type": "integer",
                     "example": 200
                 },
                 "data": {
-                    "description": "响应数据"
+                    "description": "Response data"
                 },
                 "message": {
-                    "description": "成功消息",
+                    "description": "Success message",
                     "type": "string",
-                    "example": "操作成功"
+                    "example": "Operation succeeded"
                 }
             }
         },
-        "github_com_Autumn-27_ScopeSentry-go_internal_api_response.UnauthorizedResponse": {
+        "recon_internal_api_response.UnauthorizedResponse": {
             "type": "object",
             "properties": {
                 "code": {
-                    "description": "未授权状态码",
+                    "description": "Unauthorized status code",
                     "type": "integer",
                     "example": 401
                 },
                 "message": {
-                    "description": "错误消息",
+                    "description": "Error message",
                     "type": "string",
-                    "example": "未授权访问"
+                    "example": "Unauthorized access"
                 }
             }
         },
-        "github_com_Autumn-27_ScopeSentry-go_internal_models.Asset": {
+        "recon_internal_models.Asset": {
             "type": "object",
             "properties": {
                 "body": {
@@ -1477,7 +1467,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_Autumn-27_ScopeSentry-go_internal_models.AssetChangeLog": {
+        "recon_internal_models.AssetChangeLog": {
             "type": "object",
             "properties": {
                 "assetid": {
@@ -1499,7 +1489,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_Autumn-27_ScopeSentry-go_internal_models.NodeData": {
+        "recon_internal_models.NodeData": {
             "type": "object",
             "properties": {
                 "cpuNum": {
@@ -1531,7 +1521,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_Autumn-27_ScopeSentry-go_internal_models.PageMonitoring": {
+        "recon_internal_models.PageMonitoring": {
             "type": "object",
             "properties": {
                 "content": {
@@ -1560,7 +1550,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_Autumn-27_ScopeSentry-go_internal_models.PageMonitoringBody": {
+        "recon_internal_models.PageMonitoringBody": {
             "type": "object",
             "properties": {
                 "content": {
@@ -1577,11 +1567,11 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_Autumn-27_ScopeSentry-go_internal_models.PageMonitoringContentRequest": {
+        "recon_internal_models.PageMonitoringContentRequest": {
             "type": "object",
             "properties": {
                 "flag": {
-                    "description": "1: 获取上一次响应, 2: 获取当前响应",
+                    "description": "1: Get the previous response, 2: Get the current response",
                     "type": "string"
                 },
                 "id": {
@@ -1589,7 +1579,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_Autumn-27_ScopeSentry-go_internal_models.PageMonitoringDiffRequest": {
+        "recon_internal_models.PageMonitoringDiffRequest": {
             "type": "object",
             "properties": {
                 "id": {
@@ -1597,7 +1587,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_Autumn-27_ScopeSentry-go_internal_models.PageMonitoringHistoryRequest": {
+        "recon_internal_models.PageMonitoringHistoryRequest": {
             "type": "object",
             "properties": {
                 "id": {
@@ -1605,11 +1595,11 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_Autumn-27_ScopeSentry-go_internal_models.SearchRequest": {
+        "recon_internal_models.SearchRequest": {
             "type": "object",
             "properties": {
                 "filters": {
-                    "description": "Filter 过滤条件",
+                    "description": "Filter Filter conditions",
                     "type": "object",
                     "additionalProperties": {
                         "type": "array",
@@ -1625,11 +1615,11 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "search": {
-                    "description": "SearchExpression 搜索表达式，如 \"url=example.com \u0026\u0026 statuscode=200\"",
+                    "description": "SearchExpression Search expression，such as  \"url=example.com \u0026\u0026 statuscode=200\"",
                     "type": "string"
                 },
                 "searchType": {
-                    "description": "SearchType 搜索类型，对应SearchKey中的key",
+                    "description": "SearchType Search type， maps to SearchKey in key",
                     "type": "string"
                 },
                 "sort": {
@@ -1640,7 +1630,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_Autumn-27_ScopeSentry-go_internal_models.Task": {
+        "recon_internal_models.Task": {
             "type": "object",
             "properties": {
                 "_id": {
@@ -1737,7 +1727,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_Autumn-27_ScopeSentry-go_internal_models.User": {
+        "recon_internal_models.User": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -1781,7 +1771,7 @@ const docTemplate = `{
             }
         },
         "internal_api_handlers_system.VersionListResponse": {
-            "description": "版本信息列表",
+            "description": "Version information list",
             "type": "object",
             "properties": {
                 "list": {
@@ -1869,7 +1859,7 @@ const docTemplate = `{
                 },
                 "search": {
                     "type": "string",
-                    "example": "测试"
+                    "example": "test"
                 }
             }
         }
@@ -1887,11 +1877,11 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "localhost:8082",
 	BasePath:         "/api",
 	Schemes:          []string{},
-	Title:            "ScopeSentry API",
-	Description:      "ScopeSentry 是一个安全扫描和资产管理平台",
+	Title:            "Recon API",
+	Description:      "Recon  provides security scanning and asset management",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

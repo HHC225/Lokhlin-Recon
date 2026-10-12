@@ -5,13 +5,13 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Autumn-27/ScopeSentry/internal/repositories/assets/page_monitoring"
-	"github.com/Autumn-27/ScopeSentry/internal/utils/helper"
+	"recon/internal/repositories/assets/page_monitoring"
+	"recon/internal/utils/helper"
 
-	"github.com/Autumn-27/ScopeSentry/internal/models"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"recon/internal/models"
 )
 
 var (
@@ -55,9 +55,8 @@ func (s *service) GetDiff(ctx context.Context, id string) (*models.PageMonitorin
 	return s.pageRepo.FindDiff(ctx, filter, opts)
 }
 
-// GetResult 获取页面监控结果
 func (s *service) GetResult(ctx *gin.Context, req models.SearchRequest) (*models.PageMonitoringResultResponse, error) {
-	// 构建查询条件
+
 	req.Index = "PageMonitoring"
 	searchQuery, err := helper.GetSearchQuery(req)
 	if err != nil {
@@ -66,19 +65,16 @@ func (s *service) GetResult(ctx *gin.Context, req models.SearchRequest) (*models
 	searchQuery["hash"] = map[string]interface{}{"$size": 2}
 	filter := bson.M(searchQuery)
 
-	// 设置查询选项
 	opts := options.Find().
 		SetSort(bson.D{{"time", -1}}).
 		SetSkip(int64((req.PageIndex - 1) * req.PageSize)).
 		SetLimit(int64(req.PageSize))
 
-	// 获取总数
 	total, err := s.pageRepo.Count(ctx, filter)
 	if err != nil {
 		return nil, fmt.Errorf("failed to count documents: %w", err)
 	}
 
-	// 获取结果列表
 	results, err := s.pageRepo.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find documents: %w", err)

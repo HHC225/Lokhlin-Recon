@@ -3,11 +3,11 @@ package scheduler
 import (
 	"fmt"
 
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	schedulerCore "github.com/Autumn-27/ScopeSentry/internal/scheduler"
+	"recon/internal/models"
+	schedulerCore "recon/internal/scheduler"
 
-	schedulerRepo "github.com/Autumn-27/ScopeSentry/internal/repositories/task/scheduler"
-	"github.com/Autumn-27/ScopeSentry/internal/utils/helper"
+	schedulerRepo "recon/internal/repositories/task/scheduler"
+	"recon/internal/utils/helper"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -38,21 +38,18 @@ func NewService() Service {
 	}
 }
 
-// GetScheduledData 获取计划任务数据
 func (s *service) GetScheduledData(ctx *gin.Context, search string, pageIndex, pageSize int) ([]models.Task, int64, error) {
-	// 构建查询条件
+
 	query := bson.M{}
 	if search != "" {
 		query["name"] = bson.M{"$regex": search, "$options": "i"}
 	}
 
-	// 获取总数
 	total, err := s.schedulerRepo.Count(ctx, query)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	// 分页查询
 	opts := options.Find().
 		SetSkip(int64((pageIndex - 1) * pageSize)).
 		SetLimit(int64(pageSize))
@@ -62,7 +59,6 @@ func (s *service) GetScheduledData(ctx *gin.Context, search string, pageIndex, p
 		return nil, 0, err
 	}
 
-	// 计算周期描述
 	for i := range tasks {
 		tasks[i].Cycle = s.calculateCycle(&tasks[i])
 	}
@@ -70,7 +66,6 @@ func (s *service) GetScheduledData(ctx *gin.Context, search string, pageIndex, p
 	return tasks, total, nil
 }
 
-// CheckScheduledTaskNameExists 检查计划任务名称是否存在
 func (s *service) CheckScheduledTaskNameExists(ctx *gin.Context, name string) (bool, error) {
 	query := bson.M{"name": name}
 	count, err := s.schedulerRepo.Count(ctx, query)
@@ -80,9 +75,8 @@ func (s *service) CheckScheduledTaskNameExists(ctx *gin.Context, name string) (b
 	return count > 0, nil
 }
 
-// CreateScheduledTask 创建计划任务
 func (s *service) CreateScheduledTask(ctx *gin.Context, req *models.Task) error {
-	// 设置默认值
+
 	if req.Type == "" {
 		req.Type = "scan"
 	}
@@ -106,12 +100,11 @@ func (s *service) CreateScheduledTask(ctx *gin.Context, req *models.Task) error 
 	}
 	req.ID = primitive.NewObjectID()
 	req.TaskID = req.ID.Hex()
-	// 插入数据库
+
 	if err := s.schedulerRepo.Insert(ctx, req); err != nil {
 		return err
 	}
 
-	// 如果需要启用调度，添加到调度器
 	if req.ScheduledTasks {
 		if err := s.addScheduler(req, "scan"); err != nil {
 			return err
@@ -121,9 +114,8 @@ func (s *service) CreateScheduledTask(ctx *gin.Context, req *models.Task) error 
 	return nil
 }
 
-// UpdateScheduledTask 更新计划任务
 func (s *service) UpdateScheduledTask(ctx *gin.Context, req *models.Task) error {
-	// 检查任务是否存在
+
 	existingTask, err := s.GetScheduledTaskDetail(ctx, req.ID.Hex())
 	if err != nil {
 		return err
@@ -132,7 +124,6 @@ func (s *service) UpdateScheduledTask(ctx *gin.Context, req *models.Task) error 
 		return fmt.Errorf("scheduled task not found")
 	}
 
-	// 构建更新数据
 	if req.Name != "" {
 		existingTask.Name = req.Name
 	}
@@ -181,42 +172,37 @@ func (s *service) UpdateScheduledTask(ctx *gin.Context, req *models.Task) error 
 		existingTask.Week = req.Week
 	}
 
-	// 更新数据库
 	filter := bson.M{"_id": req.ID}
 	if err := s.schedulerRepo.UpdateOne(ctx, filter, existingTask); err != nil {
 		return err
 	}
 
-	// 处理调度器
 	if req.ScheduledTasks {
-		// 先移除旧任务
+
 		schedulerCore.GetGlobalScheduler().RemoveJob(req.ID.Hex())
-		// 添加新任务
+
 		if err := s.addScheduler(existingTask, "scan"); err != nil {
 			return err
 		}
 	} else {
-		// 移除调度任务
+
 		schedulerCore.GetGlobalScheduler().RemoveJob(req.ID.Hex())
 	}
 
 	return nil
 }
 
-// DeleteScheduledTasks 删除计划任务
 func (s *service) DeleteScheduledTasks(ctx *gin.Context, ids []string) error {
 	if len(ids) == 0 {
 		return nil
 	}
 
-	// 构建删除条件
 	filter := bson.M{
 		"$or": []bson.M{
 			{"id": bson.M{"$in": ids}},
 		},
 	}
 
-	// 处理特殊ID
 	var objectIds []primitive.ObjectID
 	for _, id := range ids {
 		if id != "page_monitoring" {
@@ -230,12 +216,10 @@ func (s *service) DeleteScheduledTasks(ctx *gin.Context, ids []string) error {
 		filter["$or"] = append(filter["$or"].([]bson.M), bson.M{"_id": bson.M{"$in": objectIds}})
 	}
 
-	// 从调度器中移除任务
 	for _, id := range ids {
 		schedulerCore.GetGlobalScheduler().RemoveJob(id)
 	}
 
-	// 删除数据库记录
 	if err := s.schedulerRepo.DeleteMany(ctx, filter); err != nil {
 		return err
 	}
@@ -243,10 +227,8 @@ func (s *service) DeleteScheduledTasks(ctx *gin.Context, ids []string) error {
 	return nil
 }
 
-// GetScheduledTaskDetail 获取计划任务详情
 func (s *service) GetScheduledTaskDetail(ctx *gin.Context, id string) (*models.Task, error) {
 
-	// 如果按id字段没找到，尝试按_id字段查询
 	if objID, err := primitive.ObjectIDFromHex(id); err == nil {
 		filter := bson.M{"_id": objID}
 		task, err := s.schedulerRepo.FindOne(ctx, filter)
@@ -255,7 +237,6 @@ func (s *service) GetScheduledTaskDetail(ctx *gin.Context, id string) (*models.T
 		}
 	}
 
-	// 先尝试按id字段查询
 	filter := bson.M{"id": id}
 	task, err := s.schedulerRepo.FindOne(ctx, filter)
 	if err == nil && task != nil {
@@ -265,9 +246,8 @@ func (s *service) GetScheduledTaskDetail(ctx *gin.Context, id string) (*models.T
 	return nil, fmt.Errorf("scheduled task not found")
 }
 
-// addScheduler 添加调度任务
 func (s *service) addScheduler(task *models.Task, tp string) error {
-	// 创建调度任务
+
 	job := &schedulerCore.Job{
 		ID:      task.ID.Hex(),
 		Name:    task.Name,
@@ -275,7 +255,6 @@ func (s *service) addScheduler(task *models.Task, tp string) error {
 		Params:  task.ID.Hex(),
 	}
 
-	// 根据周期类型设置任务
 	switch task.CycleType {
 	case "daily":
 		job.CycleType = "cron"
@@ -288,23 +267,20 @@ func (s *service) addScheduler(task *models.Task, tp string) error {
 	case "nhours":
 		job.CycleType = "cron"
 
-		// 防止 0 值
 		if task.Hour <= 0 && task.Minute <= 0 {
 			task.Hour = 1
 			task.Minute = 0
 		}
 
-		// 如果分钟 < 0 或 > 59，强制 0
 		if task.Minute < 0 || task.Minute > 59 {
 			task.Minute = 0
 		}
 
-		// 构造 cron 表达式
 		if task.Hour > 0 {
-			// 每 task.Hour 小时执行一次
+
 			job.Schedule = fmt.Sprintf("%d 0-23/%d * * *", task.Minute, task.Hour)
 		} else {
-			// 只有分钟
+
 			job.Schedule = fmt.Sprintf("%d * * * *", task.Minute)
 		}
 	case "weekly":
@@ -317,7 +293,6 @@ func (s *service) addScheduler(task *models.Task, tp string) error {
 		return fmt.Errorf("unsupported cycle type: %s", task.CycleType)
 	}
 
-	// 添加任务到调度器
 	if err := schedulerCore.GetGlobalScheduler().AddJob(job); err != nil {
 		return fmt.Errorf("failed to add scheduled task: %w", err)
 	}
@@ -325,7 +300,6 @@ func (s *service) addScheduler(task *models.Task, tp string) error {
 	return nil
 }
 
-// calculateCycle 计算周期描述
 func (s *service) calculateCycle(task *models.Task) string {
 	week := task.Week
 	day := task.Day
@@ -374,35 +348,32 @@ func (s *service) UpdatePageMonitScheduledTask(ctx *gin.Context, req *models.Tas
 		return err
 	}
 	if existingTask.ScheduledTasks {
-		// 先移除旧任务
+
 		schedulerCore.GetGlobalScheduler().RemoveJob(existingTask.ID.Hex())
-		// 添加新任务
+
 		if err := s.addScheduler(existingTask, "page_monitoring"); err != nil {
 			return err
 		}
 	} else {
-		// 移除调度任务
+
 		schedulerCore.GetGlobalScheduler().RemoveJob(existingTask.ID.Hex())
 	}
 
 	return nil
 }
 
-// GetPageMonitData 获取页面监控数据
 func (s *service) GetPageMonitData(ctx *gin.Context, search string, pageIndex, pageSize int) ([]models.PageMonitoringTask, int64, error) {
-	// 构建查询条件
+
 	query := bson.M{}
 	if search != "" {
 		query["url"] = bson.M{"$regex": search, "$options": "i"}
 	}
 
-	// 获取总数
 	total, err := s.schedulerRepo.CountPageMonit(ctx, query)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	// 分页查询
 	opts := options.Find().
 		SetSkip(int64((pageIndex - 1) * pageSize)).
 		SetLimit(int64(pageSize))
@@ -415,9 +386,8 @@ func (s *service) GetPageMonitData(ctx *gin.Context, search string, pageIndex, p
 	return tasks, total, nil
 }
 
-// AddPageMonitTask 添加页面监控任务
 func (s *service) AddPageMonitTask(ctx *gin.Context, url string) error {
-	// 创建页面监控任务
+
 	task := &models.PageMonitoringTask{
 		ID:      primitive.NewObjectID(),
 		URL:     url,
@@ -428,7 +398,6 @@ func (s *service) AddPageMonitTask(ctx *gin.Context, url string) error {
 		Time:    "",
 	}
 
-	// 插入数据库
 	if err := s.schedulerRepo.InsertPageMonit(ctx, task); err != nil {
 		return err
 	}
@@ -436,13 +405,11 @@ func (s *service) AddPageMonitTask(ctx *gin.Context, url string) error {
 	return nil
 }
 
-// DeletePageMonitTasks 删除页面监控任务
 func (s *service) DeletePageMonitTasks(ctx *gin.Context, ids []string) error {
 	if len(ids) == 0 {
 		return nil
 	}
 
-	// 构建删除条件
 	var objectIds []primitive.ObjectID
 	for _, id := range ids {
 		if objID, err := primitive.ObjectIDFromHex(id); err == nil {
@@ -456,7 +423,6 @@ func (s *service) DeletePageMonitTasks(ctx *gin.Context, ids []string) error {
 
 	filter := bson.M{"_id": bson.M{"$in": objectIds}}
 
-	// 删除数据库记录
 	if err := s.schedulerRepo.DeletePageMonit(ctx, filter); err != nil {
 		return err
 	}
@@ -464,7 +430,6 @@ func (s *service) DeletePageMonitTasks(ctx *gin.Context, ids []string) error {
 	return nil
 }
 
-// calculateMD5 计算MD5值
 func calculateMD5(url string) string {
 	return helper.CalculateMD5FromContent(url)
 }

@@ -5,6 +5,8 @@ import { Backtop } from '@/components/Backtop'
 import { Setting } from '@/components/Setting'
 import { useRenderLayout } from './components/useRenderLayout'
 import { useDesign } from '@/hooks/web/useDesign'
+import { isEmbedded } from '@/integration/console'
+import AppView from './components/AppView.vue'
 
 const { getPrefixCls } = useDesign()
 
@@ -12,10 +14,8 @@ const prefixCls = getPrefixCls('layout')
 
 const appStore = useAppStore()
 
-// 是否是移动端
 const mobile = computed(() => appStore.getMobile)
 
-// 菜单折叠
 const collapse = computed(() => appStore.getCollapse)
 
 const layout = computed(() => appStore.getLayout)
@@ -46,6 +46,12 @@ const renderLayout = () => {
 export default defineComponent({
   name: 'Layout',
   setup() {
+    if (isEmbedded)
+      return () => (
+        <main class="recon-embedded-view">
+          <AppView />
+        </main>
+      )
     return () => (
       <section class={[prefixCls, `${prefixCls}__${layout.value}`, 'w-[100%] h-[100%] relative']}>
         {mobile.value && !collapse.value ? (

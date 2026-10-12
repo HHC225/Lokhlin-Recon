@@ -1,25 +1,22 @@
 package user
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/response"
-	"github.com/Autumn-27/ScopeSentry/internal/services/user"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/response"
+	"recon/internal/services/user"
 )
 
 var userService user.Service
 
-// ChangePasswordRequest 修改密码请求
 type ChangePasswordRequest struct {
 	NewPassword string `json:"newPassword" binding:"required" example:"newStrongPassword123"`
 }
 
-// LoginRequest 登录请求
 type LoginRequest struct {
 	Username string `json:"username" binding:"required" example:"admin"`
 	Password string `json:"password" binding:"required" example:"password123"`
 }
 
-// RegisterRequest 注册请求
 type RegisterRequest struct {
 	Username string `json:"username" binding:"required" example:"admin"`
 	Password string `json:"password" binding:"required" example:"password123"`
@@ -27,19 +24,17 @@ type RegisterRequest struct {
 	Role     string `json:"role" binding:"required" example:"admin"`
 }
 
-// UpdateRequest 更新请求
 type UpdateRequest struct {
 	Email string `json:"email" binding:"omitempty,email" example:"admin@example.com"`
 	Role  string `json:"role" binding:"omitempty" example:"admin"`
 }
 
-// Login 用户登录
-// @Summary      用户登录
-// @Description  用户登录接口
+// @Summary      User login
+// @Description  User login endpoint
 // @Tags         user
 // @Accept       json
 // @Produce      json
-// @Param        loginRequest  body      LoginRequest  true  "登录信息"
+// @Param        loginRequest  body      LoginRequest  true  "Login information"
 // @Success      200  {object}  response.SuccessResponse{data=object{access_token=string}}
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      404  {object}  response.NotFoundResponse
@@ -61,14 +56,13 @@ func Login(c *gin.Context) {
 	response.Success(c, gin.H{"access_token": token}, "api.user.login.success")
 }
 
-// ChangePassword 用户修改密码
-// @Summary      修改当前用户密码
-// @Description  通过 JWT 获取用户信息，修改其密码
+// @Summary      Change the current user password
+// @Description  Identify the current user from JWT and change their password
 // @Tags         user
 // @Accept       json
 // @Produce      json
 // @Security     ApiKeyAuth
-// @Param        changePasswordRequest  body      ChangePasswordRequest  true  "修改密码信息"
+// @Param        changePasswordRequest  body      ChangePasswordRequest  true  "Password change information"
 // @Success      200  {object}  response.SuccessResponse
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      401  {object}  response.UnauthorizedResponse
@@ -81,7 +75,6 @@ func ChangePassword(c *gin.Context) {
 		return
 	}
 
-	// 从 JWT 中间件写入的上下文获取 userID
 	userIDVal, exists := c.Get("userID")
 	if !exists {
 		response.Unauthorized(c, "Unauthorized", nil)
@@ -100,12 +93,12 @@ func ChangePassword(c *gin.Context) {
 	response.Success(c, nil, "api.user.change_password.success")
 }
 
-//// Register @Summary      用户注册
-//// @Description  用户注册接口
+//// Register @Summary      Register user
+//// @Description  User registration endpoint
 //// @Tags         user
 //// @Accept       json
 //// @Produce      json
-//// @Param        registerRequest  body      RegisterRequest  true  "注册信息"
+//// @Param        registerRequest  body      RegisterRequest  true  "Registration information"
 //// @Success      200  {object}  response.SuccessResponse{data=models.User}
 //// @Failure      400  {object}  response.BadRequestResponse
 //// @Failure      401  {object}  response.UnauthorizedResponse
@@ -134,14 +127,14 @@ func ChangePassword(c *gin.Context) {
 //	response.Success(c, user, "api.user.create.success")
 //}
 //
-//// List @Summary      获取用户列表
-//// @Description  获取用户列表接口
+//// List @Summary      List users
+//// @Description  List users endpoint
 //// @Tags         user
 //// @Accept       json
 //// @Produce      json
 //// @Security     ApiKeyAuth
-//// @Param        page  query     int  false  "页码"  default(1)
-//// @Param        size  query     int  false  "每页数量"  default(10)
+//// @Param        page  query     int  false  "Page number"  default(1)
+//// @Param        size  query     int  false  "Results per page"  default(10)
 //// @Success      200   {object}  response.SuccessResponse{data=[]models.User}
 //// @Failure      401   {object}  response.UnauthorizedResponse
 //// @Failure      500   {object}  response.InternalServerErrorResponse
@@ -156,13 +149,13 @@ func ChangePassword(c *gin.Context) {
 //	response.Success(c, users, "api.success")
 //}
 //
-//// Get @Summary      获取单个用户
-//// @Description  获取单个用户接口
+//// Get @Summary      Get user
+//// @Description  Get user endpoint
 //// @Tags         user
 //// @Accept       json
 //// @Produce      json
 //// @Security     ApiKeyAuth
-//// @Param        id   path      string  true  "用户ID"
+//// @Param        id   path      string  true  "User ID"
 //// @Success      200  {object}  response.SuccessResponse{data=models.User}
 //// @Failure      401  {object}  response.UnauthorizedResponse
 //// @Failure      404  {object}  response.NotFoundResponse
@@ -183,14 +176,14 @@ func ChangePassword(c *gin.Context) {
 //	response.Success(c, user, "api.success")
 //}
 //
-//// Update @Summary      更新用户
-//// @Description  更新用户接口
+//// Update @Summary      Update user
+//// @Description  Update user endpoint
 //// @Tags         user
 //// @Accept       json
 //// @Produce      json
 //// @Security     ApiKeyAuth
-//// @Param        id            path      string         true  "用户ID"
-//// @Param        updateRequest  body      UpdateRequest  true  "更新信息"
+//// @Param        id            path      string         true  "User ID"
+//// @Param        updateRequest  body      UpdateRequest  true  "Update information"
 //// @Success      200           {object}  response.SuccessResponse{data=models.User}
 //// @Failure      400           {object}  response.BadRequestResponse
 //// @Failure      401           {object}  response.UnauthorizedResponse
@@ -226,13 +219,13 @@ func ChangePassword(c *gin.Context) {
 //	response.Success(c, user, "api.user.update.success")
 //}
 //
-//// Delete @Summary      删除用户
-//// @Description  删除用户接口
+//// Delete @Summary      Delete user
+//// @Description  Delete user endpoint
 //// @Tags         user
 //// @Accept       json
 //// @Produce      json
 //// @Security     ApiKeyAuth
-//// @Param        id  path      string  true  "用户ID"
+//// @Param        id  path      string  true  "User ID"
 //// @Success      200  {object}  response.SuccessResponse
 //// @Failure      401  {object}  response.UnauthorizedResponse
 //// @Failure      404  {object}  response.NotFoundResponse

@@ -1,11 +1,12 @@
 package plugin
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/response"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/services/plugin"
-	"github.com/Autumn-27/ScopeSentry/internal/utils/random"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/response"
+	"recon/internal/constants"
+	"recon/internal/models"
+	"recon/internal/services/plugin"
+	"recon/internal/utils/random"
 )
 
 var pluginService plugin.Service
@@ -14,13 +15,12 @@ func init() {
 	pluginService = plugin.NewService()
 }
 
-// List 获取插件列表
-// @Summary 获取插件列表
-// @Description 分页获取插件列表
-// @Tags 插件管理
+// @Summary List plugins
+// @Description List plugins with pagination
+// @Tags Plugin management
 // @Accept json
 // @Produce json
-// @Param request body plugin.PluginListRequest true "请求参数"
+// @Param request body plugin.PluginListRequest true "Request parameters"
 // @Success 200 {object} response.Response{data=plugin.PluginListResponse}
 // @Router /api/plugin [post]
 func List(c *gin.Context) {
@@ -39,13 +39,12 @@ func List(c *gin.Context) {
 	response.Success(c, result, "api.success")
 }
 
-// ListByModule 根据模块获取插件列表
-// @Summary 根据模块获取插件列表
-// @Description 获取指定模块的插件列表
-// @Tags 插件管理
+// @Summary List plugins by module
+// @Description List plugins in the specified module
+// @Tags Plugin management
 // @Accept json
 // @Produce json
-// @Param request body map[string]string true "请求参数"
+// @Param request body map[string]string true "Request parameters"
 // @Success 200 {object} response.Response{data=[]plugin.Plugin}
 // @Router /api/plugin/module [post]
 func ListByModule(c *gin.Context) {
@@ -68,13 +67,12 @@ func ListByModule(c *gin.Context) {
 	}, "api.success")
 }
 
-// Detail 获取插件详情
-// @Summary 获取插件详情
-// @Description 获取指定插件的详细信息
-// @Tags 插件管理
+// @Summary Get plugin details
+// @Description Get details of the specified plugin
+// @Tags Plugin management
 // @Accept json
 // @Produce json
-// @Param request body plugin.PluginDetailRequest true "请求参数"
+// @Param request body plugin.PluginDetailRequest true "Request parameters"
 // @Success 200 {object} response.Response{data=plugin.Plugin}
 // @Router /api/plugin/detail [post]
 func Detail(c *gin.Context) {
@@ -93,19 +91,23 @@ func Detail(c *gin.Context) {
 	response.Success(c, result, "api.success")
 }
 
-// Save 保存插件
-// @Summary 保存插件
-// @Description 创建或更新插件
-// @Tags 插件管理
+// @Summary Save plugin
+// @Description Create or update plugin
+// @Tags Plugin management
 // @Accept json
 // @Produce json
-// @Param request body plugin.PluginSaveRequest true "请求参数"
+// @Param request body plugin.PluginSaveRequest true "Request parameters"
 // @Success 200 {object} response.Response
 // @Router /api/plugin/save [post]
 func Save(c *gin.Context) {
 	var req models.PluginSaveRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.BadRequest(c, "api.bad_request", err)
+		return
+	}
+
+	if req.Key == "" && !c.GetBool(constants.GatewayAuthenticatedContextKey) {
+		response.BadRequest(c, "api.bad_request", nil)
 		return
 	}
 
@@ -117,13 +119,12 @@ func Save(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// Delete 删除插件
-// @Summary 删除插件
-// @Description 删除指定的插件
-// @Tags 插件管理
+// @Summary Delete plugin
+// @Description Delete the specified plugin
+// @Tags Plugin management
 // @Accept json
 // @Produce json
-// @Param request body plugin.PluginDeleteRequest true "请求参数"
+// @Param request body plugin.PluginDeleteRequest true "Request parameters"
 // @Success 200 {object} response.Response
 // @Router /api/plugin/delete [post]
 func Delete(c *gin.Context) {
@@ -141,13 +142,12 @@ func Delete(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// GetLogs 获取插件日志
-// @Summary 获取插件日志
-// @Description 获取指定插件的日志
-// @Tags 插件管理
+// @Summary Get plugin logs
+// @Description Get logs for the specified plugin
+// @Tags Plugin management
 // @Accept json
 // @Produce json
-// @Param request body plugin.PluginLogRequest true "请求参数"
+// @Param request body plugin.PluginLogRequest true "Request parameters"
 // @Success 200 {object} response.Response{data=string}
 // @Router /api/plugin/log [post]
 func GetLogs(c *gin.Context) {
@@ -168,13 +168,12 @@ func GetLogs(c *gin.Context) {
 	}, "api.success")
 }
 
-// CleanLogs 清理插件日志
-// @Summary 清理插件日志
-// @Description 清理指定插件的日志
-// @Tags 插件管理
+// @Summary Clear plugin logs
+// @Description Clear logs for the specified plugin
+// @Tags Plugin management
 // @Accept json
 // @Produce json
-// @Param request body plugin.PluginLogRequest true "请求参数"
+// @Param request body plugin.PluginLogRequest true "Request parameters"
 // @Success 200 {object} response.Response
 // @Router /api/plugin/log/clean [post]
 func CleanLogs(c *gin.Context) {
@@ -192,10 +191,9 @@ func CleanLogs(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// CleanAllLogs 清除所有插件日志
-// @Summary 清除所有插件日志
-// @Description 清除所有插件的日志
-// @Tags 插件管理
+// @Summary Clear all plugin logs
+// @Description Clear logs for all plugins
+// @Tags Plugin management
 // @Accept json
 // @Produce json
 // @Success 200 {object} response.Response
@@ -209,14 +207,13 @@ func CleanAllLogs(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// Import 导入插件
-// @Summary 导入插件
-// @Description 导入新的插件
-// @Tags 插件管理
+// @Summary Import plugin
+// @Description Import a plugin
+// @Tags Plugin management
 // @Accept multipart/form-data
 // @Produce json
-// @Param file formData file true "插件文件"
-// @Param key query string true "插件密钥"
+// @Param file formData file true "Plugin file"
+// @Param key query string false "Standalone plugin key; omitted for signed console requests"
 // @Success 200 {object} response.Response
 // @Router /api/plugin/import [post]
 func Import(c *gin.Context) {
@@ -227,11 +224,11 @@ func Import(c *gin.Context) {
 	}
 
 	key := c.Query("key")
-	if key == "" {
+	if key == "" && !c.GetBool(constants.GatewayAuthenticatedContextKey) {
 		response.BadRequest(c, "api.bad_request", nil)
 		return
 	}
-	// 保存上传的文件
+
 	filePath := "uploads/" + random.GenerateString(5) + ".zip"
 	if err := c.SaveUploadedFile(file, filePath); err != nil {
 		response.InternalServerError(c, "api.error", err)
@@ -246,13 +243,12 @@ func Import(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// Reinstall 重装插件
-// @Summary 重装插件
-// @Description 重装指定的插件
-// @Tags 插件管理
+// @Summary Reinstall plugin
+// @Description Reinstall the specified plugin
+// @Tags Plugin management
 // @Accept json
 // @Produce json
-// @Param request body plugin.PluginReinstallRequest true "请求参数"
+// @Param request body plugin.PluginReinstallRequest true "Request parameters"
 // @Success 200 {object} response.Response
 // @Router /api/plugin/reinstall [post]
 func Reinstall(c *gin.Context) {
@@ -270,13 +266,12 @@ func Reinstall(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// Recheck 重检插件
-// @Summary 重检插件
-// @Description 重新检查指定的插件
-// @Tags 插件管理
+// @Summary Recheck plugin
+// @Description Recheck the specified plugin
+// @Tags Plugin management
 // @Accept json
 // @Produce json
-// @Param request body plugin.PluginRecheckRequest true "请求参数"
+// @Param request body plugin.PluginRecheckRequest true "Request parameters"
 // @Success 200 {object} response.Response
 // @Router /api/plugin/recheck [post]
 func Recheck(c *gin.Context) {
@@ -294,13 +289,12 @@ func Recheck(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// Uninstall 卸载插件
-// @Summary 卸载插件
-// @Description 卸载指定的插件
-// @Tags 插件管理
+// @Summary Uninstall plugin
+// @Description Uninstall the specified plugin
+// @Tags Plugin management
 // @Accept json
 // @Produce json
-// @Param request body plugin.PluginUninstallRequest true "请求参数"
+// @Param request body plugin.PluginUninstallRequest true "Request parameters"
 // @Success 200 {object} response.Response
 // @Router /api/plugin/uninstall [post]
 func Uninstall(c *gin.Context) {
@@ -318,13 +312,12 @@ func Uninstall(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// CheckKey 检查插件密钥
-// @Summary 检查插件密钥
-// @Description 检查插件密钥是否有效
-// @Tags 插件管理
+// @Summary Check plugin key
+// @Description Check plugin key validity
+// @Tags Plugin management
 // @Accept json
 // @Produce json
-// @Param request body plugin.PluginKeyCheckRequest true "请求参数"
+// @Param request body plugin.PluginKeyCheckRequest true "Request parameters"
 // @Success 200 {object} response.Response
 // @Router /api/plugin/key/check [post]
 func CheckKey(c *gin.Context) {
@@ -342,10 +335,9 @@ func CheckKey(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// SearchRemotePlugins 搜索远程插件
-// @Summary 搜索远程插件
-// @Description 获取远程插件列表，并标记已安装和需要更新的插件
-// @Tags 插件管理
+// @Summary Search plugin catalog
+// @Description List catalog plugins and mark installed plugins and available updates
+// @Tags Plugin management
 // @Accept json
 // @Produce json
 // @Success 200 {object} response.Response{data=map[string]interface{}}
@@ -360,13 +352,12 @@ func SearchRemotePlugins(c *gin.Context) {
 	response.Success(c, result, "api.success")
 }
 
-// ImportByData 通过POST JSON数据导入插件
-// @Summary 通过POST JSON数据导入插件
-// @Description 通过POST传输JSON数据导入插件，包含info.json的序列化字符串、source字段和isSystem字段
-// @Tags 插件管理
+// @Summary Import plugins through POST JSON
+// @Description Import plugins through POST JSON containing serialized info.json, source and isSystem
+// @Tags Plugin management
 // @Accept json
 // @Produce json
-// @Param request body models.PluginImportByDataRequest true "请求参数"
+// @Param request body models.PluginImportByDataRequest true "Request parameters"
 // @Success 200 {object} response.Response
 // @Router /api/plugin/import/data [post]
 func ImportByData(c *gin.Context) {
@@ -384,13 +375,12 @@ func ImportByData(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// Status 更新插件状态
-// @Summary 更新插件状态
-// @Description 更新指定插件的启用/禁用状态
-// @Tags 插件管理
+// @Summary Update plugin status
+// @Description Enable or disable the specified plugin
+// @Tags Plugin management
 // @Accept json
 // @Produce json
-// @Param request body models.PluginStatusRequest true "请求参数"
+// @Param request body models.PluginStatusRequest true "Request parameters"
 // @Success 200 {object} response.Response
 // @Router /api/plugin/status [post]
 func Status(c *gin.Context) {
@@ -408,13 +398,12 @@ func Status(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// Run 运行插件一次
-// @Summary 运行插件一次
-// @Description 手动触发执行指定的服务端插件
-// @Tags 插件管理
+// @Summary Run plugin once
+// @Description Run the specified server plugin once
+// @Tags Plugin management
 // @Accept json
 // @Produce json
-// @Param request body models.PluginRunRequest true "请求参数"
+// @Param request body models.PluginRunRequest true "Request parameters"
 // @Success 200 {object} response.Response
 // @Router /api/plugin/run [post]
 func Run(c *gin.Context) {

@@ -5,13 +5,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Autumn-27/ScopeSentry/internal/database/mongodb"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"recon/internal/database/mongodb"
+	"recon/internal/models"
 )
 
-// Repository 定义页面监控仓库接口
 type Repository interface {
 	FindHistory(ctx context.Context, filter interface{}, opts *options.FindOptions) ([]*models.PageMonitoring, error)
 	FindContent(ctx context.Context, filter interface{}, opts *options.FindOneOptions) (*models.PageMonitoringBody, error)
@@ -20,7 +19,6 @@ type Repository interface {
 	Find(ctx context.Context, filter interface{}, opts *options.FindOptions) ([]models.PageMonitoringResult, error)
 }
 
-// repository 实现页面监控仓库接口
 type repository struct {
 	pageCollection    *mongo.Collection
 	contentCollection *mongo.Collection
@@ -33,7 +31,6 @@ func NewRepository() Repository {
 	}
 }
 
-// FindHistory 获取页面监控历史记录
 func (r *repository) FindHistory(ctx context.Context, filter interface{}, opts *options.FindOptions) ([]*models.PageMonitoring, error) {
 	cursor, err := r.pageCollection.Find(ctx, filter, opts)
 	if err != nil {
@@ -49,7 +46,6 @@ func (r *repository) FindHistory(ctx context.Context, filter interface{}, opts *
 	return pages, nil
 }
 
-// FindContent 获取页面监控内容
 func (r *repository) FindContent(ctx context.Context, filter interface{}, opts *options.FindOneOptions) (*models.PageMonitoringBody, error) {
 	var content models.PageMonitoringBody
 	err := r.contentCollection.FindOne(ctx, filter, opts).Decode(&content)
@@ -59,7 +55,6 @@ func (r *repository) FindContent(ctx context.Context, filter interface{}, opts *
 	return &content, nil
 }
 
-// FindDiff 获取页面监控差异
 func (r *repository) FindDiff(ctx context.Context, filter interface{}, opts *options.FindOneOptions) (*models.PageMonitoringBody, error) {
 	var content models.PageMonitoringBody
 	err := r.contentCollection.FindOne(ctx, filter, opts).Decode(&content)
@@ -77,12 +72,10 @@ func (r *repository) FindDiff(ctx context.Context, filter interface{}, opts *opt
 	return &content, nil
 }
 
-// Count 获取文档数量
 func (r *repository) Count(ctx context.Context, filter interface{}) (int64, error) {
 	return r.pageCollection.CountDocuments(ctx, filter)
 }
 
-// Find 查询文档
 func (r *repository) Find(ctx context.Context, filter interface{}, opts *options.FindOptions) ([]models.PageMonitoringResult, error) {
 	cursor, err := r.pageCollection.Find(ctx, filter, opts)
 	if err != nil {

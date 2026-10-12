@@ -1,4 +1,5 @@
 <script setup lang="tsx">
+import { resourcePath } from '@/integration/console'
 import { useI18n } from '@/hooks/web/useI18n'
 import { Ref, h, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { useTable } from '@/hooks/web/useTable'
@@ -145,8 +146,8 @@ let AssetstatisticsData: Ref<{
   Product: [],
   Icon: []
 })
-let iconPage = 1 // 当前页
-let iconPageSize = 50 // 每次加载的数据量
+let iconPage = 1
+let iconPageSize = 50
 
 const getAssetstatistics = async () => {
   if (statisticsHidden.value) {
@@ -328,7 +329,7 @@ let crudSchemas = reactive<CrudSchema[]>([
           </ElRow>
         )
       }
-      const st = '/images/icon/' + row.faviconmmh3 + '.png'
+      const st = resourcePath('/images/icon/') + row.faviconmmh3 + '.png'
       return (
         <ElRow gutter={20}>
           <ElCol span={2}>
@@ -352,7 +353,7 @@ let crudSchemas = reactive<CrudSchema[]>([
       if (tags == null) {
         tags = []
       }
-      // 初始化状态
+
       if (!rowStateMap[row.id]) {
         rowStateMap[row.id] = {
           inputVisible: false,
@@ -363,11 +364,11 @@ let crudSchemas = reactive<CrudSchema[]>([
       const rowState = rowStateMap[row.id]
       const handleInputConfirm = async () => {
         if (rowState.inputValue) {
-          tags.push(rowState.inputValue) // 将输入值添加到 tags 中
+          tags.push(rowState.inputValue)
           addTagApi(row.id, index, rowState.inputValue)
         }
-        rowState.inputVisible = false // 隐藏输入框
-        rowState.inputValue = '' // 清空输入框的值
+        rowState.inputVisible = false
+        rowState.inputValue = ''
       }
       const deleteTag = async (row: Recordable, tag: string) => {
         if (!row.tags) {
@@ -375,10 +376,10 @@ let crudSchemas = reactive<CrudSchema[]>([
         }
         const indexT = row.tags.indexOf(tag)
         if (indexT > -1) {
-          row.tags.splice(indexT, 1) // 从数组中移除指定的元素
+          row.tags.splice(indexT, 1)
         }
         await deleteTagApi(row.id, index, tag)
-        // 如需强制刷新表格数据，可取消下行注释
+
         // await getList()
       }
       const showInput = () => {
@@ -390,19 +391,17 @@ let crudSchemas = reactive<CrudSchema[]>([
           // }
         })
       }
-      // 标签点击处理函数
+
       const handleTagClick = (event: MouseEvent, tag: string) => {
         if ((event.target as HTMLElement).classList.contains('el-tag__close')) {
-          // 点击关闭按钮时不处理
           return
         }
-        // 这里可以添加处理点击事件的逻辑
+
         console.log('Tag clicked:', tag)
         changeTags('tags', tag)
       }
 
       return h(ElRow, {}, () => [
-        // 渲染标签
         ...tags.map((tag) =>
           h(ElCol, { span: 24, key: tag }, () => [
             h('div', { onClick: (event: MouseEvent) => handleTagClick(event, tag) }, [
@@ -411,7 +410,6 @@ let crudSchemas = reactive<CrudSchema[]>([
           ])
         ),
 
-        // 输入框或按钮
         h(
           ElCol,
           { span: 24 },
@@ -419,16 +417,16 @@ let crudSchemas = reactive<CrudSchema[]>([
             ? () =>
                 h(ElInput, {
                   ref: rowState.inputRef,
-                  modelValue: rowState.inputValue, // 双向绑定输入框值
+                  modelValue: rowState.inputValue,
                   'onUpdate:modelValue': (value: string) => (rowState.inputValue = value),
                   class: 'w-20',
                   size: 'small',
                   onKeyup: (event: KeyboardEvent) => {
                     if (event.key === 'Enter') {
-                      handleInputConfirm() // 只在回车键被按下时触发
+                      handleInputConfirm()
                     }
                   },
-                  onBlur: handleInputConfirm // 失去焦点时调用 handleInputConfirm
+                  onBlur: handleInputConfirm
                 })
             : () =>
                 h(
@@ -537,7 +535,7 @@ let crudSchemas = reactive<CrudSchema[]>([
         return
       }
       if (row.ResponseBodyHash != '') {
-        const imageSrc = `/images/screenshots/${row.ResponseBodyHash}.png`
+        const imageSrc = resourcePath(`/images/screenshots/${row.ResponseBodyHash}.png`)
         return (
           <img
             key={`${row.id}-${row.ResponseBodyHash}`}
@@ -549,7 +547,6 @@ let crudSchemas = reactive<CrudSchema[]>([
               maxHeight: '250px'
             }}
             onError={(e) => {
-              // 404 或其他错误时，隐藏图片（不显示裂开的图片）
               ;(e.target as HTMLImageElement).style.display = 'none'
             }}
             onClick={() => handleImageClick(imageSrc)}
@@ -602,38 +599,35 @@ const handleImageClick = (screenshot: string) => {
 }
 let index = 'asset'
 crudSchemas.forEach((schema) => {
-  schema.hidden = schema.hidden ?? false // 如果没有 hidden 属性，添加并设置为 false
+  schema.hidden = schema.hidden ?? false
 })
 let statisticsHidden = ref(false)
-// 从localStorage读取配置并更新列的显示状态
+
 const loadColumnConfig = () => {
   const savedConfig = JSON.parse(localStorage.getItem(`columnConfig_${index}`) || '{}')
   console.log(savedConfig)
   crudSchemas.forEach((col) => {
     if (savedConfig[col.field] !== undefined && col.field != 'select') {
-      col.hidden = savedConfig[col.field] // 复列的显示状态
+      col.hidden = savedConfig[col.field]
     }
   })
   statisticsHidden.value = savedConfig['statisticsHidden']
 }
 
-// 保存配置到localStorage
 const saveColumnConfig = () => {
   const config = crudSchemas.reduce((acc, col) => {
-    acc[col.field] = col.hidden // 保存每列的显示状态
+    acc[col.field] = col.hidden
     return acc
   }, {})
   config['statisticsHidden'] = statisticsHidden.value
   console.log('statisticsHidden.value', statisticsHidden.value)
-  localStorage.setItem(`columnConfig_${index}`, JSON.stringify(config)) // 按index保存配置
+  localStorage.setItem(`columnConfig_${index}`, JSON.stringify(config))
 }
 
-// 处理列显示状态变化
 const handleColumnVisibilityChange = ({ field, hidden }) => {
   console.log(field, hidden)
   const columnIndex = crudSchemas.findIndex((col) => col.field === field)
   if (columnIndex !== -1) {
-    // 使用对象的展开运算符来创建一个新的对象，并更新隐藏属性
     crudSchemas[columnIndex].hidden = hidden
   }
   saveColumnConfig()
@@ -745,14 +739,14 @@ const openDetail = (id: string, host: string, ip: string, port: number) => {
 }
 
 const isLoading = ref(false)
-// 滚动监听，触发加载更多
+
 const scrollbarRef = ref<InstanceType<typeof ElScrollbar>>()
 
 const handleScroll = ({ scrollTop }: { scrollTop: number }) => {
   const wrap = scrollbarRef.value?.wrapRef
   if (!wrap || isLoading.value) return
   const { scrollHeight, clientHeight } = wrap
-  // 当滚动到距离底部 20px 时触发加载
+
   if (scrollHeight - (scrollTop + clientHeight) < 20) {
     loadMoreIcons()
   }
@@ -779,14 +773,14 @@ const activeSegment = ref<'tableSegment' | 'cardSegment'>('tableSegment')
 
 const setActiveSegment = (segment: 'tableSegment' | 'cardSegment', flag: boolean) => {
   activeSegment.value = segment
-  // 将配置存储到 localStorage
+
   localStorage.setItem(`assetActiveSegment`, JSON.stringify({ activeSegment: segment }))
   if (flag) {
     getList()
   }
 }
 const websites = ref<AssetData[]>([])
-// 跟踪每个图片的加载状态：'loading' | 'loaded' | 'error'
+
 const imageLoadStates = ref<Record<string, 'loading' | 'loaded' | 'error'>>({})
 const handleImageLoad = (hash: string) => {
   if (imageLoadStates.value[hash] !== 'loaded') {
@@ -800,12 +794,12 @@ const handleImageError = (hash: string) => {
 }
 const getAssetCardData = async () => {
   websites.value = []
-  // 重置图片加载状态
+
   imageLoadStates.value = {}
   getTotal(searchParams.value, currentPage.value, pageSize.value, filter)
   const res = await getAssetCardApi(searchParams.value, currentPage.value, pageSize.value, filter)
   websites.value = res.data.list
-  // 初始化所有图片为加载中状态
+
   res.data.list.forEach((site) => {
     if (site.ResponseBodyHash) {
       imageLoadStates.value[site.ResponseBodyHash] = 'loading'
@@ -814,11 +808,11 @@ const getAssetCardData = async () => {
 }
 const getStatusColor = (statusValue) => {
   if (statusValue < 300) {
-    return '#2eb98a' // 绿色，表示成功
+    return '#2eb98a'
   } else if (statusValue < 400) {
-    return '#ff9800' // 橙色，表示重定向
+    return '#ff9800'
   } else {
-    return '#ff5252' // 红色，表示错误
+    return '#ff5252'
   }
 }
 const getFilter = () => {
@@ -829,7 +823,7 @@ const selectedIcons = ref<{ value: string; number: number; icon_hash: string }[]
 const toggleSelectIcon = (iconItem: { value: string; number: number; icon_hash: string }) => {
   const idx = selectedIcons.value.findIndex((i) => i.icon_hash === iconItem.icon_hash)
   if (idx > -1) {
-    selectedIcons.value.splice(idx, 1) // 已选再点取消
+    selectedIcons.value.splice(idx, 1)
   } else {
     selectedIcons.value.push(iconItem)
   }
@@ -952,7 +946,7 @@ const confirmSelectedIcons = () => {
               </ElRow>
             </ElScrollbar>
           </ElCollapseItem>
-          <!-- 吸附于icon块上方的浮层 -->
+
           <template v-if="activeNames.includes('5') && selectedIcons.length">
             <div class="icon-selection-float-abs">
               <div class="float-header">
@@ -965,7 +959,7 @@ const confirmSelectedIcons = () => {
                   :key="icon.icon_hash"
                   class="icon-selection-img"
                 >
-                  <img :src="'/images/icon/' + icon.icon_hash + '.png'" />
+                  <img :src="resourcePath('/images/icon/') + icon.icon_hash + '.png'" />
                 </span>
                 <ElButton
                   class="float-confirm"
@@ -1000,7 +994,7 @@ const confirmSelectedIcons = () => {
                     <ElBadge :value="iconItem.number" :max="99" style="font-size: 8px">
                       <ElTooltip :content="iconItem.icon_hash" placement="top-start">
                         <img
-                          :src="'/images/icon/' + iconItem.icon_hash + '.png'"
+                          :src="resourcePath('/images/icon/') + iconItem.icon_hash + '.png'"
                           alt="Icon"
                           style="width: 30px; height: 30px"
                           :class="{
@@ -1081,7 +1075,6 @@ const confirmSelectedIcons = () => {
           :body-style="{ padding: '0px', height: '100%', width: '100%' }"
           style="display: flex; flex-direction: column; height: 100%"
         >
-          <!-- 占位符，在图片未加载成功时显示 -->
           <div
             v-if="imageLoadStates[site.ResponseBodyHash] !== 'loaded'"
             style="
@@ -1098,21 +1091,23 @@ const confirmSelectedIcons = () => {
             <span v-if="site.type == 'http'">No pictures available</span>
             <span v-else>{{ site.service }}</span>
           </div>
-          <!-- 图片元素，先隐藏，加载成功后再显示 -->
+
           <img
             v-show="imageLoadStates[site.ResponseBodyHash] === 'loaded'"
-            :src="`/images/screenshots/${site.ResponseBodyHash}.png`"
+            :src="resourcePath(`/images/screenshots/${site.ResponseBodyHash}.png`)"
             alt="screenshot"
             style="width: 100%; height: 100%; max-height: 270px"
-            @click="handleImageClick(`/images/screenshots/${site.ResponseBodyHash}.png`)"
+            @click="
+              handleImageClick(resourcePath(`/images/screenshots/${site.ResponseBodyHash}.png`))
+            "
             @load="handleImageLoad(site.ResponseBodyHash)"
             @error="handleImageError(site.ResponseBodyHash)"
           />
-          <!-- 隐藏的预加载图片，用于在不显示时也能触发加载事件 -->
+
           <img
             v-if="imageLoadStates[site.ResponseBodyHash] !== 'loaded'"
             v-show="false"
-            :src="`/images/screenshots/${site.ResponseBodyHash}.png`"
+            :src="resourcePath(`/images/screenshots/${site.ResponseBodyHash}.png`)"
             @load="handleImageLoad(site.ResponseBodyHash)"
             @error="handleImageError(site.ResponseBodyHash)"
           />
@@ -1197,9 +1192,9 @@ const confirmSelectedIcons = () => {
 </style>
 <style lang="less" scoped>
 .icon-selection-float-abs {
-  left: 0; // 靠左对齐icon块
-  bottom: 100%; // 下边界紧贴icon块上边界
-  margin-bottom: 4px; // 微小间隔
+  left: 0;
+  bottom: 100%;
+  margin-bottom: 4px;
   z-index: 220;
   background: #fff;
   border-radius: 10px;
@@ -1228,7 +1223,6 @@ const confirmSelectedIcons = () => {
   padding: 8px 14px 10px 14px;
   min-width: 120px;
   border: 1px solid #e3e4e6;
-  /* 可根据实际位置微调 */
 }
 .float-header {
   display: flex;
@@ -1268,28 +1262,23 @@ const confirmSelectedIcons = () => {
   margin-left: 10px;
 }
 
-// 优化表格滚动性能
 :deep(.asset-table) {
   .el-table__body-wrapper {
-    // 启用硬件加速
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
     will-change: scroll-position;
-    // 优化滚动性能
+
     -webkit-overflow-scrolling: touch;
     overflow-anchor: none;
 
-    // 防止滚动时重排
     .el-table__body {
       transform: translateZ(0);
       -webkit-transform: translateZ(0);
     }
   }
 
-  // 优化单元格滚动条性能
   .el-scrollbar {
     .el-scrollbar__wrap {
-      // 启用硬件加速
       transform: translateZ(0);
       -webkit-transform: translateZ(0);
       will-change: scroll-position;
@@ -1297,21 +1286,16 @@ const confirmSelectedIcons = () => {
     }
   }
 
-  // 优化滚动条
   .el-scrollbar__bar {
-    // 启用硬件加速
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
   }
 }
 
-// 优化表格单元格内容
 :deep(.asset-table .el-table__cell) {
-  // 防止内容变化导致重排
   contain: layout style paint;
 
   .scrollbar-demo-item {
-    // 启用硬件加速
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
   }

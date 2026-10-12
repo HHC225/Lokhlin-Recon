@@ -1,10 +1,10 @@
 package apikey
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/response"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/services/apikey"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/response"
+	"recon/internal/models"
+	"recon/internal/services/apikey"
 )
 
 var apiKeyService apikey.Service
@@ -13,7 +13,6 @@ func init() {
 	apiKeyService = apikey.NewService()
 }
 
-// List 获取 API Key 列表
 func List(c *gin.Context) {
 	keys, err := apiKeyService.List(c.Request.Context())
 	if err != nil {
@@ -23,7 +22,6 @@ func List(c *gin.Context) {
 	response.Success(c, gin.H{"list": keys}, "")
 }
 
-// Create 创建 API Key
 func Create(c *gin.Context) {
 	var req models.CreateApiKeyRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -42,7 +40,6 @@ func Create(c *gin.Context) {
 	response.Success(c, result, "api.success")
 }
 
-// Delete 删除 API Key
 func Delete(c *gin.Context) {
 	var req models.DeleteApiKeyRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

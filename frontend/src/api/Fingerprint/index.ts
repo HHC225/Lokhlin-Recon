@@ -1,3 +1,4 @@
+import { catalogApiPath } from '@/integration/catalog'
 import request from '@/axios'
 import axios from 'axios'
 import type { fingerprintData, fingerprintRespData } from './types'
@@ -52,10 +53,9 @@ interface CountByUpdateTimeResponse {
 export const getCountByUpdateTimeApi = (
   updateTime: string
 ): Promise<IResponse<CountByUpdateTimeResponse>> => {
-  // 使用原生 axios 直接调用远程 API，避免添加 Authorization header
   return axios
     .post(
-      'https://api.scope-sentry.top/api/common/finger/count-by-update-time',
+      catalogApiPath('/api/common/finger/count-by-update-time'),
       { updateTime },
       {
         headers: {
@@ -79,14 +79,12 @@ interface GetFingerprintsByUpdateTimeResponse {
   }
 }
 
-// 获取需要更新的指纹列表（不需要认证）
 export const getFingerprintsByUpdateTimeApi = (
   updateTime: string
 ): Promise<GetFingerprintsByUpdateTimeResponse> => {
-  // 使用原生 axios 直接调用远程 API，避免添加 Authorization header
   return axios
     .post(
-      'https://api.scope-sentry.top/api/common/finger/query-by-update-time',
+      catalogApiPath('/api/common/finger/query-by-update-time'),
       { updateTime },
       {
         headers: {
@@ -97,7 +95,6 @@ export const getFingerprintsByUpdateTimeApi = (
     .then((res) => res.data)
 }
 
-// 批量添加指纹
 export const batchAddFingerprintApi = (
   items: FingerprintUpdateItem[]
 ): Promise<IResponse<fingerprintRespData>> => {

@@ -1,7 +1,5 @@
 // worker-------------------------------------
 // @file      : ip.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/11/12 22:29
 // -------------------------------------------
 
@@ -14,15 +12,15 @@ import (
 	"sort"
 	"time"
 
-	"github.com/Autumn-27/ScopeSentry/internal/utils/helper"
+	"recon/internal/utils/helper"
 
-	"github.com/Autumn-27/ScopeSentry/internal/logger"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/repositories/common"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"recon/internal/logger"
+	"recon/internal/models"
+	"recon/internal/repositories/common"
 )
 
 const (
@@ -318,10 +316,10 @@ func mergeServers(existing, incoming []models.PortServer) []models.PortServer {
 func IPAssetHandle(ctx context.Context) {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("任务发生错误，已恢复:", r)
+			fmt.Println("Worker error recovered:", r)
 			select {
 			case <-ctx.Done():
-				fmt.Println("任务已取消，IPAssetHandle不再重启")
+				fmt.Println("Task cancelled; IPAssetHandle will not restart")
 			default:
 				go IPAssetHandle(ctx)
 			}
@@ -333,7 +331,7 @@ func IPAssetHandle(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			fmt.Println("任务被取消，IPAssetHandle停止执行")
+			fmt.Println("Task cancelled; IPAssetHandle stopped")
 			return
 		default:
 			opts := options.Find().
@@ -343,7 +341,7 @@ func IPAssetHandle(ctx context.Context) {
 			var tmpRecords []ipAssetTmpRecord
 			err := repo.Find(ctx, "IPAssetTmp", bson.M{}, opts, &tmpRecords)
 			if err != nil {
-				logger.Error(fmt.Sprintf("查询 IPAssetTmp 数据失败: %v\n", err))
+				logger.Error(fmt.Sprintf("Failed to query IPAssetTmp data: %v\n", err))
 				time.Sleep(ipAssetErrorSleep)
 				continue
 			}
@@ -362,7 +360,7 @@ func IPAssetHandle(ctx context.Context) {
 					if errors.Is(findErr, mongo.ErrNoDocuments) {
 						merged = asset
 					} else {
-						logger.Error(fmt.Sprintf("查询 IPAsset 失败 ip=%s: %v\n", ip, findErr))
+						logger.Error(fmt.Sprintf("Failed to query IPAsset ip=%s: %v\n", ip, findErr))
 						continue
 					}
 				} else {
@@ -370,7 +368,7 @@ func IPAssetHandle(ctx context.Context) {
 				}
 				merged.Time = helper.GetNowTimeString()
 				if err := repo.Upsert(ctx, "IPAsset", bson.M{"ip": ip}, merged); err != nil {
-					logger.Error(fmt.Sprintf("写入 IPAsset 失败 ip=%s: %v\n", ip, err))
+					logger.Error(fmt.Sprintf("Failed to write IPAsset ip=%s: %v\n", ip, err))
 				}
 			}
 
@@ -384,11 +382,11 @@ func IPAssetHandle(ctx context.Context) {
 			if len(ids) > 0 {
 				_, err := repo.DeleteMany(ctx, "IPAssetTmp", bson.M{"_id": bson.M{"$in": ids}})
 				if err != nil {
-					logger.Error(fmt.Sprintf("删除 IPAssetTmp 数据失败: %v\n", err))
+					logger.Error(fmt.Sprintf("Failed to delete IPAssetTmp data: %v\n", err))
 				}
 			}
 
-			logger.Info(fmt.Sprintf("IPAssetHandle 完成一次处理，输入 %d 条，输出 %d 个 IP 资产", len(tmpRecords), len(ipAssets)))
+			logger.Info(fmt.Sprintf("IPAssetHandle completed a batch: %d inputs, %d IP assets", len(tmpRecords), len(ipAssets)))
 
 			time.Sleep(ipAssetBatchInterval)
 		}

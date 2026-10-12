@@ -1,4 +1,4 @@
-module github.com/Autumn-27/ScopeSentry
+module recon
 
 go 1.24.0
 

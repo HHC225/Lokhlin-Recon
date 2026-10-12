@@ -1,22 +1,20 @@
 // configuration-------------------------------------
 // @file      : notification.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/10/29 21:16
 // -------------------------------------------
 
 package configuration
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/response"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/services/configuration"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/response"
+	"recon/internal/models"
+	"recon/internal/services/configuration"
 )
 
 var notificationService *configuration.Service
 
-// GetNotificationData @Summary 获取通知列表
+// GetNotificationData @Summary List notifications
 // @Tags        configuration
 // @Produce     json
 // @Security    ApiKeyAuth
@@ -31,12 +29,12 @@ func GetNotificationData(c *gin.Context) {
 	response.Success(c, gin.H{"list": list}, "api.success")
 }
 
-// AddNotificationData @Summary 新增通知
+// AddNotificationData @Summary Create notification
 // @Tags        configuration
 // @Accept      json
 // @Produce     json
 // @Security    ApiKeyAuth
-// @Param       body body map[string]interface{} true "通知对象"
+// @Param       body body map[string]interface{} true "Notification object"
 // @Success     200 {object} response.SuccessResponse
 // @Router      /configuration/notification/add [post]
 func AddNotificationData(c *gin.Context) {
@@ -52,12 +50,12 @@ func AddNotificationData(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// UpdateNotificationData @Summary 更新通知
+// UpdateNotificationData @Summary Update notification
 // @Tags        configuration
 // @Accept      json
 // @Produce     json
 // @Security    ApiKeyAuth
-// @Param       body body map[string]interface{} true "通知对象，需含 id"
+// @Param       body body map[string]interface{} true "Notification object with id"
 // @Success     200 {object} response.SuccessResponse
 // @Router      /configuration/notification/update [post]
 func UpdateNotificationData(c *gin.Context) {
@@ -81,12 +79,12 @@ type deleteNotificationRequest struct {
 	IDs []string `json:"ids" binding:"required" example:"[\"64f...\",\"64e...\"]"`
 }
 
-// DeleteNotification @Summary 删除通知
+// DeleteNotification @Summary Delete notification
 // @Tags        configuration
 // @Accept      json
 // @Produce     json
 // @Security    ApiKeyAuth
-// @Param       body body deleteNotificationRequest true "要删除的ID列表"
+// @Param       body body deleteNotificationRequest true "IDs to delete"
 // @Success     200 {object} response.SuccessResponse
 // @Router      /configuration/notification/delete [post]
 func DeleteNotification(c *gin.Context) {
@@ -102,7 +100,7 @@ func DeleteNotification(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// GetNotificationConfigData @Summary 获取通知配置
+// GetNotificationConfigData @Summary Get notification configuration
 // @Tags        configuration
 // @Produce     json
 // @Security    ApiKeyAuth
@@ -117,12 +115,12 @@ func GetNotificationConfigData(c *gin.Context) {
 	response.Success(c, data, "api.success")
 }
 
-// UpdateNotificationConfigData @Summary 更新通知配置
+// UpdateNotificationConfigData @Summary Update notification configuration
 // @Tags        configuration
 // @Accept      json
 // @Produce     json
 // @Security    ApiKeyAuth
-// @Param       body body map[string]interface{} true "通知配置"
+// @Param       body body map[string]interface{} true "Notification configuration"
 // @Success     200 {object} response.SuccessResponse
 // @Router      /configuration/notification/config/update [post]
 func UpdateNotificationConfigData(c *gin.Context) {

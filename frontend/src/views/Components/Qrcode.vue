@@ -6,7 +6,7 @@ import { computed, ref, unref } from 'vue'
 import { useAppStore } from '@/store/modules/app'
 import { ElRow, ElCard, ElCol, ElMessage } from 'element-plus'
 // @ts-ignore
-import logoImg from '@/assets/imgs/logo.png'
+import logoImg from '@/assets/imgs/recon.svg'
 
 const appStore = useAppStore()
 

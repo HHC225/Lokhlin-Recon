@@ -4,7 +4,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// URL 表示一个URL记录
 type URL struct {
 	ID     primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Input  string             `bson:"input" json:"input"`

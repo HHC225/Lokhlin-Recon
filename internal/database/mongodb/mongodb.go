@@ -8,18 +8,18 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Autumn-27/ScopeSentry/internal/logger"
+	"recon/internal/logger"
 
-	"github.com/Autumn-27/ScopeSentry/internal/config"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"recon/internal/config"
 )
 
 var Client *mongo.Client
 var DB *mongo.Database
 
 func init() {
-	// 设置连接超时
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	username := url.QueryEscape(config.GlobalConfig.MongoDB.Username)
@@ -30,17 +30,14 @@ func init() {
 		uri = "mongodb://" + username + ":" + password + "@" + uri
 	}
 
-	// 设置客户端选项
 	clientOptions := options.Client().ApplyURI(uri)
 
-	// 连接到 MongoDB
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		logger.Error(fmt.Sprintf("failed to connect %v to MongoDB: %v", uri, err))
+		logger.Error(fmt.Sprintf("failed to connect to MongoDB: %v", err))
 		return
 	}
 
-	// 检查连接
 	if err = client.Ping(ctx, nil); err != nil {
 		logger.Error(fmt.Sprintf("failed to ping MongoDB: %v", err))
 		return
@@ -64,8 +61,6 @@ func Close() error {
 	return nil
 }
 
-// ================= 工具方法 =================
-
 func Collection(name string) *mongo.Collection {
 	return DB.Collection(name)
 }
@@ -74,9 +69,6 @@ func defaultContext() (context.Context, context.CancelFunc) {
 	return context.WithTimeout(context.Background(), 10*time.Second)
 }
 
-// ================= CRUD 封装 =================
-
-// 插入一条
 func InsertOne(col string, document interface{}) (*mongo.InsertOneResult, error) {
 	ctx, cancel := defaultContext()
 	defer cancel()
@@ -84,7 +76,6 @@ func InsertOne(col string, document interface{}) (*mongo.InsertOneResult, error)
 	return Collection(col).InsertOne(ctx, document)
 }
 
-// 插入多条
 func InsertMany(col string, documents []interface{}) (*mongo.InsertManyResult, error) {
 	ctx, cancel := defaultContext()
 	defer cancel()
@@ -92,7 +83,6 @@ func InsertMany(col string, documents []interface{}) (*mongo.InsertManyResult, e
 	return Collection(col).InsertMany(ctx, documents)
 }
 
-// 查询一条并解码
 func FindOne(col string, filter interface{}, result interface{}) error {
 	ctx, cancel := defaultContext()
 	defer cancel()
@@ -100,7 +90,6 @@ func FindOne(col string, filter interface{}, result interface{}) error {
 	return Collection(col).FindOne(ctx, filter).Decode(result)
 }
 
-// 查询多条
 func FindMany(col string, filter interface{}, result interface{}, opts ...*options.FindOptions) error {
 	ctx, cancel := defaultContext()
 	defer cancel()
@@ -125,7 +114,6 @@ func FindAll(collectionName string, query, selector, result interface{}) error {
 	return cur.All(context.Background(), result)
 }
 
-// 更新一条
 func UpdateOne(col string, filter interface{}, update interface{}) (*mongo.UpdateResult, error) {
 	ctx, cancel := defaultContext()
 	defer cancel()
@@ -133,7 +121,6 @@ func UpdateOne(col string, filter interface{}, update interface{}) (*mongo.Updat
 	return Collection(col).UpdateOne(ctx, filter, update)
 }
 
-// 更新多条
 func UpdateMany(col string, filter interface{}, update interface{}) (*mongo.UpdateResult, error) {
 	ctx, cancel := defaultContext()
 	defer cancel()
@@ -141,7 +128,6 @@ func UpdateMany(col string, filter interface{}, update interface{}) (*mongo.Upda
 	return Collection(col).UpdateMany(ctx, filter, update)
 }
 
-// 删除一条
 func DeleteOne(col string, filter interface{}) (*mongo.DeleteResult, error) {
 	ctx, cancel := defaultContext()
 	defer cancel()
@@ -149,7 +135,6 @@ func DeleteOne(col string, filter interface{}) (*mongo.DeleteResult, error) {
 	return Collection(col).DeleteOne(ctx, filter)
 }
 
-// 删除多条
 func DeleteMany(col string, filter interface{}) (*mongo.DeleteResult, error) {
 	ctx, cancel := defaultContext()
 	defer cancel()
@@ -157,7 +142,6 @@ func DeleteMany(col string, filter interface{}) (*mongo.DeleteResult, error) {
 	return Collection(col).DeleteMany(ctx, filter)
 }
 
-// 统计数量
 func Count(col string, filter interface{}) (int64, error) {
 	ctx, cancel := defaultContext()
 	defer cancel()
@@ -165,7 +149,6 @@ func Count(col string, filter interface{}) (int64, error) {
 	return Collection(col).CountDocuments(ctx, filter)
 }
 
-// 分页查询
 func FindPage(
 	col string,
 	filter interface{},

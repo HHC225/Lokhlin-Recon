@@ -37,7 +37,6 @@ export const getRawRoute = (route: RouteLocationNormalized): RouteLocationNormal
   }
 }
 
-// 前端控制路由生成
 export const generateRoutesByFrontEnd = (
   routes: AppRouteRecordRaw[],
   keys: string[],
@@ -63,9 +62,7 @@ export const generateRoutesByFrontEnd = (
       ) as string
     }
 
-    // 开发者可以根据实际情况进行扩展
     for (const item of keys) {
-      // 通过路径去匹配
       if (isUrl(item) && (onlyOneChild === item || route.path === item)) {
         data = Object.assign({}, route)
       } else {
@@ -91,7 +88,6 @@ export const generateRoutesByFrontEnd = (
   return res
 }
 
-// 后端控制路由生成
 export const generateRoutesByServer = (routes: AppCustomRouteRecordRaw[]): AppRouteRecordRaw[] => {
   const res: AppRouteRecordRaw[] = []
 
@@ -106,9 +102,8 @@ export const generateRoutesByServer = (routes: AppCustomRouteRecordRaw[]): AppRo
       const comModule = modules[`../${route.component}.vue`] || modules[`../${route.component}.tsx`]
       const component = route.component as string
       if (!comModule && !component.includes('#')) {
-        console.error(`未找到${route.component}.vue文件或${route.component}.tsx文件，请创建`)
+        console.error(`Missing view component: ${route.component}.vue or ${route.component}.tsx`)
       } else {
-        // 动态加载路由文件，可根据实际情况进行自定义逻辑
         data.component =
           component === '#' ? Layout : component.includes('##') ? getParentLayout() : comModule
       }
@@ -128,7 +123,6 @@ export const pathResolve = (parentPath: string, path: string) => {
   return `${parentPath}${childPath}`.replace(/\/\//g, '/').trim()
 }
 
-// 路由降级
 export const flatMultiLevelRoutes = (routes: AppRouteRecordRaw[]) => {
   const modules: AppRouteRecordRaw[] = cloneDeep(routes)
   for (let index = 0; index < modules.length; index++) {
@@ -141,7 +135,6 @@ export const flatMultiLevelRoutes = (routes: AppRouteRecordRaw[]) => {
   return modules
 }
 
-// 层级是否大于2
 const isMultipleRoute = (route: AppRouteRecordRaw) => {
   if (!route || !Reflect.has(route, 'children') || !route.children?.length) {
     return false
@@ -160,7 +153,6 @@ const isMultipleRoute = (route: AppRouteRecordRaw) => {
   return flag
 }
 
-// 生成二级路由
 const promoteRouteLevel = (route: AppRouteRecordRaw) => {
   let router: Router | null = createRouter({
     routes: [route as RouteRecordRaw],
@@ -174,7 +166,6 @@ const promoteRouteLevel = (route: AppRouteRecordRaw) => {
   route.children = route.children?.map((item) => omit(item, 'children'))
 }
 
-// 添加所有子菜单
 const addToChildren = (
   routes: RouteRecordNormalized[],
   children: AppRouteRecordRaw[],

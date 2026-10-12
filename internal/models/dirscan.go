@@ -1,7 +1,5 @@
 // models-------------------------------------
 // @file      : dirscan.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/5/17 15:07
 // -------------------------------------------
 

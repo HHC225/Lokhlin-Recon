@@ -1,7 +1,5 @@
 // Package jobs -----------------------------
 // @file      : page_monitoring.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/4/30 15:18
 // -------------------------------------------
 package jobs
@@ -10,10 +8,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/Autumn-27/ScopeSentry/internal/logger"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"recon/internal/logger"
+	"recon/internal/models"
 )
 
 func CreatePageMonitoringTask() error {
@@ -26,7 +24,7 @@ func CreatePageMonitoringTask() error {
 		return fmt.Errorf("failed to get scheduled task: %w", err)
 	}
 	if task.AllNode {
-		// 选择自动加入后 获取所有节点
+
 		allNode, err := NodeService.GetNodeData(context.Background(), false)
 		if err != nil {
 			return err
@@ -64,7 +62,7 @@ func CreatePageMonitoringTask() error {
 	}
 	jsonData, err := json.Marshal(addRedisTaskData)
 	if err != nil {
-		fmt.Println("JSON 转换错误:", err)
+		fmt.Println("JSON conversion failed:", err)
 		return err
 	}
 	for _, d := range data {
@@ -76,7 +74,6 @@ func CreatePageMonitoringTask() error {
 	return nil
 }
 
-// getPageMonitoringData 获取页面监控数据
 func getPageMonitoringData() ([]string, error) {
 	cursor, err := ScanSvc.pageMonitoringCollection.Find(context.Background(), nil, options.Find().SetProjection(bson.M{"url": 1}))
 	if err != nil {

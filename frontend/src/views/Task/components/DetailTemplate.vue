@@ -30,14 +30,12 @@ import type { fileData, portDictData } from '@/api/DictionaryManagement/types'
 
 const { t } = useI18n()
 
-// 接收父组件传递的 props
 const props = defineProps<{
   closeDialog: () => void
   getList: () => void
   id: string
 }>()
 
-// 模块数组
 const modules = [
   'TargetHandler',
   'SubdomainScan',
@@ -55,7 +53,6 @@ const modules = [
   'PassiveScan'
 ]
 
-// 参数类型定义
 interface ParameterItem {
   name: string
   type: 'string' | 'bool' | 'dict' | 'port'
@@ -65,7 +62,6 @@ interface ParameterItem {
   portName?: string
 }
 
-// 存储每个模块的插件和参数数据
 const plugins = reactive<
   Record<
     string,
@@ -80,17 +76,15 @@ const plugins = reactive<
     }[]
   >
 >({})
-// 存储每个插件的参数列表（结构化数据）
+
 const parameterLists = reactive<Record<string, Record<string, ParameterItem[]>>>({})
-// 存储生成的参数字符串（用于显示和保存）
+
 const parameters = reactive<Record<string, Record<string, string>>>({})
 const selectPlugin = reactive<Record<string, string[]>>({})
 
-// 字典和端口数据
 const dictList = ref<fileData[]>([])
 const portList = ref<portDictData[]>([])
 
-// 加载字典列表
 const loadDictList = async () => {
   try {
     const res = await getManagetListApi()
@@ -98,11 +92,10 @@ const loadDictList = async () => {
       dictList.value = res.data.list
     }
   } catch (error) {
-    console.error('加载字典列表失败:', error)
+    console.error('Failed to load dictionaries:', error)
   }
 }
 
-// 加载端口列表
 const loadPortList = async () => {
   try {
     const res = await getPortDictDataApi('', 1, 1000)
@@ -110,11 +103,10 @@ const loadPortList = async () => {
       portList.value = res.data.list
     }
   } catch (error) {
-    console.error('加载端口列表失败:', error)
+    console.error('Failed to load ports:', error)
   }
 }
 
-// 格式化参数列表为参数字符串
 const formatParameters = (params: ParameterItem[]): string => {
   if (!params || params.length === 0) {
     return ''
@@ -123,20 +115,18 @@ const formatParameters = (params: ParameterItem[]): string => {
     .filter((param) => param && param.name && param.type)
     .map((param) => {
       if (param.type === 'dict') {
-        // dict 类型：-name {dict.分类.名称}
         if (param.dictCategory && param.dictName) {
           return `-${param.name} {dict.${param.dictCategory}.${param.dictName}}`
         }
         return null
       }
       if (param.type === 'port') {
-        // port 类型：-name {port.name}
         if (param.portName) {
           return `-${param.name} {port.${param.portName}}`
         }
         return null
       }
-      // string 和 bool 类型：只有当默认值有值时才格式化
+
       if (
         param.defaultValue !== undefined &&
         param.defaultValue !== null &&
@@ -150,12 +140,11 @@ const formatParameters = (params: ParameterItem[]): string => {
     .join(' ')
 }
 
-// 解析参数字符串为参数列表（用于向后兼容，如果parameterList不存在时）
 const parseParameters = (paramStr: string): ParameterItem[] => {
   if (!paramStr || paramStr.trim() === '') {
     return []
   }
-  // 简单的解析逻辑，将 -name value 格式解析为参数列表
+
   const parts = paramStr.match(/-(\w+)\s+(\S+)/g)
   if (!parts) {
     return []
@@ -166,25 +155,25 @@ const parseParameters = (paramStr: string): ParameterItem[] => {
       if (match) {
         const name = match[1]
         const value = match[2]
-        // 判断是否为 bool 类型
+
         if (value === 'true' || value === 'false') {
           return { name, type: 'bool', defaultValue: value }
         }
-        // 判断是否为 dict 类型
+
         if (value.startsWith('{dict.')) {
           const dictMatch = value.match(/{dict\.(.+)\.(.+)}/)
           if (dictMatch) {
             return { name, type: 'dict', dictCategory: dictMatch[1], dictName: dictMatch[2] }
           }
         }
-        // 判断是否为 port 类型
+
         if (value.startsWith('{port.')) {
           const portMatch = value.match(/{port\.(.+)}/)
           if (portMatch) {
             return { name, type: 'port', portName: portMatch[1] }
           }
         }
-        // 默认 string 类型
+
         return { name, type: 'string', defaultValue: value }
       }
       return null
@@ -192,7 +181,6 @@ const parseParameters = (paramStr: string): ParameterItem[] => {
     .filter((item) => item !== null) as ParameterItem[]
 }
 
-// 处理参数列表变化，更新参数字符串
 const handleParameterListChange = (module: string, hash: string) => {
   setTimeout(() => {
     const params = parameterLists[module]?.[hash] || []
@@ -204,7 +192,6 @@ const handleParameterListChange = (module: string, hash: string) => {
   }, 0)
 }
 
-// 根据分类筛选字典名称
 const getFilteredDictNames = (category: string | undefined) => {
   if (!category) {
     return []
@@ -212,14 +199,12 @@ const getFilteredDictNames = (category: string | undefined) => {
   return dictList.value.filter((dict) => (dict.category || dict.name) === category)
 }
 
-// 处理分类改变，清空名称
 const handleDictCategoryChange = (module: string, hash: string, index: number) => {
   const param = parameterLists[module][hash][index]
   param.dictName = undefined
   handleParameterListChange(module, hash)
 }
 
-// 添加参数（只允许添加string类型）
 const addParameter = (module: string, hash: string) => {
   if (!parameterLists[module]) {
     parameterLists[module] = {}
@@ -235,57 +220,52 @@ const addParameter = (module: string, hash: string) => {
   handleParameterListChange(module, hash)
 }
 
-// 删除参数
 const removeParameter = (module: string, hash: string, index: number) => {
   parameterLists[module][hash].splice(index, 1)
   handleParameterListChange(module, hash)
 }
 
-// 初始化插件数据
 const initPlugins = async () => {
   for (const module of modules) {
-    const modulePlugins = await getPluginDataByModuleApi(module) // 调用实际接口获取插件数据
-    parameters[module] = {} // 初始化空的参数对象
-    parameterLists[module] = {} // 初始化空的参数列表对象
+    const modulePlugins = await getPluginDataByModuleApi(module)
+    parameters[module] = {}
+    parameterLists[module] = {}
     selectPlugin[module] = []
 
     plugins[module] = modulePlugins.data.list.map((plugin) => {
-      // 如果有 parameterList，解析它；否则解析 parameter 字符串
       let paramList: ParameterItem[] = []
       if (plugin.parameterList) {
         try {
           paramList = JSON.parse(plugin.parameterList) as ParameterItem[]
         } catch (error) {
-          console.error('解析 parameterList 失败:', error)
-          // 如果解析失败，尝试从 parameter 字符串解析
+          console.error('Failed to parse parameterList:', error)
+
           paramList = parseParameters(plugin.parameter || '')
         }
       } else {
         paramList = parseParameters(plugin.parameter || '')
       }
 
-      // 存储参数列表
       if (!parameterLists[module]) {
         parameterLists[module] = {}
       }
       parameterLists[module][plugin.hash] = paramList
 
-      // 生成参数字符串
       const formattedParams = formatParameters(paramList)
       parameters[module][plugin.hash] = formattedParams
 
       return {
         ...plugin,
-        enabled: false // 初始化时开关为关闭状态
+        enabled: false
       }
     })
   }
 }
 
 const vulList = ref<string[]>([])
-// 根据 ID 加载模板数据
+
 const loadTemplate = async (id: string) => {
-  const template = await getTemplateDetailApi(id) // 调用实际接口获取已有数据
+  const template = await getTemplateDetailApi(id)
   console.log(template)
   templateName.value = template.data.name
   vulList.value = template.data.vullist
@@ -294,60 +274,50 @@ const loadTemplate = async (id: string) => {
     parameterLists[module] = {}
 
     const moduleData = template.data?.[module] || []
-    const modulePlugins = await getPluginDataByModuleApi(module) // 获取模块对应的插件
+    const modulePlugins = await getPluginDataByModuleApi(module)
 
     plugins[module] = modulePlugins.data.list.map((plugin) => {
-      // 优先使用保存的 parameterList，如果没有则尝试老版本的 Parameters，最后使用插件的默认 parameterList
       const templateData = template.data as any
       const savedParameterList = templateData.ParameterLists?.[module]?.[plugin.hash]
-      const savedParameterString = templateData.Parameters?.[module]?.[plugin.hash] // 老版本存储的参数字符串
+      const savedParameterString = templateData.Parameters?.[module]?.[plugin.hash]
       let paramList: ParameterItem[] = []
 
       if (savedParameterList) {
-        // 新版本：如果保存的是 parameterList（JSON字符串），直接解析
         if (typeof savedParameterList === 'string') {
           try {
             paramList = JSON.parse(savedParameterList) as ParameterItem[]
           } catch (error) {
-            console.error('解析保存的 parameterList 失败:', error)
-            // 解析失败，尝试从保存的参数字符串解析
+            console.error('Failed to parse saved parameterList:', error)
+
             if (savedParameterString && typeof savedParameterString === 'string') {
               paramList = parseParameters(savedParameterString)
             } else {
-              // 回退到使用插件默认 parameterList
               paramList = plugin.parameterList
                 ? (JSON.parse(plugin.parameterList) as ParameterItem[])
                 : []
             }
           }
         } else if (Array.isArray(savedParameterList)) {
-          // 如果保存的已经是数组格式，直接使用
           paramList = savedParameterList as ParameterItem[]
         } else {
-          // 其他格式，尝试从保存的参数字符串解析
           if (savedParameterString && typeof savedParameterString === 'string') {
             paramList = parseParameters(savedParameterString)
           } else {
-            // 回退到使用插件默认 parameterList
             paramList = plugin.parameterList
               ? (JSON.parse(plugin.parameterList) as ParameterItem[])
               : []
           }
         }
       } else if (savedParameterString && typeof savedParameterString === 'string') {
-        // 老版本兼容：如果只有参数字符串，解析它
-        // 但需要与插件的 parameterList 合并，确保不丢失未配置的参数
         const parsedParams = parseParameters(savedParameterString)
 
         if (plugin.parameterList) {
-          // 如果有插件的 parameterList，合并两者
           try {
             const pluginParamList = JSON.parse(plugin.parameterList) as ParameterItem[]
-            // 将解析出的参数值更新到插件的参数列表中
+
             paramList = pluginParamList.map((pluginParam) => {
               const savedParam = parsedParams.find((p) => p.name === pluginParam.name)
               if (savedParam) {
-                // 如果模板中有配置，使用模板的值，但保留插件的类型和其他信息
                 return {
                   ...pluginParam,
                   defaultValue: savedParam.defaultValue,
@@ -359,86 +329,74 @@ const loadTemplate = async (id: string) => {
               return pluginParam
             })
           } catch (error) {
-            console.error('解析插件 parameterList 失败:', error)
-            // 解析失败，直接使用从参数字符串解析的结果
+            console.error('Failed to parse plugin parameterList:', error)
+
             paramList = parsedParams
           }
         } else {
-          // 插件没有 parameterList，直接使用解析结果
           paramList = parsedParams
         }
       } else if (plugin.parameterList) {
-        // 没有保存的参数，使用插件的默认 parameterList
         try {
           paramList = JSON.parse(plugin.parameterList) as ParameterItem[]
         } catch (error) {
-          console.error('解析插件 parameterList 失败:', error)
+          console.error('Failed to parse plugin parameterList:', error)
           paramList = []
         }
       } else {
-        // 插件也没有 parameterList，尝试从 parameter 字符串解析（最后的后向兼容）
         paramList = parseParameters(plugin.parameter || '')
       }
 
-      // 存储参数列表
       parameterLists[module][plugin.hash] = paramList
 
-      // 生成参数字符串（用于显示和向后兼容）
       const formattedParams = formatParameters(paramList)
       parameters[module][plugin.hash] = formattedParams
 
       return {
         ...plugin,
-        enabled: moduleData.includes(plugin.hash) || false // 判断插件是否启用
+        enabled: moduleData.includes(plugin.hash) || false
       }
     })
   }
 }
 
-// 监听 id 的变化来判断是创建还是编辑模式
 watch(
   () => props.id,
   async (newId) => {
     if (newId) {
-      await loadTemplate(newId) // 如果传入了 ID，则进入编辑模式，加载已有数据
+      await loadTemplate(newId)
     } else {
-      await initPlugins() // 否则初始化空白表单，表示创建新项
+      await initPlugins()
     }
   },
-  { immediate: true } // 确保组件挂载时立即触发
+  { immediate: true }
 )
 const saveLoading = ref(false)
 
-// 提交表单数据
 const onSubmit = async () => {
   saveLoading.value = true
   const result: Record<string, any> = {}
   if (templateName.value == '') {
-    ElMessage.error('name 不能为空')
+    ElMessage.error(t('console.nameRequired'))
     saveLoading.value = false
     return
   }
-  // 收集每个模块启用的插件和对应的参数
+
   for (const module of modules) {
     const enabledPlugins = plugins[module].filter((plugin) => plugin.enabled)
     result[module] = enabledPlugins.map((plugin) => plugin.hash)
 
-    // 保存参数字符串（用于向后兼容和执行）
     result.Parameters = result.Parameters || {}
     result.Parameters[module] = {}
 
-    // 保存 parameterList（JSON字符串，用于完整恢复参数配置）
     result.ParameterLists = result.ParameterLists || {}
     result.ParameterLists[module] = {}
 
-    // 只收集已启用插件的参数
     for (const plugin of enabledPlugins) {
-      // 保存参数字符串
       if (parameters[module]?.[plugin.hash]) {
         result.Parameters[module][plugin.hash] = parameters[module][plugin.hash]
       }
 
-      // 保存 parameterList（JSON字符串）
       if (parameterLists[module]?.[plugin.hash]) {
         result.ParameterLists[module][plugin.hash] = JSON.stringify(
           parameterLists[module][plugin.hash]
@@ -454,11 +412,10 @@ const onSubmit = async () => {
 
     if (res.code === 200) {
       ElMessage.success('success')
-      // 提交成功才执行父组件逻辑
+
       props.closeDialog()
       props.getList()
     } else {
-      // 提交失败
       ElMessage.error(res.message || 'error')
     }
   } catch (error) {
@@ -499,20 +456,17 @@ const buildTree = (data: pocData[]): TreeNode[] => {
   data.forEach((item) => {
     let currentLevel = tree
     item.tags.forEach((tag) => {
-      // 查找当前层级是否有该标签
       const existingNode = currentLevel.find((node) => node.label === tag)
       if (!existingNode) {
-        // 如果没有找到，则生成一个分类节点
         const randomString = Math.random().toString(36).substring(2, 8)
         const newNode: TreeNode = { value: randomString, label: tag, children: [] }
         currentLevel.push(newNode)
-        currentLevel = newNode.children // 进入下一层
+        currentLevel = newNode.children
       } else {
-        currentLevel = existingNode.children // 如果找到了，继续向下
+        currentLevel = existingNode.children
       }
     })
 
-    // 添加实际数据节点
     currentLevel.push({ value: item.id, label: item.name, children: [] })
   })
 
@@ -520,9 +474,9 @@ const buildTree = (data: pocData[]): TreeNode[] => {
 }
 
 const vulSelectOptions = reactive<{ value: string; label: string }[]>([])
-// 获取数据并生成树形结构
+
 const getPocList = async () => {
-  const res = await getPocDataAllApi() // 调用后端API
+  const res = await getPocDataAllApi()
   if (res.data.list.length > 0) {
     vulSelectOptions.push({ value: 'All Poc', label: 'All Poc' })
     res.data.list.forEach((item) => {
@@ -536,7 +490,7 @@ const getPocList = async () => {
 }
 
 getPocList()
-// 初始化时加载字典和端口列表
+
 loadDictList()
 loadPortList()
 
@@ -545,7 +499,6 @@ const openPocList = async () => {
   dialogVisible.value = true
 }
 
-// 参数配置抽屉
 const parameterDrawerVisible = ref(false)
 const currentPluginModule = ref('')
 const currentPluginHash = ref('')
@@ -553,7 +506,6 @@ const currentPluginName = ref('')
 const currentPluginHelp = ref('')
 const drawerSize = ref('50%')
 
-// 计算抽屉尺寸
 const calculateDrawerSize = () => {
   const screenWidth = window.innerWidth
   if (screenWidth < 768) {
@@ -565,19 +517,17 @@ const calculateDrawerSize = () => {
   }
 }
 
-// 打开参数配置抽屉
 const openParameterDialog = (module: string, hash: string, name: string) => {
   currentPluginModule.value = module
   currentPluginHash.value = hash
   currentPluginName.value = name
-  // 获取当前插件的 help 信息
+
   const plugin = plugins[module]?.find((p) => p.hash === hash)
   currentPluginHelp.value = plugin?.help || ''
   calculateDrawerSize()
   parameterDrawerVisible.value = true
 }
 
-// 关闭参数配置抽屉
 const closeParameterDialog = () => {
   parameterDrawerVisible.value = false
   currentPluginModule.value = ''
@@ -590,10 +540,10 @@ watch(dialogVisible, (newVal) => {
     nextTick(() => {
       const tree = treeRef.value
       if (tree) {
-        console.log('treeRef 已经获取到实例:', tree)
-        setTreeCheckedNodes(vulList.value) // 初始化选中的节点
+        console.log('treeRef instance ready:', tree)
+        setTreeCheckedNodes(vulList.value)
       } else {
-        console.log('treeRef 未能正确获取到实例')
+        console.log('treeRef instance unavailable')
       }
     })
   }
@@ -603,9 +553,9 @@ const setTreeCheckedNodes = (checkedKeys) => {
   nextTick(() => {
     const tree = treeRef.value
     if (tree) {
-      tree.setCheckedKeys(checkedKeys) // 使用 setCheckedKeys 方法来批量选中指定的节点
+      tree.setCheckedKeys(checkedKeys)
     } else {
-      console.log('treeRef 未能正确获取到实例')
+      console.log('treeRef instance unavailable')
     }
   })
 }
@@ -616,51 +566,44 @@ const propss = {
 }
 
 const handleCheckChange = (data, checked) => {
-  const nodeValue = data.value // 当前节点的 value
+  const nodeValue = data.value
 
-  // 判断当前节点是否是叶子节点
   const isLeafNode = !data.children || data.children.length === 0
 
-  // 如果是叶子节点，直接处理它
   if (isLeafNode) {
     if (checked && !vulList.value.includes(nodeValue)) {
-      vulList.value.push(nodeValue) // 选中叶子节点，添加到 vulList
+      vulList.value.push(nodeValue)
     } else if (!checked) {
       const index = vulList.value.indexOf(nodeValue)
       if (index > -1) {
-        vulList.value.splice(index, 1) // 取消选中叶子节点，移除它
+        vulList.value.splice(index, 1)
       }
     }
   } else {
-    // 如果是父节点，遍历它的所有子节点并处理
     const addLeafNodes = (node) => {
       if (node.children && node.children.length > 0) {
         node.children.forEach((child) => {
-          const isChildLeafNode = !child.children || child.children.length === 0 // 判断子节点是否为叶子节点
+          const isChildLeafNode = !child.children || child.children.length === 0
           if (isChildLeafNode) {
-            // 只处理叶子节点
             if (checked && !vulList.value.includes(child.value)) {
-              vulList.value.push(child.value) // 添加叶子节点到 vulList
+              vulList.value.push(child.value)
             } else if (!checked) {
               const index = vulList.value.indexOf(child.value)
               if (index > -1) {
-                vulList.value.splice(index, 1) // 移除取消选中的叶子节点
+                vulList.value.splice(index, 1)
               }
             }
           } else {
-            // 如果是父节点，则递归处理其子节点
             addLeafNodes(child)
           }
         })
       }
     }
 
-    // 如果是父节点，递归地添加或移除其叶子节点
     addLeafNodes(data)
   }
 
-  // 打印当前选中的叶子节点的值
-  console.log('当前选中的叶子节点的值:', vulList.value)
+  console.log('Selected leaf node values:', vulList.value)
 }
 </script>
 
@@ -750,7 +693,7 @@ const handleCheckChange = (data, checked) => {
                   {{ t('common.selectCategory') }}
                 </ElButton>
               </ElFormItem>
-              <!-- 参数预览和配置按钮 -->
+
               <ElFormItem v-if="plugin.enabled" :label="t('plugin.parameter')">
                 <div style="display: flex; gap: 8px; align-items: flex-start">
                   <ElInput
@@ -776,7 +719,9 @@ const handleCheckChange = (data, checked) => {
     </div>
     <ElRow>
       <ElCol :span="12" style="text-align: right">
-        <ElButton type="primary" @click="onSubmit" :loading="saveLoading"> 保存 </ElButton>
+        <ElButton type="primary" @click="onSubmit" :loading="saveLoading">
+          {{ t('task.save') }}
+        </ElButton>
       </ElCol>
     </ElRow>
   </ElForm>
@@ -798,7 +743,6 @@ const handleCheckChange = (data, checked) => {
     />
   </Dialog>
 
-  <!-- 参数配置抽屉 -->
   <ElDrawer
     v-model="parameterDrawerVisible"
     :title="
@@ -811,7 +755,6 @@ const handleCheckChange = (data, checked) => {
     :close-on-click-modal="false"
   >
     <ElForm label-width="100px">
-      <!-- 插件帮助信息 -->
       <ElRow v-if="currentPluginHelp" style="margin-bottom: 20px">
         <ElCol :span="24">
           <ElCard shadow="never" style="background-color: #f0f9ff; border: 1px solid #b3d8ff">
@@ -832,7 +775,6 @@ const handleCheckChange = (data, checked) => {
           <ElCol :span="24" style="margin-bottom: 16px">
             <div style="padding: 12px; border: 1px solid #dcdfe6; border-radius: 4px">
               <ElRow :gutter="10">
-                <!-- 参数名称 -->
                 <ElCol :span="24">
                   <ElFormItem
                     :prop="`parameterList.${currentPluginModule}.${currentPluginHash}.${index}.name`"
@@ -859,7 +801,6 @@ const handleCheckChange = (data, checked) => {
                   </ElFormItem>
                 </ElCol>
 
-                <!-- string 和 bool 类型的默认值 -->
                 <template v-if="param.type === 'string' || param.type === 'bool'">
                   <ElCol :span="24">
                     <ElFormItem
@@ -886,7 +827,6 @@ const handleCheckChange = (data, checked) => {
                   </ElCol>
                 </template>
 
-                <!-- dict 类型的分类和名称 -->
                 <template v-if="param.type === 'dict'">
                   <ElCol :span="24" style="margin-bottom: 8px">
                     <ElFormItem
@@ -935,7 +875,6 @@ const handleCheckChange = (data, checked) => {
                   </ElCol>
                 </template>
 
-                <!-- port 类型的 name -->
                 <template v-if="param.type === 'port'">
                   <ElCol :span="24">
                     <ElFormItem
@@ -968,7 +907,6 @@ const handleCheckChange = (data, checked) => {
         {{ t('plugin.noParameters') }}
       </div>
 
-      <!-- 添加参数按钮 -->
       <ElRow style="margin-top: 20px">
         <ElCol :span="24">
           <ElButton
@@ -981,7 +919,6 @@ const handleCheckChange = (data, checked) => {
         </ElCol>
       </ElRow>
 
-      <!-- 参数预览 -->
       <ElFormItem :label="t('plugin.parameter')" style="margin-top: 20px">
         <ElInput
           :model-value="parameters[currentPluginModule]?.[currentPluginHash] || ''"
@@ -1008,7 +945,6 @@ const handleCheckChange = (data, checked) => {
 </template>
 
 <style scoped>
-/* 样式部分 */
 .ElFormItem {
   margin-bottom: 20px;
 }

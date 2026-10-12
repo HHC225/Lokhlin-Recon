@@ -2,13 +2,13 @@ package role
 
 //var roleRepo role.Repository
 //
-//// @Summary 创建角色
-//// @Description 创建新的角色，包含角色名称、描述和权限列表
-//// @Tags 角色管理
+//// @Summary Create role
+//// @Description Create a role with name, description and permissions
+//// @Tags Role management
 //// @Accept json
 //// @Produce json
-//// @Param Authorization header string true "Bearer 用户令牌"
-//// @Param data body models.RoleCreate true "角色创建信息"
+//// @Param Authorization header string true "Bearer User token"
+//// @Param data body models.RoleCreate true "Role creation information"
 //// @Success 201 {object} response.Response{data=RoleResponse, code=201, message=string}
 //// @Failure 400 {object} response.Response{code=400, message=string}
 //// @Failure 401 {object} response.Response{code=401, message=string}
@@ -21,14 +21,14 @@ package role
 //		return
 //	}
 //
-//	// 检查角色名是否已存在
+
 //	existingRole, err := roleRepo.GetByName(c.Request.Context(), roleCreate.Name)
 //	if err == nil && existingRole != nil {
 //		response.BadRequest(c, "api.role.name.exists", nil)
 //		return
 //	}
 //
-//	// 创建角色
+
 //	role := &models.Role{
 //		Name:        roleCreate.Name,
 //		Description: roleCreate.Description,
@@ -51,14 +51,14 @@ package role
 //	response.Created(c, roleResp, "api.role.create.success")
 //}
 //
-//// @Summary 获取角色列表
-//// @Description 分页获取角色列表
-//// @Tags 角色管理
+//// @Summary List roles
+//// @Description List roles with pagination
+//// @Tags Role management
 //// @Accept json
 //// @Produce json
-//// @Param Authorization header string true "Bearer 用户令牌"
-//// @Param page query int false "页码" default(1)
-//// @Param size query int false "每页数量" default(10)
+//// @Param Authorization header string true "Bearer User token"
+//// @Param page query int false "Page number" default(1)
+//// @Param size query int false "Results per page" default(10)
 //// @Success 200 {object} response.Response{data=response.PageResponse{list=[]RoleResponse}, code=200, message=string}
 //// @Failure 400 {object} response.Response{code=400, message=string}
 //// @Failure 401 {object} response.Response{code=401, message=string}
@@ -99,13 +99,13 @@ package role
 //	response.Success(c, pageData, "api.role.list.success")
 //}
 //
-//// @Summary 获取角色详情
-//// @Description 根据ID获取角色详情
-//// @Tags 角色管理
+//// @Summary Get role details
+//// @Description Get role details by ID
+//// @Tags Role management
 //// @Accept json
 //// @Produce json
-//// @Param Authorization header string true "Bearer 用户令牌"
-//// @Param id path string true "角色ID"
+//// @Param Authorization header string true "Bearer User token"
+//// @Param id path string true "Role ID"
 //// @Success 200 {object} response.Response{data=RoleResponse, code=200, message=string}
 //// @Failure 400 {object} response.Response{code=400, message=string}
 //// @Failure 401 {object} response.Response{code=401, message=string}
@@ -135,14 +135,14 @@ package role
 //	response.Success(c, roleResp, "api.role.get.success")
 //}
 //
-//// @Summary 更新角色
-//// @Description 更新角色信息
-//// @Tags 角色管理
+//// @Summary Update role
+//// @Description Update role information
+//// @Tags Role management
 //// @Accept json
 //// @Produce json
-//// @Param Authorization header string true "Bearer 用户令牌"
-//// @Param id path string true "角色ID"
-//// @Param data body models.RoleUpdate true "角色更新信息"
+//// @Param Authorization header string true "Bearer User token"
+//// @Param id path string true "Role ID"
+//// @Param data body models.RoleUpdate true "Role update information"
 //// @Success 200 {object} response.Response{code=200, message=string}
 //// @Failure 400 {object} response.Response{code=400, message=string}
 //// @Failure 401 {object} response.Response{code=401, message=string}
@@ -172,13 +172,13 @@ package role
 //	response.Success(c, nil, "api.role.update.success")
 //}
 //
-//// @Summary 删除角色
-//// @Description 删除指定角色
-//// @Tags 角色管理
+//// @Summary Delete role
+//// @Description Delete the specified role
+//// @Tags Role management
 //// @Accept json
 //// @Produce json
-//// @Param Authorization header string true "Bearer 用户令牌"
-//// @Param id path string true "角色ID"
+//// @Param Authorization header string true "Bearer User token"
+//// @Param id path string true "Role ID"
 //// @Success 200 {object} response.Response{code=200, message=string}
 //// @Failure 400 {object} response.Response{code=400, message=string}
 //// @Failure 401 {object} response.Response{code=401, message=string}
@@ -202,10 +202,10 @@ package role
 //	response.Success(c, nil, "api.role.delete.success")
 //}
 //
-//// RoleResponse 角色响应结构
+
 //type RoleResponse struct {
 //	ID          string   `json:"id" example:"5f7b5e2d8f7b5e2d8f7b5e2d"`
 //	Name        string   `json:"name" example:"admin"`
-//	Description string   `json:"description" example:"系统管理员角色"`
+
 //	Permissions []string `json:"permissions" example:"['user:create','user:update']"`
 //}

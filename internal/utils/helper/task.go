@@ -1,7 +1,5 @@
 // helper-------------------------------------
 // @file      : task.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/6/2 21:08
 // -------------------------------------------
 
@@ -14,7 +12,6 @@ import (
 	"strings"
 )
 
-// GenerateIPRange 生成 IP 范围
 func GenerateIPRange(startIP, endIP string) ([]string, error) {
 	start := net.ParseIP(startIP)
 	end := net.ParseIP(endIP)
@@ -26,11 +23,10 @@ func GenerateIPRange(startIP, endIP string) ([]string, error) {
 	for ip := start; !ip.Equal(end); ip = NextIP(ip) {
 		ipList = append(ipList, ip.String())
 	}
-	ipList = append(ipList, end.String()) // 包含结束 IP
+	ipList = append(ipList, end.String())
 	return ipList, nil
 }
 
-// NextIP 生成下一个 IP（仅支持 IPv4）
 func NextIP(ip net.IP) net.IP {
 	ip = ip.To4()
 	result := make(net.IP, len(ip))
@@ -44,7 +40,6 @@ func NextIP(ip net.IP) net.IP {
 	return result
 }
 
-// GenerateTarget 解析 target，可以是单个 IP、IP 段、CIDR 或 URL
 func GenerateTarget(target string) []string {
 	target = strings.TrimSpace(target)
 	if strings.Contains(target, "://") {
@@ -69,7 +64,7 @@ func GenerateTarget(target string) []string {
 		for ip := network.IP.Mask(network.Mask); network.Contains(ip); ip = NextIP(ip) {
 			result = append(result, ip.String())
 		}
-		// 移除网络地址和广播地址
+
 		if len(result) >= 2 {
 			result = result[1 : len(result)-1]
 		}
@@ -78,7 +73,6 @@ func GenerateTarget(target string) []string {
 	return []string{target}
 }
 
-// GenerateIgnore 解析忽略列表，返回精确忽略 IP 和正则忽略列表
 func GenerateIgnore(ignore string) ([]string, []string) {
 	if ignore == "" {
 		return []string{}, []string{}
@@ -103,7 +97,6 @@ func GenerateIgnore(ignore string) ([]string, []string) {
 	return ignoreList, regexList
 }
 
-// GetTargetList 根据原始 target 列表和忽略列表，生成去重且保序的目标列表
 func GetTargetList(rawTarget, ignore string) ([]string, error) {
 	ignoreList, regexList := GenerateIgnore(ignore)
 	ignoreSet := make(map[string]struct{})

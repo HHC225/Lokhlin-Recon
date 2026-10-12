@@ -1,21 +1,21 @@
 // Package system -----------------------------
 // @file      : system.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/5/2 23:01
 // -------------------------------------------
 package system
 
 import (
 	"encoding/json"
-	"github.com/Autumn-27/ScopeSentry/internal/constants"
 	"net/http"
+	"os"
+	"recon/internal/constants"
+	"strings"
 	"time"
 
-	"github.com/Autumn-27/ScopeSentry/internal/api/response"
-	"github.com/Autumn-27/ScopeSentry/internal/database/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/valyala/fasthttp"
+	"recon/internal/api/response"
+	"recon/internal/database/redis"
 )
 
 type VersionResponse struct {
@@ -39,8 +39,8 @@ type RemoteVersion struct {
 	ScanMsg   string `json:"scan_msg"`
 }
 
-// GetSystemVersion @Summary      获取系统及节点版本信息
-// @Description  获取 ScopeSentry 服务端及所有节点的当前版本信息
+// GetSystemVersion @Summary      Get server and node versions
+// @Description  Get current versions of the Recon server and all scanner nodes
 // @Tags         System
 // @Accept       json
 // @Produce      json
@@ -58,47 +58,27 @@ func GetSystemVersion(c *gin.Context) {
 		scanMsg        string
 	)
 
-	client := &fasthttp.Client{
-		ReadTimeout: 10 * time.Second,
-	}
-
-	req := fasthttp.AcquireRequest()
-	resp := fasthttp.AcquireResponse()
-	defer fasthttp.ReleaseRequest(req)
-	defer fasthttp.ReleaseResponse(resp)
-
-	req.SetRequestURI("https://gitee.com/constL/scope-sentry/raw/main/version.json")
-	req.Header.SetMethod("GET")
-
-	err := client.Do(req, resp)
-	if err == nil && resp.StatusCode() == http.StatusOK {
-		var version RemoteVersion
-		if err := json.Unmarshal(resp.Body(), &version); err == nil {
-			serverLVersion = version.Server
-			serverMsg = version.ServerMsg
-			scanLVersion = version.Scan
-			scanMsg = version.ScanMsg
-		}
-	}
-
-	// 如果gitee失败，尝试从github获取
-	if serverLVersion == "" {
-		req.SetRequestURI("https://raw.githubusercontent.com/Autumn-27/ScopeSentry/main/version.json")
-		err = client.Do(req, resp)
-		if err == nil && resp.StatusCode() == http.StatusOK {
+	serverLVersion = constants.Version
+	if versionURL := strings.TrimSpace(os.Getenv("RECON_VERSION_URL")); versionURL != "" {
+		client := &fasthttp.Client{ReadTimeout: 10 * time.Second}
+		req := fasthttp.AcquireRequest()
+		resp := fasthttp.AcquireResponse()
+		defer fasthttp.ReleaseRequest(req)
+		defer fasthttp.ReleaseResponse(resp)
+		req.SetRequestURI(versionURL)
+		req.Header.SetMethod("GET")
+		if err := client.Do(req, resp); err == nil && resp.StatusCode() == http.StatusOK {
 			var version RemoteVersion
 			if err := json.Unmarshal(resp.Body(), &version); err == nil {
-				serverLVersion = version.Server
-				serverMsg = version.ServerMsg
-				scanLVersion = version.Scan
-				scanMsg = version.ScanMsg
+				serverLVersion, serverMsg = version.Server, version.ServerMsg
+				scanLVersion, scanMsg = version.Scan, version.ScanMsg
 			}
 		}
 	}
 
 	resultList := []VersionInfo{
 		{
-			Name:     "ScopeSentry-Server",
+			Name:     constants.DisplayName() + "-Server",
 			CVersion: constants.Version,
 			LVersion: serverLVersion,
 			Msg:      serverMsg,
@@ -118,10 +98,14 @@ func GetSystemVersion(c *gin.Context) {
 			response.InternalServerError(c, "api.system.version.redis_hash_error", err)
 			return
 		}
+		latestVersion := scanLVersion
+		if latestVersion == "" {
+			latestVersion = hashData["version"]
+		}
 		resultList = append(resultList, VersionInfo{
 			Name:     name,
 			CVersion: hashData["version"],
-			LVersion: scanLVersion,
+			LVersion: latestVersion,
 			Msg:      scanMsg,
 		})
 	}
@@ -131,12 +115,8 @@ func GetSystemVersion(c *gin.Context) {
 	}, "api.system.version.success")
 }
 
-// VersionListResponse 版本列表响应结构
-// 用于统一响应格式
-// @Description 版本信息列表
-// @Author Autumn
+// @Description Version information list
 // @Date 2025-05-02
-// @Contact rainy-autumn@outlook.com
 type VersionListResponse struct {
 	List []VersionInfo `json:"list"`
 }

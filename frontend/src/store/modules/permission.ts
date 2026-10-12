@@ -7,6 +7,7 @@ import {
 } from '@/utils/routerHelper'
 import { store } from '../index'
 import { cloneDeep } from 'lodash-es'
+import { isConsoleGateway } from '@/integration/console'
 
 export interface PermissionState {
   routers: AppRouteRecordRaw[]
@@ -45,16 +46,18 @@ export const usePermissionStore = defineStore('permission', {
         console.log(type)
         let routerMap: AppRouteRecordRaw[] = []
         if (type === 'server') {
-          // 模拟后端过滤菜单
           routerMap = generateRoutesByServer(routers as AppCustomRouteRecordRaw[])
         } else if (type === 'frontEnd') {
-          // 模拟前端过滤菜单
           routerMap = generateRoutesByFrontEnd(cloneDeep(asyncRouterMap), routers as string[])
         } else {
-          // 直接读取静态路由表
           routerMap = cloneDeep(asyncRouterMap)
+          if (isConsoleGateway) {
+            routerMap.forEach((route) => {
+              route.children = route.children?.filter((child) => child.path !== 'apikey')
+            })
+          }
         }
-        // 动态路由，404一定要放到最后面
+
         this.addRouters = routerMap.concat([
           {
             path: '/:path(.*)*',
@@ -66,7 +69,7 @@ export const usePermissionStore = defineStore('permission', {
             }
           }
         ])
-        // 渲染菜单的所有路由
+
         this.routers = cloneDeep(constantRouterMap).concat(routerMap)
         resolve()
       })
@@ -78,9 +81,11 @@ export const usePermissionStore = defineStore('permission', {
       this.menuTabRouters = routers
     }
   },
-  persist: {
-    paths: ['routers', 'addRouters', 'menuTabRouters']
-  }
+  persist: isConsoleGateway
+    ? false
+    : {
+        paths: ['routers', 'addRouters', 'menuTabRouters']
+      }
 })
 
 export const usePermissionStoreWithOut = () => {

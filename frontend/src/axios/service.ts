@@ -5,8 +5,9 @@ import { AxiosInstance, InternalAxiosRequestConfig, RequestConfig, AxiosResponse
 import { ElMessage } from 'element-plus'
 import { REQUEST_TIMEOUT } from '@/constants'
 import { useUserStoreWithOut } from '@/store/modules/user'
+import { isConsoleGateway, expireConsoleSession } from '@/integration/console'
 
-export const PATH_URL = import.meta.env.VITE_API_BASE_PATH
+export const PATH_URL = isConsoleGateway ? '/recon' : import.meta.env.VITE_API_BASE_PATH
 
 const abortControllerMap: Map<string, AbortController> = new Map()
 
@@ -27,14 +28,18 @@ axiosInstance.interceptors.response.use(
   (res: AxiosResponse) => {
     const url = res.config.url || ''
     abortControllerMap.delete(url)
-    // 这里不能做任何处理，否则后面的 interceptors 拿不到完整的上下文了
+
     return res
   },
   (error: AxiosError) => {
+    if (isConsoleGateway && [401, 403].includes(error.response?.status || 0)) {
+      expireConsoleSession(error.response!.status)
+      return Promise.reject(error)
+    }
     console.log('err： ' + error) // for debug
     if (error.response?.data) {
       const responseData = error.response.data as { message: string; data: string }
-      // 显示后端返回的具体错误消息
+
       const errorMsg =
         responseData.data && responseData.data !== ''
           ? responseData.message + ':' + responseData.data
@@ -45,7 +50,6 @@ axiosInstance.interceptors.response.use(
         userStore.logout()
       }
     } else {
-      // 如果没有响应数据，显示网络错误或其他错误
       ElMessage.error(error.message || 'NetworkError')
     }
     return Promise.reject(error)

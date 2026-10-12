@@ -37,7 +37,7 @@ const getProjectTag = async (pageIndex: number, pageSize: number) => {
   }
   try {
     const res = await getProjectDataApi(search.value, pageIndex, pageSize)
-    // 更新响应式对象
+
     Object.assign(allProjectData, res.data.result)
     tabNames.value = Object.keys(res.data.tag)
     Object.assign(tagNum, res.data.tag)
@@ -75,7 +75,7 @@ const deleteicon = useIcon({ icon: 'openmoji:delete' })
 const delSelect = async () => {
   const deleteAsset = ref<boolean>(false)
   ElMessageBox({
-    title: 'Delete',
+    title: t('common.delete'),
     draggable: true,
     // Should pass a function if VNode contains dynamic props
     message: () =>
@@ -99,7 +99,7 @@ const selectedRowIds = ref([])
 
 <template>
   <ContentWrap>
-    <ElRow style="margin-bottom: 20px" :gutter="20">
+    <ElRow class="recon-project-search" :gutter="20">
       <ElCol :span="0.5">
         <ElText class="mx-1" style="position: relative; top: 8px">{{ t('form.input') }}:</ElText>
       </ElCol>
@@ -111,13 +111,14 @@ const selectedRowIds = ref([])
           :loading="loading"
           type="primary"
           :icon="searchicon"
+          :aria-label="t('common.search')"
           size="large"
           style="height: 100%"
           @click="handleSearch"
         />
       </ElCol>
     </ElRow>
-    <ElRow style="margin-bottom: 0%">
+    <ElRow class="recon-project-actions">
       <ElCol :span="2">
         <div class="mb-10px">
           <ElButton type="primary" @click="addProject">{{ t('project.addProject') }}</ElButton>
@@ -130,8 +131,8 @@ const selectedRowIds = ref([])
               v-model="multipleSelection"
               class="mb-2"
               inline-prompt
-              active-text="Yes"
-              inactive-text="No"
+              :active-text="t('common.on')"
+              :inactive-text="t('common.off')"
             />
           </ElFormItem>
         </ElForm>
@@ -153,7 +154,7 @@ const selectedRowIds = ref([])
       </ElCol>
     </ElRow>
     <ElTabs class="demo-tabs" v-loading="projectListLoading">
-      <ElTabPane :label="`All (${tagNum['All']})`"
+      <ElTabPane :label="`${t('common.all')} (${tagNum['All'] || 0})`"
         ><ProjectList
           :tableDataList="allProjectData['All']"
           :getProjectTag="getProjectTag"
@@ -190,9 +191,9 @@ const selectedRowIds = ref([])
 </template>
 <style>
 .demo-tabs > .el-tabs__content {
-  padding: 32px;
-  color: #6b778c;
-  font-size: 32px;
+  padding: 16px;
+  color: var(--recon-foreground);
+  font-size: 14px;
   font-weight: 600;
 }
 </style>

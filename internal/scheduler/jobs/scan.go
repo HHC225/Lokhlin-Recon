@@ -1,7 +1,5 @@
 // jobs-------------------------------------
 // @file      : scan].go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/6/10 20:33
 // -------------------------------------------
 
@@ -10,23 +8,22 @@ package jobs
 import (
 	"context"
 	"fmt"
-	"github.com/Autumn-27/ScopeSentry/internal/logger"
-	"github.com/Autumn-27/ScopeSentry/internal/services/common"
-	"github.com/Autumn-27/ScopeSentry/internal/services/node"
-	"github.com/Autumn-27/ScopeSentry/internal/utils/helper"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http/httptest"
+	"recon/internal/logger"
+	"recon/internal/services/common"
+	"recon/internal/services/node"
+	"recon/internal/utils/helper"
 
-	"github.com/Autumn-27/ScopeSentry/internal/database/mongodb"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	taskCommon "github.com/Autumn-27/ScopeSentry/internal/services/task/common"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"recon/internal/database/mongodb"
+	"recon/internal/models"
+	taskCommon "recon/internal/services/task/common"
 )
 
-// scanService 处理计划任务数据访问
 type scanService struct {
 	collection               *mongo.Collection
 	pageMonitoringCollection *mongo.Collection
@@ -48,7 +45,7 @@ func init() {
 }
 
 func Scan(params string, nextTime string) error {
-	// 获取计划任务数据
+
 	ID, err := primitive.ObjectIDFromHex(params)
 	if err != nil {
 		return err
@@ -62,9 +59,9 @@ func Scan(params string, nextTime string) error {
 		return fmt.Errorf("failed to get scheduled task: %w", err)
 	}
 	task.Name += "-" + helper.GetNowTimeString()
-	
-	task.ID = primitive.NilObjectID    //fix
-	
+
+	task.ID = primitive.NilObjectID //fix
+
 	_, err = taskCommonService.Insert(context.Background(), &task)
 	if err != nil {
 		logger.Error(fmt.Sprintf("AddTask Scan%v", err))

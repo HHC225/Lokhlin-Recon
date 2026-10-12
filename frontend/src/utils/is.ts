@@ -104,7 +104,6 @@ export const isDark = (): boolean => {
   return window.matchMedia('(prefers-color-scheme: dark)').matches
 }
 
-// 是否是图片链接
 export const isImgPath = (path: string): boolean => {
   if (path.includes('picsum.photos') || path.includes('loremflickr.com')) {
     return true

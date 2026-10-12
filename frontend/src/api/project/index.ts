@@ -16,7 +16,9 @@ export const getProjectDataApi = (
 }
 
 export const getProjectAllApi = async () => {
-  return request.get({ url: '/api/project/all' })
+  const response = await request.get({ url: '/api/project/all' })
+  if (response.data && response.data.list == null) response.data.list = []
+  return response
 }
 
 export const addProjectDataApi = (

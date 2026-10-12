@@ -2,11 +2,11 @@ package app
 
 import (
 	"fmt"
-	"github.com/Autumn-27/ScopeSentry/internal/api/response"
-	"github.com/Autumn-27/ScopeSentry/internal/logger"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/services/assets/app"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/response"
+	"recon/internal/logger"
+	"recon/internal/models"
+	"recon/internal/services/assets/app"
 )
 
 var appService app.Service
@@ -16,15 +16,15 @@ func init() {
 }
 
 // GetAppData godoc
-// @Summary 获取应用数据
-// @Description 获取应用数据列表
-// @Tags 应用管理
+// @Summary List application data
+// @Description List application data
+// @Tags Application management
 // @Accept json
 // @Produce json
-// @Param request body models.SearchRequest true "请求参数"
-// @Success 200 {object} response.Response{data=models.AppResponse} "成功"
-// @Failure 400 {object} response.Response "请求错误"
-// @Failure 500 {object} response.Response "服务器错误"
+// @Param request body models.SearchRequest true "Request parameters"
+// @Success 200 {object} response.Response{data=models.AppResponse} "Success"
+// @Failure 400 {object} response.Response "Invalid request"
+// @Failure 500 {object} response.Response "Server error"
 // @Router /api/assets/app [post]
 func GetAppData(c *gin.Context) {
 	var req models.SearchRequest

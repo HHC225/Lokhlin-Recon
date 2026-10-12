@@ -154,7 +154,6 @@ watch(
   }
 )
 
-// 登录
 const signIn = async () => {
   const formRef = await getElFormExpose()
   await formRef?.validate(async (isValid) => {
@@ -166,7 +165,6 @@ const signIn = async () => {
         const res = await loginApi(formData)
 
         if (res) {
-          // 是否记住我
           if (unref(remember)) {
             userStore.setLoginInfo({
               username: formData.username,
@@ -179,13 +177,13 @@ const signIn = async () => {
           console.log(res.data.access_token)
           userStore.setToken(res.data.access_token)
           userStore.setUsername(formData.username)
-          // 是否使用动态路由
+
           if (appStore.getDynamicRouter) {
             getRole()
           } else {
             await permissionStore.generateRoutes('static').catch(() => {})
             permissionStore.getAddRouters.forEach((route) => {
-              addRoute(route as RouteRecordRaw) // 动态添加可访问路由表
+              addRoute(route as RouteRecordRaw)
             })
             permissionStore.setIsAddRouters(true)
             push({ path: redirect.value || permissionStore.addRouters[0].path })
@@ -198,7 +196,6 @@ const signIn = async () => {
   })
 }
 
-// 获取角色信息
 const getRole = async () => {
   const formData = await getFormData<UserType>()
   const params = {
@@ -216,14 +213,13 @@ const getRole = async () => {
       : await permissionStore.generateRoutes('frontEnd', routers).catch(() => {})
 
     permissionStore.getAddRouters.forEach((route) => {
-      addRoute(route as RouteRecordRaw) // 动态添加可访问路由表
+      addRoute(route as RouteRecordRaw)
     })
     permissionStore.setIsAddRouters(true)
     push({ path: redirect.value || permissionStore.addRouters[0].path })
   }
 }
 
-// 去注册页面
 const toRegister = () => {
   emit('to-register')
 }

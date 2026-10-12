@@ -1,7 +1,5 @@
 // helper-------------------------------------
 // @file      : tool.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/5/8 21:23
 // -------------------------------------------
 
@@ -62,61 +60,54 @@ func RemoveArrayDuplicates(input []string) []string {
 func GetRootDomain(input string) (string, error) {
 	u, err := SafeParseURL(input)
 	if err != nil {
-		return input, fmt.Errorf("URL 解析失败: %w", err)
+		return input, fmt.Errorf("Failed to parse URL: %w", err)
 	}
 
 	hostname := u.Hostname()
 	if hostname == "" {
-		return input, fmt.Errorf("无法获取 Hostname")
+		return input, fmt.Errorf("Hostname unavailable")
 	}
 
-	// 是 IP 则直接返回
 	if ip := net.ParseIP(hostname); ip != nil {
 		return ip.String(), nil
 	}
 
-	// 提取有效根域名
 	rootDomain, err := publicsuffix.EffectiveTLDPlusOne(hostname)
 	if err != nil {
-		return input, fmt.Errorf("根域名解析错误: %w", err)
+		return input, fmt.Errorf("Failed to parse root domain: %w", err)
 	}
 
 	return rootDomain, nil
 }
 
-// SafeParseURL 安全解析 URL，处理非法 %、中文域名、空格等问题
 func SafeParseURL(input string) (*url.URL, error) {
 	if input == "" {
-		return nil, fmt.Errorf("输入为空")
+		return nil, fmt.Errorf("Input is empty")
 	}
 
 	input = strings.TrimSpace(input)
 	input = sanitizePercent(input)
 	input = strings.ReplaceAll(input, " ", "%20")
 
-	// 补充协议头
 	if !strings.HasPrefix(input, "http://") && !strings.HasPrefix(input, "https://") {
 		input = "https://" + input
 	}
 
 	u, err := url.Parse(input)
 	if err != nil {
-		return nil, fmt.Errorf("URL 解析失败: %w", err)
+		return nil, fmt.Errorf("Failed to parse URL: %w", err)
 	}
 
-	// IDNA 处理中文域名
 	asciiHost, err := idna.ToASCII(u.Hostname())
 	if err != nil {
-		return nil, fmt.Errorf("域名 IDNA 转换失败: %w", err)
+		return nil, fmt.Errorf("Domain IDNA conversion failed: %w", err)
 	}
 
-	// 补上端口（如有）
 	u.Host = asciiHost + portSuffix(u.Host)
 
 	return u, nil
 }
 
-// sanitizePercent 修复非法的 % 编码
 func sanitizePercent(input string) string {
 	var builder strings.Builder
 	for i := 0; i < len(input); i++ {
@@ -133,12 +124,10 @@ func sanitizePercent(input string) string {
 	return builder.String()
 }
 
-// 判断是否为合法十六进制字符
 func isHexDigit(b byte) bool {
 	return ('0' <= b && b <= '9') || ('a' <= b && b <= 'f') || ('A' <= b && b <= 'F')
 }
 
-// 提取原 host 的端口号（如有）
 func portSuffix(host string) string {
 	if colon := strings.LastIndex(host, ":"); colon != -1 && colon < len(host)-1 {
 		port := host[colon+1:]

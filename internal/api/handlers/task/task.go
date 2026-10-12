@@ -1,7 +1,5 @@
 // Package task -----------------------------
 // @file      : task.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/5/4 22:04
 // -------------------------------------------
 package task
@@ -10,29 +8,27 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Autumn-27/ScopeSentry/internal/api/response"
-	"github.com/Autumn-27/ScopeSentry/internal/logger"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/services/task/common"
-	"github.com/Autumn-27/ScopeSentry/internal/services/task/task"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/response"
+	"recon/internal/logger"
+	"recon/internal/models"
+	"recon/internal/services/task/common"
+	"recon/internal/services/task/task"
 )
 
 var taskService task.Service
 var commonService common.Service
 
-// TaskDetailRequest 任务详情请求
 type TaskDetailRequest struct {
 	ID string `json:"id" binding:"required" example:"507f1f77bcf86cd799439011"`
 }
 
-// List 获取任务列表（分页+模糊搜索）
-// @Summary      获取任务列表
-// @Description  支持name字段模糊搜索与分页
+// @Summary      List tasks
+// @Description  supports name partial field search and pagination
 // @Tags         task
 // @Accept       json
 // @Produce      json
-// @Param        data  body      ListRequest  true  "查询参数"
+// @Param        data  body      ListRequest  true  "Query parameters"
 // @Success      200  {object}  response.SuccessResponse{data=object{list=[]models.Task,total=int}}
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      500  {object}  response.InternalServerErrorResponse
@@ -62,13 +58,12 @@ func List(c *gin.Context) {
 	response.Success(c, resp, "")
 }
 
-// TaskDetail 获取任务详情
-// @Summary      获取任务详情
-// @Description  根据任务ID获取任务的详细信息
+// @Summary      Get task details
+// @Description  Get task details by task ID
 // @Tags         task
 // @Accept       json
 // @Produce      json
-// @Param        data  body      TaskDetailRequest  true  "任务ID"
+// @Param        data  body      TaskDetailRequest  true  "Task ID"
 // @Success      200  {object}  response.SuccessResponse{data=object{name=string,target=string,ignore=string,node=[]string,allNode=bool,scheduledTasks=bool,hour=int,duplicates=string,template=string,day=int,minute=int,project=[]string,search=string,cycleType=string}}
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      404  {object}  response.NotFoundResponse
@@ -81,13 +76,11 @@ func TaskDetail(c *gin.Context) {
 		return
 	}
 
-	// 检查ID是否提供
 	if req.ID == "" {
 		response.BadRequest(c, "api.task.id_missing", nil)
 		return
 	}
 
-	// 获取任务详情
 	taskDetail, err := taskService.GetTaskDetail(c, req.ID)
 	if err != nil {
 		logger.Error(fmt.Sprintf("TaskDetail %v", err))
@@ -102,16 +95,15 @@ func TaskDetail(c *gin.Context) {
 	response.Success(c, taskDetail, "")
 }
 
-// AddTask 添加任务
-// @Summary 添加任务
-// @Description 添加新的扫描任务
+// @Summary Add task
+// @Description Create a scan task
 // @Tags Task
 // @Accept json
 // @Produce json
-// @Param request body AddTaskRequest true "任务信息"
-// @Success 200 {object} response.Response "成功"
-// @Failure 400 {object} response.Response "请求错误"
-// @Failure 500 {object} response.Response "服务器错误"
+// @Param request body AddTaskRequest true "Task information"
+// @Success 200 {object} response.Response "Success"
+// @Failure 400 {object} response.Response "Invalid request"
+// @Failure 500 {object} response.Response "Server error"
 // @Router /api/task/add [post]
 func AddTask(c *gin.Context) {
 	var req models.Task
@@ -120,7 +112,6 @@ func AddTask(c *gin.Context) {
 		return
 	}
 
-	// 检查任务名是否已存在
 	exists, err := taskService.CheckTaskNameExists(c, req.Name)
 	if err != nil {
 		response.InternalServerError(c, "api.error", err)
@@ -131,13 +122,11 @@ func AddTask(c *gin.Context) {
 		return
 	}
 
-	// 验证必要参数
 	if req.Name == "" || len(req.Node) == 0 {
 		response.BadRequest(c, "api.task.target_null", nil)
 		return
 	}
 
-	// 创建任务
 	_, err = commonService.Insert(context.Background(), &req)
 	if err != nil {
 		logger.Error(fmt.Sprintf("AddTask %v", err))
@@ -145,7 +134,6 @@ func AddTask(c *gin.Context) {
 		return
 	}
 
-	// 如果是定时任务，创建定时任务
 	if req.ScheduledTasks {
 		err := SchedulerService.CreateScheduledTask(c, &req)
 		if err != nil {
@@ -157,27 +145,21 @@ func AddTask(c *gin.Context) {
 	response.Success(c, nil, "api.task.add_success")
 }
 
-// DeleteTaskRequest 删除任务请求
-// 支持批量删除与是否删除资产
-// ids: 任务ID列表
-// delA: 是否同时删除资产
 type DeleteTaskRequest struct {
 	IDs  []string `json:"ids" binding:"required" example:"[\"507f1f77bcf86cd799439011\",\"507f1f77bcf86cd799439012\"]"`
 	DelA bool     `json:"delA" binding:"omitempty" example:"false"`
 }
 
-// RetestTaskRequest 重测任务请求
 type RetestTaskRequest struct {
 	ID string `json:"id" binding:"required" example:"507f1f77bcf86cd799439011"`
 }
 
-// DeleteTask 删除任务
-// @Summary      删除任务
-// @Description  批量删除任务，支持可选删除其产生的资产，并清理调度与缓存
+// @Summary      Delete task
+// @Description  Delete tasks in bulk, optionally delete their assets, and clear scheduling and caches
 // @Tags         task
 // @Accept       json
 // @Produce      json
-// @Param        data  body      DeleteTaskRequest  true  "删除参数"
+// @Param        data  body      DeleteTaskRequest  true  "Deletion parameters"
 // @Success      200  {object}  response.SuccessResponse
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      500  {object}  response.InternalServerErrorResponse
@@ -200,13 +182,12 @@ func DeleteTask(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// RetestTask 重测任务
-// @Summary      重测任务
-// @Description  重新创建扫描任务并重置进度
+// @Summary      Retest task
+// @Description  Recreate the scan task and reset progress
 // @Tags         task
 // @Accept       json
 // @Produce      json
-// @Param        data  body      RetestTaskRequest  true  "任务ID"
+// @Param        data  body      RetestTaskRequest  true  "Task ID"
 // @Success      200  {object}  response.SuccessResponse
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      404  {object}  response.NotFoundResponse
@@ -230,23 +211,20 @@ func RetestTask(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// StopTaskRequest 停止任务请求
 type StopTaskRequest struct {
 	IDs []string `json:"ids" binding:"required" example:"[\"507f1f77bcf86cd799439011\"]"`
 }
 
-// StartTaskRequest 开始任务请求
 type StartTaskRequest struct {
 	IDs []string `json:"ids" binding:"required" example:"[\"507f1f77bcf86cd799439011\"]"`
 }
 
-// StopTask 停止任务
-// @Summary      停止任务
-// @Description  批量停止任务，向节点广播停止并将状态置为2
+// @Summary      Stop task
+// @Description  Stop tasks in bulk, broadcast the stop to nodes, and set status to 2
 // @Tags         task
 // @Accept       json
 // @Produce      json
-// @Param        data  body      StopTaskRequest  true  "任务ID列表"
+// @Param        data  body      StopTaskRequest  true  "Task IDs"
 // @Success      200  {object}  response.SuccessResponse
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      500  {object}  response.InternalServerErrorResponse
@@ -268,13 +246,12 @@ func StopTask(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// StartTask 开始任务（从暂停恢复）
-// @Summary      开始任务
-// @Description  批量开始任务，从暂停恢复继续扫描
+// @Summary      Start task
+// @Description  Start tasks in bulk and resume paused scans
 // @Tags         task
 // @Accept       json
 // @Produce      json
-// @Param        data  body      StartTaskRequest  true  "任务ID列表"
+// @Param        data  body      StartTaskRequest  true  "Task IDs"
 // @Success      200  {object}  response.SuccessResponse
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      500  {object}  response.InternalServerErrorResponse
@@ -296,20 +273,18 @@ func StartTask(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// ProgressInfoRequest 任务进度信息请求
 type ProgressInfoRequest struct {
 	ID        string `json:"id" binding:"required" example:"507f1f77bcf86cd799439011"`
 	PageIndex int    `json:"pageIndex" binding:"omitempty,min=1" example:"1"`
 	PageSize  int    `json:"pageSize" binding:"omitempty,min=1" example:"10"`
 }
 
-// ProgressInfo 获取任务进度信息
-// @Summary      获取任务进度信息
-// @Description  获取指定任务的详细进度信息，包括各扫描阶段的时间戳
+// @Summary      Get task progress
+// @Description  Get task progress, including timestamps for every scan stage
 // @Tags         task
 // @Accept       json
 // @Produce      json
-// @Param        data  body      ProgressInfoRequest  true  "任务ID和分页参数"
+// @Param        data  body      ProgressInfoRequest  true  "Task ID and pagination parameters"
 // @Success      200  {object}  response.SuccessResponse{data=object{list=[]models.TaskProgress,total=int}}
 // @Failure      400  {object}  response.BadRequestResponse
 // @Failure      404  {object}  response.NotFoundResponse
@@ -322,7 +297,6 @@ func ProgressInfo(c *gin.Context) {
 		return
 	}
 
-	// 设置默认分页参数
 	if req.PageIndex <= 0 {
 		req.PageIndex = 1
 	}
@@ -339,9 +313,8 @@ func ProgressInfo(c *gin.Context) {
 	response.Success(c, progressData, "")
 }
 
-// GetAllTaskNames 获取所有任务名称
-// @Summary      获取所有任务名称
-// @Description  返回所有任务名称，按 id 倒序排列
+// @Summary      List task names
+// @Description  Return all task names ordered by descending id
 // @Tags         task
 // @Accept       json
 // @Produce      json
@@ -356,7 +329,6 @@ func GetAllTaskNames(c *gin.Context) {
 		return
 	}
 
-	// 构建返回数据，只包含 id 和 name
 	result := make([]map[string]interface{}, 0, len(tasks))
 	for _, t := range tasks {
 		result = append(result, map[string]interface{}{

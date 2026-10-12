@@ -4,21 +4,19 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// Subdomain 表示一个子域名
 type Subdomain struct {
 	ID         primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Host       string             `bson:"host" json:"host"`             // 主机名
-	Type       string             `bson:"type" json:"type"`             // 类型
-	Value      []string           `bson:"value" json:"value"`           // 值列表
-	IP         []string           `bson:"ip" json:"ip"`                 // IP地址列表
-	Time       string             `bson:"time" json:"time"`             // 时间
-	Tags       []string           `bson:"tags" json:"tags"`             // 标签
-	Project    string             `bson:"project" json:"project"`       // 项目
-	TaskName   string             `bson:"taskName" json:"taskName"`     // 任务名称
-	RootDomain string             `bson:"rootDomain" json:"rootDomain"` // 根域名
+	Host       string             `bson:"host" json:"host"`
+	Type       string             `bson:"type" json:"type"`
+	Value      []string           `bson:"value" json:"value"`
+	IP         []string           `bson:"ip" json:"ip"`
+	Time       string             `bson:"time" json:"time"`
+	Tags       []string           `bson:"tags" json:"tags"`
+	Project    string             `bson:"project" json:"project"`
+	TaskName   string             `bson:"taskName" json:"taskName"`
+	RootDomain string             `bson:"rootDomain" json:"rootDomain"`
 }
 
-// SubdomainResponse 子域名响应数据结构
 type SubdomainResponse struct {
 	List  []Subdomain `json:"list"`
 	Total int64       `json:"total"`

@@ -3,7 +3,6 @@ import { SUCCESS_CODE } from '@/constants'
 const timeout = 1000
 
 export default [
-  // 获取统计
   {
     url: '/mock/workplace/total',
     method: 'get',
@@ -19,7 +18,7 @@ export default [
       }
     }
   },
-  // 获取项目
+
   {
     url: '/mock/workplace/project',
     method: 'get',
@@ -32,49 +31,49 @@ export default [
             name: 'Github',
             icon: 'akar-icons:github-fill',
             message: 'workplace.introduction',
-            personal: 'Archer',
+            personal: 'Example user',
             time: new Date()
           },
           {
             name: 'Vue',
             icon: 'logos:vue',
             message: 'workplace.introduction',
-            personal: 'Archer',
+            personal: 'Example user',
             time: new Date()
           },
           {
             name: 'Angular',
             icon: 'logos:angular-icon',
             message: 'workplace.introduction',
-            personal: 'Archer',
+            personal: 'Example user',
             time: new Date()
           },
           {
             name: 'React',
             icon: 'logos:react',
             message: 'workplace.introduction',
-            personal: 'Archer',
+            personal: 'Example user',
             time: new Date()
           },
           {
             name: 'Webpack',
             icon: 'logos:webpack',
             message: 'workplace.introduction',
-            personal: 'Archer',
+            personal: 'Example user',
             time: new Date()
           },
           {
             name: 'Vite',
             icon: 'vscode-icons:file-type-vite',
             message: 'workplace.introduction',
-            personal: 'Archer',
+            personal: 'Example user',
             time: new Date()
           }
         ]
       }
     }
   },
-  // 获取动态
+
   {
     url: '/mock/workplace/dynamic',
     method: 'get',
@@ -111,7 +110,7 @@ export default [
       }
     }
   },
-  // 获取团队信息
+
   {
     url: '/mock/workplace/team',
     method: 'get',
@@ -148,7 +147,7 @@ export default [
       }
     }
   },
-  // 获取指数
+
   {
     url: '/mock/workplace/radar',
     method: 'get',

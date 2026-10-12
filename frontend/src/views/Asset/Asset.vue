@@ -18,6 +18,8 @@ import RootDomain from './components/RootDomain.vue'
 import APP from './components/APP.vue'
 import MP from './components/MP.vue'
 import IP from './components/IP.vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 const { t } = useI18n()
 interface Project {
   value: string
@@ -46,8 +48,7 @@ getTaskList()
 
 const handleTabClick = (tab: any) => {
   if (tab.paneName === 'map') {
-    // 跳转到同一网站的map项目
-    window.location.href = '/map'
+    router.push('/asset-map/index')
   }
 }
 </script>
@@ -91,6 +92,6 @@ const handleTabClick = (tab: any) => {
     <ElTabPane :label="t('PageMonitoring.pageMonitoringName')">
       <PageMonitoring :projectList="projectList" :taskList="taskList" />
     </ElTabPane>
-    <ElTabPane label="Map" name="map" />
+    <ElTabPane :label="t('assetMap.title')" name="map" />
   </ElTabs>
 </template>

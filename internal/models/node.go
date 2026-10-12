@@ -1,6 +1,5 @@
 package models
 
-// NodeData 表示节点数据
 type NodeData struct {
 	Name          string `json:"name"`
 	Running       string `json:"running"`

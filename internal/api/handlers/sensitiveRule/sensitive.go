@@ -1,7 +1,5 @@
 // sensitiveRule-------------------------------------
 // @file      : sensitive.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/10/28 22:08
 // -------------------------------------------
 
@@ -10,9 +8,9 @@ package sensitiveRule
 import (
 	"sync"
 
-	"github.com/Autumn-27/ScopeSentry/internal/api/response"
-	svc "github.com/Autumn-27/ScopeSentry/internal/services/sensitive_rule"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/response"
+	svc "recon/internal/services/sensitive_rule"
 )
 
 var (
@@ -50,7 +48,6 @@ type idsRequest struct {
 	IDs []string `json:"ids" binding:"required,min=1,dive,required"`
 }
 
-// Data 列表
 func Data(c *gin.Context) {
 	var req listRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -65,7 +62,6 @@ func Data(c *gin.Context) {
 	response.Success(c, gin.H{"list": list, "total": total}, "api.success")
 }
 
-// Update 更新
 func Update(c *gin.Context) {
 	var req updateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -79,7 +75,6 @@ func Update(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// Add 新增
 func Add(c *gin.Context) {
 	var req addRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -93,7 +88,6 @@ func Add(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// UpdateState 批量改状态
 func UpdateState(c *gin.Context) {
 	var req idsStateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -107,7 +101,6 @@ func UpdateState(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// Delete 批量删除
 func Delete(c *gin.Context) {
 	var req idsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

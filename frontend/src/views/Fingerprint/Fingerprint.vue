@@ -1,4 +1,5 @@
 <script setup lang="tsx">
+import { catalogWebBase, catalogWebPath, catalogConfigured } from '@/integration/catalog'
 import { ContentWrap } from '@/components/ContentWrap'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ref, reactive, onMounted } from 'vue'
@@ -138,20 +139,16 @@ const confirmDelete = async () => {
   }
 }
 
-// 更新相关的状态
 const updateCount = ref(0)
 const currentVersion = ref('')
 const updateLoading = ref(false)
 
-// 获取版本和数量
 const fetchVersionAndCount = async () => {
   try {
-    // 获取版本
     const versionRes = await getFingerprintVersionApi()
     const version = versionRes.data.version
     currentVersion.value = version
 
-    // 使用版本获取数量
     const countRes = await getCountByUpdateTimeApi(version)
     updateCount.value = Number(countRes.data.count) || 0
   } catch (error) {
@@ -160,45 +157,43 @@ const fetchVersionAndCount = async () => {
   }
 }
 
-// 页面加载时获取版本和数量
 onMounted(() => {
-  fetchVersionAndCount()
+  if (catalogConfigured) fetchVersionAndCount()
 })
 
-// 更新按钮点击处理
 const handleUpdate = async () => {
   try {
-    // 二次确认
-    await ElMessageBox.confirm(`确定要更新 ${updateCount.value} 条指纹数据吗？`, '确认更新', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
+    await ElMessageBox.confirm(
+      t('console.fingerprintConfirm', { count: updateCount.value }),
+      t('common.update'),
+      {
+        confirmButtonText: t('common.ok'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      }
+    )
 
     updateLoading.value = true
 
-    // 获取需要更新的指纹列表
     const fingerprintsRes = await getFingerprintsByUpdateTimeApi(currentVersion.value)
     const fingerprints = fingerprintsRes.data.data || []
 
     if (fingerprints.length === 0) {
-      ElMessage.warning('没有需要更新的数据')
+      ElMessage.warning(t('console.noUpdates'))
       updateLoading.value = false
       return
     }
 
-    // 批量添加指纹
     await batchAddFingerprintApi(fingerprints)
 
-    ElMessage.success(`成功更新 ${fingerprints.length} 条指纹数据`)
+    ElMessage.success(t('console.fingerprintUpdated', { count: fingerprints.length }))
 
-    // 刷新列表和数量
     await getList()
     await fetchVersionAndCount()
   } catch (error: any) {
     if (error !== 'cancel') {
       console.error('Error updating fingerprints:', error)
-      ElMessage.error(error?.message || '更新失败，请稍后重试')
+      ElMessage.error(error?.message || t('console.saveFailed'))
     }
   } finally {
     updateLoading.value = false
@@ -240,7 +235,7 @@ const handleUpdate = async () => {
         <div class="mb-10px">
           <ElBadge :value="updateCount" :hidden="updateCount === 0" :max="999999">
             <BaseButton type="success" :loading="updateLoading" @click="handleUpdate">
-              {{ t('common.update') || '更新' }}
+              {{ t('common.update') }}
             </BaseButton>
           </ElBadge>
         </div>
@@ -274,16 +269,16 @@ const handleUpdate = async () => {
     style="border-radius: 15px; box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3)"
     :maxHeight="550"
   >
-    <ElRow style="margin-bottom: 15px">
+    <ElRow v-if="catalogWebBase" style="margin-bottom: 15px">
       <ElCol :span="24">
         <ElText class="mx-1" style="color: #409eff; font-size: 14px">
           {{ t('fingerprint.visualGeneratorTip') }}
           <a
-            href="https://plugin.scope-sentry.top/fingers"
+            :href="catalogWebPath('/fingers')"
             target="_blank"
             style="color: #409eff; text-decoration: underline"
           >
-            {{ t('fingerprint.visualGeneratorLink') }}
+            {{ catalogWebBase }}
           </a>
           {{ t('fingerprint.visualGeneratorAction') }}
         </ElText>

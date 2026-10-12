@@ -1,7 +1,5 @@
 // Package node -----------------------------
 // @file      : service.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/4/30 15:01
 // -------------------------------------------
 package node
@@ -13,16 +11,16 @@ import (
 	"sort"
 	"time"
 
-	"github.com/Autumn-27/ScopeSentry/internal/config"
-	"github.com/Autumn-27/ScopeSentry/internal/logger"
+	"recon/internal/config"
+	"recon/internal/logger"
 
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/repositories/node"
 	"go.uber.org/zap"
+	"recon/internal/models"
+	"recon/internal/repositories/node"
 )
 
 const (
-	NodeTimeout = 300 // 节点超时时间（秒）
+	NodeTimeout = 300
 )
 
 type Service interface {
@@ -44,9 +42,8 @@ func NewService() Service {
 	}
 }
 
-// GetNodeData 获取所有节点数据
 func (s *service) GetNodeData(ctx context.Context, online bool) ([]models.NodeData, error) {
-	// 获取所有以 node: 开头的键
+
 	nodes, err := s.nodeRepo.GetAllNodes(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get node keys: %w", err)
@@ -55,7 +52,7 @@ func (s *service) GetNodeData(ctx context.Context, online bool) ([]models.NodeDa
 	var result []models.NodeData
 	for _, nodeData := range nodes {
 		layout := "2006-01-02 15:04:05"
-		// 检查节点状态
+
 		if nodeData.State == "1" {
 			loc, err := time.LoadLocation(config.GlobalConfig.System.Timezone)
 			if err != nil {
@@ -77,7 +74,7 @@ func (s *service) GetNodeData(ctx context.Context, online bool) ([]models.NodeDa
 				zap.String("update_time", nodeData.UpdateTime))
 
 			if timeDiff > NodeTimeout {
-				// 异步更新节点状态
+
 				go s.updateNodeState(context.Background(), nodeData.Name)
 				nodeData.State = "3"
 			}
@@ -91,7 +88,6 @@ func (s *service) GetNodeData(ctx context.Context, online bool) ([]models.NodeDa
 		}
 	}
 
-	// 按名称排序
 	sort.Slice(result, func(i, j int) bool {
 		return result[i].Name < result[j].Name
 	})
@@ -99,7 +95,6 @@ func (s *service) GetNodeData(ctx context.Context, online bool) ([]models.NodeDa
 	return result, nil
 }
 
-// updateNodeState 更新节点状态
 func (s *service) updateNodeState(ctx context.Context, nodeID string) {
 	err := s.nodeRepo.UpdateNodeState(ctx, nodeID, "3")
 	if err != nil {
@@ -113,7 +108,7 @@ func (s *service) RefreshConfig(ctx context.Context, msg models.Message) error {
 	jsonBytes, err := json.Marshal(msg)
 	if err != nil {
 
-		return fmt.Errorf("models.Message转换失败: %v", err)
+		return fmt.Errorf("Failed to convert models.Message: %v", err)
 	}
 
 	msgStr := string(jsonBytes)
@@ -137,22 +132,18 @@ func (s *service) RefreshConfig(ctx context.Context, msg models.Message) error {
 	return nil
 }
 
-// DeleteNodes 删除多个节点
 func (s *service) DeleteNodes(ctx context.Context, names []string) error {
 	return s.nodeRepo.DeleteNodes(ctx, names)
 }
 
-// GetNodeLogs 获取节点日志
 func (s *service) GetNodeLogs(ctx context.Context, name string) (string, error) {
 	return s.nodeRepo.GetNodeLogs(ctx, name)
 }
 
-// GetNodePlugin 获取节点插件信息
 func (s *service) GetNodePlugin(ctx context.Context, nodeName string) ([]models.NodePluginInfo, error) {
 	return s.nodeRepo.GetNodePlugin(ctx, nodeName)
 }
 
-// RestartNode 重启节点
 func (s *service) RestartNode(ctx context.Context, nodeName string) error {
 	msg := models.Message{
 		Name:    nodeName,

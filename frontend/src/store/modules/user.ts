@@ -6,6 +6,7 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { loginOutApi } from '@/api/login'
 import { useTagsViewStore } from './tagsView'
 import router from '@/router'
+import { isConsoleGateway, expireConsoleSession } from '@/integration/console'
 
 interface UserState {
   userInfo?: UserType
@@ -23,7 +24,7 @@ export const useUserStore = defineStore('user', {
       tokenKey: 'Authorization',
       token: '',
       roleRouters: undefined,
-      // 记住我
+
       rememberMe: true,
       loginInfo: undefined
     }
@@ -83,7 +84,10 @@ export const useUserStore = defineStore('user', {
       this.setToken('')
       this.setUserInfo(undefined)
       this.setRoleRouters([])
-      router.replace('/login')
+      if (isConsoleGateway) {
+        expireConsoleSession()
+        router.replace('/session')
+      } else router.replace('/login')
     },
     logout() {
       this.reset()
@@ -95,7 +99,7 @@ export const useUserStore = defineStore('user', {
       this.loginInfo = loginInfo
     }
   },
-  persist: true
+  persist: !isConsoleGateway
 })
 
 export const useUserStoreWithOut = () => {

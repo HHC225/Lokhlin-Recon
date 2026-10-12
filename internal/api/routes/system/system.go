@@ -1,24 +1,22 @@
 // Package routes -----------------------------
 // @file      : system.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/5/3 22:17
 // -------------------------------------------
 package system
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/handlers/system"
-	"github.com/Autumn-27/ScopeSentry/internal/api/routes/common"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/handlers/system"
+	"recon/internal/api/routes/common"
+	"recon/internal/models"
 )
 
 func RegisterSystemRoutes(api *gin.RouterGroup) {
-	// 定义用户路由组
+
 	systemRoutes := models.RouteGroup{
 		Path: "/system",
 		Routes: []models.Route{
-			// 需要认证和user:read权限的路由
+
 			{
 				Method:      "GET",
 				Path:        "version",
@@ -28,6 +26,5 @@ func RegisterSystemRoutes(api *gin.RouterGroup) {
 		},
 	}
 
-	// 注册用户路由组
 	common.RegisterRouteGroup(api, systemRoutes)
 }

@@ -1,10 +1,10 @@
 package project
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/response"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/services/project"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/response"
+	"recon/internal/models"
+	"recon/internal/services/project"
 )
 
 var projectService project.Service
@@ -14,9 +14,9 @@ func init() {
 }
 
 // GetProjectsByTag godoc
-// @Summary 获取按标签分组的项目列表
-// @Description 获取所有项目并按标签分组
-// @Tags 项目
+// @Summary List projects grouped by tag
+// @Description List all projects grouped by tag
+// @Tags Projects
 // @Accept json
 // @Produce json
 // @Success 200 {object} response.Response{data=[]project.TagGroup}
@@ -33,13 +33,12 @@ func GetProjectsByTag(c *gin.Context) {
 	}, "")
 }
 
-// GetProjectsData 获取项目数据（含标签聚合）
-// @Summary 获取项目数据
-// @Description 返回每个标签下的分页项目列表与标签计数
-// @Tags 项目
+// @Summary Get project data
+// @Description Return paginated projects and project counts for each tag
+// @Tags Projects
 // @Accept json
 // @Produce json
-// @Param data body models.ProjectListRequest true "查询参数"
+// @Param data body models.ProjectListRequest true "Query parameters"
 // @Success 200 {object} response.Response{data=models.ProjectListResponse}
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
@@ -64,12 +63,11 @@ func GetProjectsData(c *gin.Context) {
 	response.Success(c, data, "")
 }
 
-// GetProjectContent 获取项目内容
-// @Summary 获取项目目标与基础信息
-// @Tags 项目
+// @Summary Get project targets and basic information
+// @Tags Projects
 // @Accept json
 // @Produce json
-// @Param data body models.ProjectContentRequest true "项目ID"
+// @Param data body models.ProjectContentRequest true "Project ID"
 // @Success 200 {object} response.Response{data=models.ProjectContentResponse}
 // @Failure 400 {object} response.Response
 // @Failure 404 {object} response.Response

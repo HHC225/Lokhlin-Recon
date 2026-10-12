@@ -3,18 +3,18 @@ package project
 import (
 	"context"
 	"fmt"
-	"github.com/Autumn-27/ScopeSentry/internal/logger"
+	"recon/internal/logger"
 	"sort"
 	"strings"
 	"sync"
 
-	"github.com/Autumn-27/ScopeSentry/internal/utils/helper"
 	"golang.org/x/sync/errgroup"
+	"recon/internal/utils/helper"
 
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	repo "github.com/Autumn-27/ScopeSentry/internal/repositories/project"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"recon/internal/models"
+	repo "recon/internal/repositories/project"
 )
 
 type Service interface {
@@ -43,7 +43,7 @@ func NewService() Service {
 }
 
 func (s *service) GetProjectsByTag(ctx *gin.Context) ([]models.TagGroup, error) {
-	// 在service层定义需要的字段
+
 	projection := bson.M{
 		"_id":  1,
 		"name": 1,
@@ -55,7 +55,6 @@ func (s *service) GetProjectsByTag(ctx *gin.Context) ([]models.TagGroup, error) 
 		return nil, err
 	}
 
-	// 按tag分组
 	tagMap := make(map[string][]models.TagProject)
 	for _, p := range projects {
 		tagProject := models.TagProject{
@@ -65,7 +64,6 @@ func (s *service) GetProjectsByTag(ctx *gin.Context) ([]models.TagGroup, error) 
 		tagMap[p.Tag] = append(tagMap[p.Tag], tagProject)
 	}
 
-	// 转换为响应格式并按tag排序
 	var result []models.TagGroup
 	for tag, projects := range tagMap {
 		tagGroup := models.TagGroup{
@@ -76,7 +74,6 @@ func (s *service) GetProjectsByTag(ctx *gin.Context) ([]models.TagGroup, error) 
 		result = append(result, tagGroup)
 	}
 
-	// 按tag排序
 	sort.Slice(result, func(i, j int) bool {
 		return result[i].Label < result[j].Label
 	})
@@ -93,12 +90,12 @@ func (s *service) GetTargets(ctx context.Context, ids []string) (string, error) 
 }
 
 func (s *service) GetProjectsData(ctx *gin.Context, search string, pageIndex, pageSize int) (models.ProjectListResponse, error) {
-	// tag 聚合统计
+
 	tagCounts, err := s.projectRepo.AggregateTagCounts(ctx, search)
 	if err != nil {
 		return models.ProjectListResponse{}, err
 	}
-	// 计算 All 总数
+
 	all := 0
 	for _, v := range tagCounts {
 		all += v
@@ -169,7 +166,7 @@ func projectScopeEmpty(target, ignore string) bool {
 
 func (s *service) ApplyProjectScope(ctx *gin.Context, p *models.Project) (string, bool, error) {
 	if p == nil || p.Name == "" {
-		return "", false, fmt.Errorf("name 和 target 不能为空")
+		return "", false, fmt.Errorf("name and target are required")
 	}
 	existing, err := s.projectRepo.FindByName(ctx, p.Name)
 	if err != nil {
@@ -180,7 +177,7 @@ func (s *service) ApplyProjectScope(ctx *gin.Context, p *models.Project) (string
 		ignore = existing.Ignore
 	}
 	if projectScopeEmpty(p.Target, ignore) {
-		return "", false, fmt.Errorf("资产范围不能为空")
+		return "", false, fmt.Errorf("Asset scope cannot be empty")
 	}
 	if existing == nil {
 		if err := s.AddProject(ctx, p); err != nil {
@@ -191,7 +188,7 @@ func (s *service) ApplyProjectScope(ctx *gin.Context, p *models.Project) (string
 			return "", false, err
 		}
 		if created == nil {
-			return "", false, fmt.Errorf("创建项目失败")
+			return "", false, fmt.Errorf("Failed to create project")
 		}
 		return created.ID.Hex(), false, nil
 	}
@@ -219,7 +216,7 @@ func (s *service) ApplyProjectScope(ctx *gin.Context, p *models.Project) (string
 }
 
 func (s *service) AddProject(ctx *gin.Context, p *models.Project) error {
-	// 名称唯一
+
 	exists, err := s.projectRepo.ExistsByName(ctx, p.Name)
 	if err != nil {
 		return err
@@ -249,7 +246,6 @@ func (s *service) AddProject(ctx *gin.Context, p *models.Project) error {
 			rootDomain, _ = helper.GetRootDomain(tg)
 		}
 
-		// 检查是否已经存在于 rootDomains
 		exists := false
 		for _, rd := range rootDomains {
 			if rd == rootDomain {
@@ -288,13 +284,13 @@ func (s *service) AddProject(ctx *gin.Context, p *models.Project) error {
 	//if err := s.projectRepo.UpsertProjectTarget(ctx, id, p.Target); err != nil {
 	//	return err
 	//}
-	// 调度
+
 	//if p.ScheduledTasks {
 	//	if err := s.projectRepo.CreateOrUpdateProjectSchedule(ctx, id, p.Hour, true, p.Name); err != nil {
 	//		return err
 	//	}
 	//}
-	// runNow 可后续接入任务系统
+
 	return nil
 }
 
@@ -321,7 +317,6 @@ func (s *service) UpdateProject(ctx *gin.Context, p *models.UpdateProject) error
 			rootDomain, _ = helper.GetRootDomain(tg)
 		}
 
-		// 检查是否已经存在于 rootDomains
 		exists := false
 		for _, rd := range rootDomains {
 			if rd == rootDomain {
@@ -357,7 +352,6 @@ func (s *service) UpdateProject(ctx *gin.Context, p *models.UpdateProject) error
 
 func (s *service) DeleteProjects(ctx *gin.Context, ids []string, delA bool) error {
 
-	// 删除项目
 	if err := s.projectRepo.DeleteProjects(ctx, ids); err != nil {
 		return err
 	}
@@ -374,7 +368,7 @@ func (s *service) DeleteProjects(ctx *gin.Context, ids []string, delA bool) erro
 }
 
 func getBeforeLastDash(s string) string {
-	index := strings.LastIndex(s, "-") // 查找最后一个 '-'
+	index := strings.LastIndex(s, "-")
 	if index != -1 {
 		return s[:index]
 	}
@@ -382,7 +376,7 @@ func getBeforeLastDash(s string) string {
 }
 
 func (s *service) UpdateAssetsProject(ctx *gin.Context, id string) error {
-	// 获取项目信息
+
 	project, err := s.projectRepo.FindByID(ctx.Request.Context(), id)
 	if err != nil {
 		return fmt.Errorf("failed to find project: %w", err)
@@ -391,13 +385,11 @@ func (s *service) UpdateAssetsProject(ctx *gin.Context, id string) error {
 		return fmt.Errorf("project not found")
 	}
 
-	// 获取项目目标
 	target, err := s.projectRepo.GetTarget(ctx.Request.Context(), id)
 	if err != nil {
 		return fmt.Errorf("failed to get project target: %w", err)
 	}
 
-	// 解析目标获取根域名列表
 	targetList, err := helper.GetTargetList(target, project.Ignore)
 	if err != nil {
 		return fmt.Errorf("failed to parse target list: %w", err)
@@ -419,7 +411,6 @@ func (s *service) UpdateAssetsProject(ctx *gin.Context, id string) error {
 			rootDomain, _ = helper.GetRootDomain(tg)
 		}
 
-		// 检查是否已经存在于 rootDomains
 		exists := false
 		for _, rd := range rootDomains {
 			if rd == rootDomain {
@@ -432,7 +423,6 @@ func (s *service) UpdateAssetsProject(ctx *gin.Context, id string) error {
 		}
 	}
 
-	// 更新资产项目关联
 	err = s.projectRepo.UpdateAssetsProject(ctx.Request.Context(), rootDomains, id, true)
 	if err != nil {
 		return fmt.Errorf("failed to update assets project: %w", err)
@@ -441,7 +431,6 @@ func (s *service) UpdateAssetsProject(ctx *gin.Context, id string) error {
 	return s.recalcAssetCount(ctx.Request.Context(), id)
 }
 
-// recalcAssetCount 重新统计项目的资产总数并写回 AssetCount 字段。
 func (s *service) recalcAssetCount(ctx context.Context, projectID string) error {
 	count, err := s.projectRepo.CountProjectAssets(ctx, projectID)
 	if err != nil {
@@ -450,13 +439,8 @@ func (s *service) recalcAssetCount(ctx context.Context, projectID string) error 
 	return s.projectRepo.SetAssetCount(ctx, projectID, count)
 }
 
-// RefreshProjectAssociations 重新盖章所有项目的资产关联并回填 AssetCount。
 //
-// 背景(见 issue #338):扫描结果入库不携带 project 字段,资产关联只在项目
-// 增/改时通过 UpdateAssetsProject 回填,任务结束后无人触发——导致 MCP/API
-// 按项目过滤(list_assets filter[project])拿不到数据、AssetCount 恒 0。
-// 本方法在任务结束事件处调用作为自愈:对每个项目执行 add/remove 两个方向
-// 的盖章,再统计回填。幂等,可重复调用。
+
 func (s *service) RefreshProjectAssociations(ctx context.Context) error {
 	projects, err := s.projectRepo.GetProjectsByTag(ctx, bson.M{"_id": 1, "root_domains": 1, "AssetCount": 1})
 	if err != nil {

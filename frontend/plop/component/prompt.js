@@ -6,7 +6,7 @@ module.exports = {
     {
       type: 'input',
       name: 'name',
-      message: '请输入组件名称（Please enter the component name）'
+      message: 'Please enter the component name'
     }
   ],
   actions: (data) => {

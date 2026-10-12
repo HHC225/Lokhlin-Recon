@@ -1,7 +1,5 @@
 // plugin-------------------------------------
 // @file      : scheduler.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/12/20 17:50
 // -------------------------------------------
 
@@ -10,7 +8,7 @@ package plugin
 import (
 	"fmt"
 
-	schedulerCore "github.com/Autumn-27/ScopeSentry/internal/scheduler"
+	schedulerCore "recon/internal/scheduler"
 )
 
 func AddJob(hash string, schedule string) error {
@@ -22,7 +20,7 @@ func AddJob(hash string, schedule string) error {
 		CycleType: "cron",
 		Schedule:  schedule,
 	}
-	// 先删除 再增加
+
 	err := schedulerCore.GetGlobalScheduler().RemoveJob(job.ID)
 	if err != nil {
 		return err

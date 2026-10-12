@@ -1,21 +1,19 @@
 // fingerprint-------------------------------------
 // @file      : fingerprint.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/10/28 20:38
 // -------------------------------------------
 
 package fingerprint
 
 import (
-	handler "github.com/Autumn-27/ScopeSentry/internal/api/handlers/fingerprint"
-	"github.com/Autumn-27/ScopeSentry/internal/api/routes/common"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
 	"github.com/gin-gonic/gin"
+	handler "recon/internal/api/handlers/fingerprint"
+	"recon/internal/api/routes/common"
+	"recon/internal/models"
 )
 
 func RegisterFingerprintRoutes(api *gin.RouterGroup) {
-	// 定义指纹路由组
+
 	fingerprintRoutes := models.RouteGroup{
 		Path: "/fingerprint",
 		Routes: []models.Route{
@@ -58,6 +56,5 @@ func RegisterFingerprintRoutes(api *gin.RouterGroup) {
 		},
 	}
 
-	// 注册指纹路由组
 	common.RegisterRouteGroup(api, fingerprintRoutes)
 }

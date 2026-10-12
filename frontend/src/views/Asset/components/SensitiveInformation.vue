@@ -221,7 +221,7 @@ const crudSchemas = reactive<CrudSchema[]>([
       if (tags == null) {
         tags = []
       }
-      // 初始化状态
+
       if (!rowStateMap[row.id]) {
         rowStateMap[row.id] = {
           inputVisible: false,
@@ -232,11 +232,11 @@ const crudSchemas = reactive<CrudSchema[]>([
       const rowState = rowStateMap[row.id]
       const handleInputConfirm = async () => {
         if (rowState.inputValue) {
-          tags.push(rowState.inputValue) // 将输入值添加到 tags 中
+          tags.push(rowState.inputValue)
           addTagApi(row.id, index, rowState.inputValue)
         }
-        rowState.inputVisible = false // 隐藏输入框
-        rowState.inputValue = '' // 清空输入框的值
+        rowState.inputVisible = false
+        rowState.inputValue = ''
       }
       const deleteTag = async (row: Recordable, tag: string) => {
         if (!row.tags) {
@@ -244,10 +244,10 @@ const crudSchemas = reactive<CrudSchema[]>([
         }
         const indexT = row.tags.indexOf(tag)
         if (indexT > -1) {
-          row.tags.splice(indexT, 1) // 从数组中移除指定的元素
+          row.tags.splice(indexT, 1)
         }
         await deleteTagApi(row.id, index, tag)
-        // 如需强制刷新表格数据，可取消下行注释
+
         // await getList()
       }
       const showInput = () => {
@@ -259,19 +259,17 @@ const crudSchemas = reactive<CrudSchema[]>([
           // }
         })
       }
-      // 标签点击处理函数
+
       const handleTagClick = (event: MouseEvent, tag: string) => {
         if ((event.target as HTMLElement).classList.contains('el-tag__close')) {
-          // 点击关闭按钮时不处理
           return
         }
-        // 这里可以添加处理点击事件的逻辑
+
         console.log('Tag clicked:', tag)
         changeTags('tags', tag)
       }
 
       return h(ElRow, {}, () => [
-        // 渲染标签
         ...tags.map((tag) =>
           h(ElCol, { span: 24, key: tag }, () => [
             h('div', { onClick: (event: MouseEvent) => handleTagClick(event, tag) }, [
@@ -280,7 +278,6 @@ const crudSchemas = reactive<CrudSchema[]>([
           ])
         ),
 
-        // 输入框或按钮
         h(
           ElCol,
           { span: 24 },
@@ -288,16 +285,16 @@ const crudSchemas = reactive<CrudSchema[]>([
             ? () =>
                 h(ElInput, {
                   ref: rowState.inputRef,
-                  modelValue: rowState.inputValue, // 双向绑定输入框值
+                  modelValue: rowState.inputValue,
                   'onUpdate:modelValue': (value: string) => (rowState.inputValue = value),
                   class: 'w-20',
                   size: 'small',
                   onKeyup: (event: KeyboardEvent) => {
                     if (event.key === 'Enter') {
-                      handleInputConfirm() // 只在回车键被按下时触发
+                      handleInputConfirm()
                     }
                   },
-                  onBlur: handleInputConfirm // 失去焦点时调用 handleInputConfirm
+                  onBlur: handleInputConfirm
                 })
             : () =>
                 h(
@@ -336,37 +333,34 @@ const crudSchemas = reactive<CrudSchema[]>([
 ])
 let index = 'SensitiveResult'
 crudSchemas.forEach((schema) => {
-  schema.hidden = schema.hidden ?? false // 如果没有 hidden 属性，添加并设置为 false
+  schema.hidden = schema.hidden ?? false
 })
 let statisticsHidden = ref(false)
-// 从localStorage读取配置并更新列的显示状态
+
 const loadColumnConfig = () => {
   const savedConfig = JSON.parse(localStorage.getItem(`columnConfig_${index}`) || '{}')
   console.log(savedConfig)
   crudSchemas.forEach((col) => {
     if (savedConfig[col.field] !== undefined && col.field != 'select') {
-      col.hidden = savedConfig[col.field] // 恢复列的显示状态
+      col.hidden = savedConfig[col.field]
     }
   })
   statisticsHidden.value = savedConfig['statisticsHidden']
 }
 
-// 保存配置到localStorage
 const saveColumnConfig = () => {
   const config = crudSchemas.reduce((acc, col) => {
-    acc[col.field] = col.hidden // 保存每列的显示状态
+    acc[col.field] = col.hidden
     return acc
   }, {})
   config['statisticsHidden'] = statisticsHidden.value
-  localStorage.setItem(`columnConfig_${index}`, JSON.stringify(config)) // 按index保存配置
+  localStorage.setItem(`columnConfig_${index}`, JSON.stringify(config))
 }
 
-// 处理列显示状态变化
 const handleColumnVisibilityChange = ({ field, hidden }) => {
   console.log(field, hidden)
   const columnIndex = crudSchemas.findIndex((col) => col.field === field)
   if (columnIndex !== -1) {
-    // 使用对象的展开运算符来创建一个新的对象，并更新隐藏属性
     crudSchemas[columnIndex].hidden = hidden
   }
   saveColumnConfig()
@@ -569,7 +563,6 @@ const drawerAggregationData = computed<SensitiveAggregation[]>(() => {
   />
   <ElRow>
     <div style="display: flex; width: 100%">
-      <!-- 左侧目录栏，高度与表格一致，内容可滚动 -->
       <div style="width: 220px; margin-right: 18px">
         <ElCard style="height: 100%">
           <ElScrollbar :height="`${maxHeight}px`" class="agg-scroll">
@@ -594,7 +587,7 @@ const drawerAggregationData = computed<SensitiveAggregation[]>(() => {
           </ElScrollbar>
         </ElCard>
       </div>
-      <!-- 右侧表格 -->
+
       <div style="flex: 1">
         <ElCol>
           <ElCard>
@@ -708,12 +701,10 @@ const drawerAggregationData = computed<SensitiveAggregation[]>(() => {
   color: var(--select-text-color) !important;
 }
 
-/* 生效于 popper 中的下拉选项 */
 .colored-select-popper .el-select-dropdown__item {
   color: inherit;
 }
 .agg-scroll {
-  // WebKit 美化
   &::-webkit-scrollbar {
     width: 8px;
   }

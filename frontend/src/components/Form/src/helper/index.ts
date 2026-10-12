@@ -6,12 +6,6 @@ import { set, get } from 'lodash-es'
 
 const { t } = useI18n()
 
-/**
- *
- * @param schema 对应组件数据
- * @returns 返回提示信息对象
- * @description 用于自动设置placeholder
- */
 export const setTextPlaceholder = (schema: FormSchema): PlaceholderModel => {
   const textMap = [
     ComponentNameEnum.INPUT,
@@ -32,7 +26,6 @@ export const setTextPlaceholder = (schema: FormSchema): PlaceholderModel => {
     }
   }
   if (selectMap.includes(schema?.component as ComponentNameEnum)) {
-    // 一些范围选择器
     const twoTextMap = ['datetimerange', 'daterange', 'monthrange', 'datetimerange', 'daterange']
     if (
       twoTextMap.includes(
@@ -54,15 +47,8 @@ export const setTextPlaceholder = (schema: FormSchema): PlaceholderModel => {
   return {}
 }
 
-/**
- *
- * @param col 内置栅格
- * @returns 返回栅格属性
- * @description 合并传入进来的栅格属性
- */
 export const setGridProp = (col: ColProps = {}): ColProps => {
   const colProps: ColProps = {
-    // 如果有span，代表用户优先级更高，所以不需要默认栅格
     ...(col.span
       ? {}
       : {
@@ -77,14 +63,9 @@ export const setGridProp = (col: ColProps = {}): ColProps => {
   return colProps
 }
 
-/**
- *
- * @param item 传入的组件属性
- * @returns 默认添加 clearable 属性
- */
 export const setComponentProps = (item: FormSchema): Recordable => {
   // const notNeedClearable = ['ColorPicker']
-  // 拆分事件并组合
+
   const onEvents = (item?.componentProps as any)?.on || {}
   const newOnEvents: Recordable = {}
 
@@ -101,7 +82,7 @@ export const setComponentProps = (item: FormSchema): Recordable => {
     ...item.componentProps,
     ...newOnEvents
   }
-  // 需要删除额外的属性
+
   if (componentProps.slots) {
     delete componentProps.slots
   }
@@ -111,11 +92,6 @@ export const setComponentProps = (item: FormSchema): Recordable => {
   return componentProps
 }
 
-/**
- *
- * @param formModel 表单数据
- * @param slotsProps 插槽属性
- */
 export const setItemComponentSlots = (slotsProps: Recordable = {}): Recordable => {
   const slotObj: Recordable = {}
   for (const key in slotsProps) {
@@ -134,13 +110,6 @@ export const setItemComponentSlots = (slotsProps: Recordable = {}): Recordable =
   return slotObj
 }
 
-/**
- *
- * @param schema Form表单结构化数组
- * @param formModel FormMoel
- * @returns FormMoel
- * @description 生成对应的formModel
- */
 export const initModel = (schema: FormSchema[], formModel: Recordable) => {
   const model: Recordable = { ...formModel }
   schema.map((v) => {
@@ -149,7 +118,7 @@ export const initModel = (schema: FormSchema[], formModel: Recordable) => {
     } else if (v.component !== 'Divider') {
       // const hasField = Reflect.has(model, v.field)
       const hasField = get(model, v.field)
-      // 如果先前已经有值存在，则不进行重新赋值，而是采用现有的值
+
       set(
         model,
         v.field,

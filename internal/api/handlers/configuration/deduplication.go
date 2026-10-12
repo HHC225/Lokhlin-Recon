@@ -1,27 +1,24 @@
 // configuration-------------------------------------
 // @file      : deduplication.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/10/29 20:58
 // -------------------------------------------
 
 package configuration
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/response"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/services/configuration"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/response"
+	"recon/internal/models"
+	"recon/internal/services/configuration"
 )
 
 var dedupService *configuration.Service
 
 type saveDedupRequest struct {
 	RunNow bool `json:"runNow"`
-	// 其他字段动态接收，因此用 map 承载
 }
 
-// GetDeduplicationConfig @Summary 获取去重配置
+// GetDeduplicationConfig @Summary Get deduplication configuration
 // @Tags        configuration
 // @Produce     json
 // @Security    ApiKeyAuth
@@ -36,12 +33,12 @@ func GetDeduplicationConfig(c *gin.Context) {
 	response.Success(c, data, "api.success")
 }
 
-// SaveDeduplicationConfig @Summary 保存去重配置
+// SaveDeduplicationConfig @Summary Save deduplication configuration
 // @Tags        configuration
 // @Accept      json
 // @Produce     json
 // @Security    ApiKeyAuth
-// @Param       body body map[string]interface{} true "去重配置"
+// @Param       body body map[string]interface{} true "Deduplication configuration"
 // @Success     200 {object} response.SuccessResponse
 // @Router      /configuration/deduplication/save [post]
 func SaveDeduplicationConfig(c *gin.Context) {

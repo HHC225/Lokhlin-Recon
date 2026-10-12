@@ -103,7 +103,6 @@ const getAssetData = async () => {
   } catch (error) {
     console.error('Error fetching node data:', error)
   } finally {
-    // 不论请求成功或失败，都会执行的代码块
     loading.value = false
   }
 }

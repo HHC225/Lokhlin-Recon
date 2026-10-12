@@ -1,5 +1,51 @@
 export default {
+  assetMap: {
+    title: 'Asset topology',
+    description: 'Explore root domain, host, IP and port relationships.',
+    rootDomain: 'Root domain',
+    load: 'Load data',
+    enterDomain: 'Enter a root domain to load its hosts and port assets.',
+    domainRequired: 'Enter a root domain.',
+    noHosts: 'No hosts found for this root domain.',
+    noPorts: 'No port assets found for this host.',
+    hosts: 'Hosts',
+    ports: 'Port assets'
+  },
+  console: {
+    loadingTitle: 'Checking your session',
+    loadingDescription: 'Opening the collection workspace with your console account.',
+    expiredTitle: 'Your session has expired',
+    expiredDescription: 'Sign in to the console again, then retry.',
+    deniedTitle: 'Administrator access required',
+    deniedDescription: 'Only administrators can access the shared collection workspace.',
+    errorTitle: 'Could not open the collection workspace',
+    errorDescription: 'Check your network connection, then retry.',
+    retry: 'Retry',
+    returnToConsole: 'Return to console',
+    about: 'An internal workspace for projects, assets, scan tasks, templates and scanner nodes.',
+    catalogUnavailable:
+      'The external catalog is not configured. Local plugins can still be imported directly.',
+    dockerUpdate:
+      'Updates support Docker installations. Enter release file URLs accessible from the server and scanner containers.',
+    rawData: 'Raw data',
+    assetChanges: 'Asset changes',
+    oldValue: 'Previous value',
+    newValue: 'New value',
+    fingerprintConfirm: 'Update {count} fingerprint records?',
+    fingerprintUpdated: 'Updated {count} fingerprint records.',
+    noUpdates: 'No updates available.',
+    loadFailed: 'Could not load data.',
+    saveFailed: 'Could not save. Please retry.',
+    nameRequired: 'Enter a name.',
+    moduleRequired: 'Select a module.',
+    sourceRequired: 'Enter source code.',
+    importStarted: 'Import started.'
+  },
   common: {
+    inputs: 'Search expression',
+    tag: 'Tag',
+    username: 'Username',
+    loginTime: 'Login time',
     clearAll: 'Clear All',
     selectCategory: 'Select Category',
     about: 'About',
@@ -224,7 +270,7 @@ export default {
     footer: 'Footer',
     uniqueOpened: 'Unique opened',
     tagsViewIcon: 'Tags view icon',
-    // 开启动态路由
+
     dynamicRouter: 'Enable dynamic router',
     serverDynamicRouter: 'Server dynamic router',
     reExperienced: 'Please exit the login experience again',
@@ -253,6 +299,10 @@ export default {
     codePlaceholder: 'Please input verification code'
   },
   router: {
+    iconPicker: 'Icon picker',
+    PicturePreview: 'Media preview',
+    treeTable: 'Tree table',
+    about: 'About',
     assetinfo: 'Asset Information',
     taskManagement: 'Task',
     scanTask: 'Scan Tasks',
@@ -446,7 +496,7 @@ export default {
     screenshot: 'Screenshot',
     Chart: 'Chart',
     sensitiveNumber: 'sensitive information',
-    // ===== 新加多语言字段 =====
+
     iconSelected: 'Selected Icons',
     confirm: 'Confirm'
     // ====================
@@ -524,6 +574,8 @@ export default {
     overview: 'Overview'
   },
   poc: {
+    edit: 'Edit',
+    delete: 'Delete',
     pocName: 'POC Name',
     content: 'POC Content',
     level: 'Risk Level',
@@ -555,7 +607,7 @@ export default {
     deleteConfirm: 'Delete API Key "{name}"? MCP clients using this key will stop working.',
     usageTitle: 'MCP Integration',
     usageDesc:
-      'API Keys authenticate MCP clients (such as Cursor) to ScopeSentry. Configure the key in your MCP client headers after creation.'
+      'API keys authenticate standalone MCP clients. Configure the key in your MCP client headers after creation.'
   },
   configuration: {
     subfinder: 'subfinder configuration',
@@ -579,7 +631,7 @@ export default {
     runNowOne: 'Run once immediately'
   },
   form: {
-    input: 'Search:'
+    input: 'Search'
   },
   portDict: {
     name: 'Name',
@@ -588,6 +640,7 @@ export default {
     valueMsg: 'Please enter value'
   },
   fingerprint: {
+    desc: 'Description',
     name: 'Name',
     rule: 'Rule',
     category: 'Category',
@@ -596,10 +649,13 @@ export default {
     parentCategory: 'Parent Category',
     amount: 'Asset Quantity',
     visualGeneratorTip: 'Tip: You can perform visual fingerprint generation at',
-    visualGeneratorLink: 'https://plugin.scope-sentry.top/fingers',
     visualGeneratorAction: 'to quickly generate fingerprints'
   },
   plugin: {
+    runOnce: 'Run once',
+    runOnceConfirm: 'Run this plugin once?',
+    runOnceSuccess: 'Plugin run requested.',
+    runOnceFailed: 'Could not run plugin.',
     name: 'Name',
     status: 'Status',
     version: 'Version',
@@ -683,8 +739,42 @@ export default {
     yield: 'Yield',
     dynamic: 'Dynamic',
     push: 'push',
-    pushCode: 'Archer push code to Github',
+    pushCode: 'Code updated',
     follow: 'Follow'
+  },
+  exampleDemo: { detail: 'Detail' },
+  descriptionsDemo: {
+    username: 'Username',
+    nickName: 'Display name',
+    phone: 'Phone',
+    email: 'Email',
+    addr: 'Address',
+    descriptions: 'Descriptions',
+    descriptionsDes: 'Display labeled values in a description panel.',
+    form: 'Form'
+  },
+  dialogDemo: {
+    dialog: 'Dialog',
+    dialogDes: 'Open a dialog with forms or additional content.',
+    open: 'Open',
+    combineWithForm: 'Form dialog',
+    close: 'Close',
+    submit: 'Submit'
+  },
+  richText: {
+    richText: 'Rich text editor',
+    richTextDes: 'Edit formatted text.',
+    jsonEditor: 'JSON editor',
+    jsonEditorDes: 'Inspect and edit JSON data.'
+  },
+  imageViewerDemo: {
+    imageViewer: 'Image viewer',
+    imageViewerDes: 'Preview images in a separate overlay.',
+    open: 'Open preview'
+  },
+  inputPasswordDemo: {
+    title: 'Password input',
+    inputPasswordDes: 'Enter a password with strength feedback.'
   },
   formDemo: {
     input: 'Input',
@@ -749,25 +839,25 @@ export default {
     subitem: 'Subitem',
     formValidation: 'Form validation',
     verifyReset: 'Verify reset',
-    // 富文本编辑器
+
     richText: 'Rich text',
     jsonEditor: 'JSON Editor',
     form: 'Form',
-    // 远程加载
+
     remoteLoading: 'Remote loading',
-    // 聚焦
+
     focus: 'Focus',
     treeSelect: 'Tree Select',
     showCheckbox: 'Show Checkbox',
     selectAnyLevel: 'Select Any Level',
     multiple: 'Multiple',
     filterable: 'Filterable',
-    // 自定义节点内容
+
     customContent: 'Custom content',
-    // 懒加载
+
     lazyLoad: 'Lazy load',
     upload: 'Upload',
-    // 用户头像
+
     userAvatar: 'User avatar',
     iconPicker: 'Icon picker'
   },
@@ -854,9 +944,9 @@ export default {
     center: 'center',
     right: 'right',
     dynamicOptions: 'Dynamic options',
-    // 删除单选框
+
     deleteRadio: 'Delete radio',
-    // 还原单选框
+
     restoreRadio: 'Restore radio',
     loading: 'Loading',
     reset: 'Reset'

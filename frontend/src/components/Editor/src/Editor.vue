@@ -5,13 +5,7 @@ import { IDomEditor, IEditorConfig, i18nChangeLanguage } from '@wangeditor/edito
 import { propTypes } from '@/utils/propTypes'
 import { isNumber } from '@/utils/is'
 import { ElMessage } from 'element-plus'
-import { useLocaleStore } from '@/store/modules/locale'
-
-const localeStore = useLocaleStore()
-
-const currentLocale = computed(() => localeStore.getCurrentLocale)
-
-i18nChangeLanguage(unref(currentLocale).lang)
+i18nChangeLanguage('en')
 
 const props = defineProps({
   editorId: propTypes.string.def('wangeEditor-1'),
@@ -25,7 +19,6 @@ const props = defineProps({
 
 const emit = defineEmits(['change', 'update:modelValue'])
 
-// 编辑器实例，必须用 shallowRef
 const editorRef = shallowRef<IDomEditor>()
 
 const valueHtml = ref('')
@@ -41,7 +34,6 @@ watch(
   }
 )
 
-// 监听
 watch(
   () => valueHtml.value,
   (val: string) => {
@@ -53,7 +45,6 @@ const handleCreated = (editor: IDomEditor) => {
   editorRef.value = editor
 }
 
-// 编辑器配置
 const editorConfig = computed((): IEditorConfig => {
   return Object.assign(
     {
@@ -91,16 +82,13 @@ const editorStyle = computed(() => {
   }
 })
 
-// 回调函数
 const handleChange = (editor: IDomEditor) => {
   emit('change', editor)
 }
 
-// 组件销毁时，及时销毁编辑器
 onBeforeUnmount(() => {
   const editor = unref(editorRef.value)
 
-  // 销毁，并移除 editor
   editor?.destroy()
 })
 
@@ -116,13 +104,12 @@ defineExpose({
 
 <template>
   <div class="border-1 border-solid border-[var(--el-border-color)] z-10">
-    <!-- 工具栏 -->
     <Toolbar
       :editor="editorRef"
       :editorId="editorId"
       class="border-0 b-b-1 border-solid border-[var(--el-border-color)]"
     />
-    <!-- 编辑器 -->
+
     <Editor
       v-model="valueHtml"
       :editorId="editorId"

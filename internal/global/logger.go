@@ -1,7 +1,5 @@
 // global-------------------------------------
 // @file      : logger.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/12/22 22:25
 // -------------------------------------------
 

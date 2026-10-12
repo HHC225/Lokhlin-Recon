@@ -1,7 +1,5 @@
 // Package node -----------------------------
 // @file      : node.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/4/30 15:36
 // -------------------------------------------
 package node
@@ -11,16 +9,16 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Autumn-27/ScopeSentry/internal/api/response"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/services/node"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/response"
+	"recon/internal/models"
+	"recon/internal/services/node"
 )
 
 var nodeService node.Service
 
-// GetNode @Summary      获取节点数据
-// @Description  获取所有在线节点的数据
+// GetNode @Summary      List node data
+// @Description  List data for all online nodes
 // @Tags         node
 // @Accept       json
 // @Produce      json
@@ -39,8 +37,8 @@ func GetNode(c *gin.Context) {
 	response.Success(c, response.DataResponse{List: result}, "")
 }
 
-// GetNodeOnline @Summary      获取在线节点
-// @Description  获取所有在线节点的数据
+// GetNodeOnline @Summary      List online nodes
+// @Description  List data for all online nodes
 // @Tags         node
 // @Accept       json
 // @Produce      json
@@ -56,7 +54,6 @@ func GetNodeOnline(c *gin.Context) {
 		return
 	}
 
-	// 仅返回 name 字段
 	names := make([]string, 0, len(result))
 	for _, item := range result {
 		names = append(names, item.Name)
@@ -65,7 +62,6 @@ func GetNodeOnline(c *gin.Context) {
 	response.Success(c, response.DataResponse{List: names}, "")
 }
 
-// NodeConfigUpdateRequest 节点配置更新请求
 type NodeConfigUpdateRequest struct {
 	Name          string `json:"name" binding:"required"`
 	OldName       string `json:"oldName" binding:"omitempty"`
@@ -73,12 +69,11 @@ type NodeConfigUpdateRequest struct {
 	State         bool   `json:"state" binding:"required"`
 }
 
-// ConfigUpdate 更新节点配置
-// @Summary 更新节点配置
+// @Summary Update node configuration
 // @Tags node
 // @Accept json
 // @Produce json
-// @Param data body NodeConfigUpdateRequest true "节点配置"
+// @Param data body NodeConfigUpdateRequest true "Node configuration"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
@@ -105,17 +100,15 @@ func ConfigUpdate(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// NodeDeleteRequest 删除节点请求
 type NodeDeleteRequest struct {
 	Names []string `json:"names" binding:"required"`
 }
 
-// Delete 删除节点
-// @Summary 删除节点
+// @Summary Delete nodes
 // @Tags node
 // @Accept json
 // @Produce json
-// @Param data body NodeDeleteRequest true "节点名称列表"
+// @Param data body NodeDeleteRequest true "Node names"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
@@ -138,17 +131,15 @@ func Delete(c *gin.Context) {
 	response.Success(c, nil, "api.success")
 }
 
-// NodeLogRequest 节点日志请求
 type NodeLogRequest struct {
 	Name string `json:"name" binding:"required"`
 }
 
-// GetLogs 获取节点日志
-// @Summary 获取节点日志
+// @Summary Get node logs
 // @Tags node
 // @Accept json
 // @Produce json
-// @Param data body NodeLogRequest true "节点名称"
+// @Param data body NodeLogRequest true "Node name"
 // @Success 200 {object} response.Response{data=object{logs=string}}
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
@@ -168,12 +159,11 @@ func GetLogs(c *gin.Context) {
 	response.Success(c, gin.H{"logs": logs}, "")
 }
 
-// GetNodePlugin 获取节点插件信息
-// @Summary 获取节点插件信息
+// @Summary Get node plugin information
 // @Tags node
 // @Accept json
 // @Produce json
-// @Param data body NodeLogRequest true "节点名称"
+// @Param data body NodeLogRequest true "Node name"
 // @Success 200 {object} response.Response{data=object{list=[]models.NodePluginInfo}}
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response
@@ -193,12 +183,11 @@ func GetNodePlugin(c *gin.Context) {
 	response.Success(c, response.DataResponse{List: plugins}, "")
 }
 
-// RestartNode 重启节点
-// @Summary 重启节点
+// @Summary Restart nodes
 // @Tags node
 // @Accept json
 // @Produce json
-// @Param data body NodeLogRequest true "节点名称"
+// @Param data body NodeLogRequest true "Node name"
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.Response
 // @Failure 500 {object} response.Response

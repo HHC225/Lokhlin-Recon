@@ -1,7 +1,5 @@
 // dirscan-------------------------------------
 // @file      : dirscan.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/5/17 15:12
 // -------------------------------------------
 
@@ -9,11 +7,11 @@ package dirscan
 
 import (
 	"context"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/repositories/assets/dirscan"
-	"github.com/Autumn-27/ScopeSentry/internal/utils/helper"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"recon/internal/models"
+	"recon/internal/repositories/assets/dirscan"
+	"recon/internal/utils/helper"
 )
 
 type Service interface {

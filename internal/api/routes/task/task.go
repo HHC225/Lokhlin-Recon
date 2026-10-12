@@ -1,16 +1,14 @@
 // task-------------------------------------
 // @file      : task.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/6/14 19:40
 // -------------------------------------------
 
 package task
 
 import (
-	taskHandler "github.com/Autumn-27/ScopeSentry/internal/api/handlers/task"
-	"github.com/Autumn-27/ScopeSentry/internal/api/routes/common"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
+	taskHandler "recon/internal/api/handlers/task"
+	"recon/internal/api/routes/common"
+	"recon/internal/models"
 )
 
 func registerTaskRoutes() models.RouteGroup {

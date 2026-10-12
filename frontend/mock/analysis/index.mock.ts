@@ -4,7 +4,6 @@ import { MockMethod } from 'vite-plugin-mock'
 const timeout = 1000
 
 export default [
-  // 分析页统计接口
   {
     url: '/api/dashboard/total',
     method: 'get',
@@ -21,7 +20,7 @@ export default [
       }
     }
   },
-  // 用户来源
+
   {
     url: '/mock/analysis/userAccessSource',
     method: 'get',
@@ -39,7 +38,7 @@ export default [
       }
     }
   },
-  // 每周用户活跃量
+
   {
     url: '/mock/analysis/weeklyUserActivity',
     method: 'get',
@@ -59,7 +58,7 @@ export default [
       }
     }
   },
-  // 每月销售额
+
   {
     url: '/mock/analysis/monthlySales',
     method: 'get',

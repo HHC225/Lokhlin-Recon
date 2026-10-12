@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/Autumn-27/ScopeSentry/internal/models"
 	"go.mongodb.org/mongo-driver/mongo"
+	"recon/internal/models"
 
-	"github.com/Autumn-27/ScopeSentry/internal/database/mongodb"
 	"go.mongodb.org/mongo-driver/bson"
+	"recon/internal/database/mongodb"
 )
 
 type Repository interface {
@@ -37,14 +37,13 @@ func NewRepository() Repository {
 }
 
 func (r *repository) FindWithPagination(ctx context.Context, query bson.M, opts *options.FindOptions) ([]models.Sensitive, error) {
-	// 执行查询
+
 	cursor, err := r.collection.Find(ctx, query, opts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find documents: %w", err)
 	}
 	defer cursor.Close(ctx)
 
-	// 解析结果
 	var results []models.Sensitive
 	if err := cursor.All(ctx, &results); err != nil {
 		return nil, fmt.Errorf("failed to decode documents: %w", err)

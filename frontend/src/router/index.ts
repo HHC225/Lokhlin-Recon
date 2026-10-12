@@ -4,10 +4,17 @@ import type { App } from 'vue'
 import { Layout, getParentLayout } from '@/utils/routerHelper'
 import { useI18n } from '@/hooks/web/useI18n'
 import { NO_RESET_WHITE_LIST } from '@/constants'
+import { isConsoleGateway, consoleSession } from '@/integration/console'
 
 const { t } = useI18n()
 
 export const constantRouterMap: AppRouteRecordRaw[] = [
+  {
+    path: '/session',
+    component: () => import('@/views/ConsoleSession.vue'),
+    name: 'ConsoleSession',
+    meta: { hidden: true, noTagsView: true }
+  },
   {
     path: '/',
     component: Layout,
@@ -57,6 +64,21 @@ export const constantRouterMap: AppRouteRecordRaw[] = [
 ]
 
 export const asyncRouterMap: AppRouteRecordRaw[] = [
+  {
+    path: '/asset-map',
+    component: Layout,
+    name: 'AssetMap',
+    redirect: '/asset-map/index',
+    meta: { hidden: true },
+    children: [
+      {
+        path: 'index',
+        name: 'AssetMapIndex',
+        component: () => import('@/views/Asset/AssetMap.vue'),
+        meta: { title: t('assetMap.title'), noCache: true, hidden: true, canTo: true }
+      }
+    ]
+  },
   {
     path: '/dashboard',
     component: Layout,
@@ -374,9 +396,9 @@ export const asyncRouterMap: AppRouteRecordRaw[] = [
       {
         path: 'index',
         component: () => import('@/views/about.vue'),
-        name: 'About ScopeSentry',
+        name: 'About Recon',
         meta: {
-          title: 'About',
+          title: t('router.about'),
           icon: 'carbon:deploy-rules',
           noCache: true
         }
@@ -386,10 +408,14 @@ export const asyncRouterMap: AppRouteRecordRaw[] = [
 ]
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHashHistory(`${import.meta.env.BASE_URL}${window.location.search}`),
   strict: true,
   routes: constantRouterMap as RouteRecordRaw[],
   scrollBehavior: () => ({ left: 0, top: 0 })
+})
+
+router.onError(() => {
+  if (isConsoleGateway) consoleSession.status = 'error'
 })
 
 export const resetRouter = (): void => {

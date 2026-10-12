@@ -1,17 +1,15 @@
 // dirscan-------------------------------------
 // @file      : dirscan.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/5/17 15:06
 // -------------------------------------------
 
 package dirscan
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/response"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
-	"github.com/Autumn-27/ScopeSentry/internal/services/assets/dirscan"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/response"
+	"recon/internal/models"
+	"recon/internal/services/assets/dirscan"
 )
 
 var dirscanService dirscan.Service
@@ -20,12 +18,12 @@ func init() {
 	dirscanService = dirscan.NewService()
 }
 
-// List @Summary 获取目录扫描数据
+// List @Summary List directory scan data
 // @Tags DirScan
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param request body ListRequest true "分页与筛选参数"
+// @Param request body ListRequest true "Pagination and filters"
 // @Success 200 {object} response.DataResponse{data=[]models.DirScanResult}
 // @Router /api/assets/dirscan [post]
 func List(c *gin.Context) {

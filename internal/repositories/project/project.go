@@ -3,18 +3,18 @@ package project
 import (
 	"context"
 	"fmt"
-	"github.com/Autumn-27/ScopeSentry/internal/constants"
+	"recon/internal/constants"
 	"strings"
 	"unicode"
 
-	"github.com/Autumn-27/ScopeSentry/internal/database/mongodb"
-	"github.com/Autumn-27/ScopeSentry/internal/logger"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
+	"recon/internal/database/mongodb"
+	"recon/internal/logger"
+	"recon/internal/models"
 )
 
 type Repository interface {
@@ -103,7 +103,6 @@ func (r *repository) GetTargets(ctx context.Context, ids []string) (string, erro
 		return "", fmt.Errorf("failed to decode targets: %w", err)
 	}
 
-	// 将所有target拼接成一个字符串
 	var builder strings.Builder
 	for i, result := range results {
 		builder.WriteString(strings.TrimRightFunc(result.Target, unicode.IsSpace))
@@ -312,9 +311,7 @@ func (r *repository) DeleteProjectAsset(ctx context.Context, ids []string) error
 	return nil
 }
 
-// UpdateAssetsProject 更新资产项目关联
 func (r *repository) UpdateAssetsProject(ctx context.Context, rootDomains []string, projectID string, change bool) error {
-	// 资产集合列表
 
 	for _, collectionName := range constants.AssetDBNames {
 		if change {
@@ -333,7 +330,6 @@ func (r *repository) UpdateAssetsProject(ctx context.Context, rootDomains []stri
 	return nil
 }
 
-// assetAddProject 添加资产到项目
 func (r *repository) assetAddProject(ctx context.Context, rootDomains []string, collectionName, projectID string) error {
 	collection := mongodb.DB.Collection(collectionName)
 
@@ -363,7 +359,6 @@ func (r *repository) assetAddProject(ctx context.Context, rootDomains []string, 
 	return nil
 }
 
-// assetUpdateProject 更新资产项目关联
 func (r *repository) assetUpdateProject(ctx context.Context, rootDomains []string, collectionName, projectID string) error {
 	collection := mongodb.DB.Collection(collectionName)
 
@@ -385,7 +380,6 @@ func (r *repository) assetUpdateProject(ctx context.Context, rootDomains []strin
 		}
 	}
 
-	// 先清空不符合条件的项目关联
 	updateQuery := bson.M{"$set": bson.M{"project": ""}}
 	result, err := collection.UpdateMany(ctx, query, updateQuery)
 	if err != nil {
@@ -396,11 +390,9 @@ func (r *repository) assetUpdateProject(ctx context.Context, rootDomains []strin
 		zap.String("collection", collectionName),
 		zap.Int64("modified_count", result.ModifiedCount))
 
-	// 然后添加符合条件的项目关联
 	return r.assetAddProject(ctx, rootDomains, collectionName, projectID)
 }
 
-// CountProjectAssets 统计所有资产集合中 project 字段命中该项目的文档总数。
 func (r *repository) CountProjectAssets(ctx context.Context, projectID string) (int64, error) {
 	var total int64
 	for _, collectionName := range constants.AssetDBNames {
@@ -413,7 +405,6 @@ func (r *repository) CountProjectAssets(ctx context.Context, projectID string) (
 	return total, nil
 }
 
-// SetAssetCount 把统计结果写回项目文档的 AssetCount 字段。
 func (r *repository) SetAssetCount(ctx context.Context, projectID string, count int64) error {
 	id, err := primitive.ObjectIDFromHex(projectID)
 	if err != nil {
@@ -425,7 +416,6 @@ func (r *repository) SetAssetCount(ctx context.Context, projectID string, count 
 	return nil
 }
 
-// buildRootDomainQuery 构建RootDomain查询条件
 func (r *repository) buildRootDomainQuery(rootDomains []string, isUpdate bool) bson.M {
 	regexPatterns := make([]string, len(rootDomains))
 	for i, domain := range rootDomains {
@@ -458,7 +448,6 @@ func (r *repository) buildRootDomainQuery(rootDomains []string, isUpdate bool) b
 	}
 }
 
-// buildAppQuery 构建app查询条件
 func (r *repository) buildAppQuery(rootDomains []string, isUpdate bool) bson.M {
 	regexPatterns := make([]string, len(rootDomains))
 	for i, domain := range rootDomains {
@@ -491,7 +480,6 @@ func (r *repository) buildAppQuery(rootDomains []string, isUpdate bool) bson.M {
 	}
 }
 
-// buildMpQuery 构建mp查询条件
 func (r *repository) buildMpQuery(rootDomains []string, isUpdate bool) bson.M {
 	regexPatterns := make([]string, len(rootDomains))
 	for i, domain := range rootDomains {

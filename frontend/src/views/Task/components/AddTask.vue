@@ -86,7 +86,7 @@ const rules = reactive<FormRules<RuleForm>>({
         } else if (value < 1 || value > 31) {
           callback(new Error('1-31'))
         } else {
-          callback() // 验证通过
+          callback()
         }
       }
     }
@@ -104,7 +104,7 @@ const rules = reactive<FormRules<RuleForm>>({
         } else if (value < 0 || value > 24) {
           callback(new Error('0-24'))
         } else {
-          callback() // 验证通过
+          callback()
         }
       }
     }
@@ -122,7 +122,7 @@ const rules = reactive<FormRules<RuleForm>>({
         } else if (value < 0 || value > 60) {
           callback(new Error('0-60'))
         } else {
-          callback() // 验证通过
+          callback()
         }
       }
     }
@@ -136,7 +136,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   try {
     if (!formEl) return
 
-    const valid = await formEl.validate() // 使用 Promise 风格的 validate
+    const valid = await formEl.validate()
     if (valid) {
       let res
       let searchFilter = reactive<{ [key: string]: any }>({})
@@ -152,7 +152,6 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         taskData.targetSource = props.tp
       }
       if (props.taskid) {
-        // 修改计划任务
         res = await updateScheduleApi(
           props.taskid,
           taskData.name,
@@ -178,7 +177,6 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           taskData.cycleType
         )
       } else {
-        // 创建新任务
         if (props.schedule) {
           res = await addScheduledTaskApi(
             taskData.name,
@@ -235,9 +233,9 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       }
     }
   } catch (error) {
-    console.error('提交表单时发生错误:', error)
+    console.error('Failed to submit form:', error)
   } finally {
-    saveLoading.value = false // 确保无论成功或失败都重置加载状态
+    saveLoading.value = false
   }
 }
 const nodeOptions = reactive<{ value: string; label: string }[]>([])
@@ -354,15 +352,12 @@ const loadScheduleData = async (id) => {
 }
 
 watch(
-  () => props.taskid, // 监听 props.taskid 的变化
+  () => props.taskid,
   async (newId) => {
     if (newId) {
-      // 如果传入了 ID，则加载已有数据
       if (props.schedule) {
-        // 如果是计划任务则从计划任务中加载数据
         await loadScheduleData(newId)
       } else {
-        // 从任务中加载数据
         await loadTaskData(newId)
       }
     } else {
@@ -380,7 +375,7 @@ watch(
       taskData.template = ''
     }
   },
-  { immediate: true } // 确保组件挂载时立即触发
+  { immediate: true }
 )
 const targetTp = ref('select')
 const targetNumber = ref(0)

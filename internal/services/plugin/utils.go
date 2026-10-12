@@ -1,16 +1,14 @@
 // plugin-------------------------------------
 // @file      : utils.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/12/20 18:42
 // -------------------------------------------
 
 package plugin
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/logger"
-	"github.com/Autumn-27/ScopeSentry/internal/plugins"
 	"go.uber.org/zap"
+	"recon/internal/logger"
+	"recon/internal/plugins"
 )
 
 func RegisterPlugin(source, hash string) {
@@ -26,9 +24,9 @@ func RegisterPlugin(source, hash string) {
 		return
 	}
 	cycle := loadPlugin.Cycle()
-	// 计划任务不为空
+
 	if cycle != "" {
-		// 如果是1 表示运行1次
+
 		if cycle == "1" {
 			return
 		}

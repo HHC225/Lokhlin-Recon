@@ -1,7 +1,5 @@
 // common-------------------------------------
 // @file      : common.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/9/25 23:41
 // -------------------------------------------
 
@@ -13,13 +11,13 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/Autumn-27/ScopeSentry/internal/database/mongodb"
-	"github.com/Autumn-27/ScopeSentry/internal/database/redis"
 	redisdriver "github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"recon/internal/database/mongodb"
+	"recon/internal/database/redis"
 )
 
 type Repository interface {
@@ -70,7 +68,6 @@ func NewRepository() Repository {
 func (r *repository) Find(ctx context.Context, coll string, filter interface{}, opts *options.FindOptions, result interface{}) error {
 	collection := r.db.Collection(coll)
 
-	// 检查是否是单条（limit=1）
 	if opts != nil && opts.Limit != nil && *opts.Limit == 1 {
 		single := collection.FindOne(ctx, filter, options.FindOne().SetProjection(opts.Projection))
 		if single.Err() != nil {
@@ -79,7 +76,6 @@ func (r *repository) Find(ctx context.Context, coll string, filter interface{}, 
 		return single.Decode(result)
 	}
 
-	// 多条查询
 	cur, err := collection.Find(ctx, filter, opts)
 	if err != nil {
 		return err
@@ -234,12 +230,12 @@ func (r *repository) LPush(ctx context.Context, key string, values interface{}) 
 
 	switch v.Kind() {
 	case reflect.Slice, reflect.Array:
-		// 如果是切片或数组，遍历转换为 []interface{}
+
 		for i := 0; i < v.Len(); i++ {
 			elems = append(elems, v.Index(i).Interface())
 		}
 	default:
-		// 否则视为单个值
+
 		elems = append(elems, values)
 	}
 

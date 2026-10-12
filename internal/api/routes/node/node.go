@@ -1,24 +1,22 @@
 // Package node -----------------------------
 // @file      : node.go
-// @author    : Autumn
-// @contact   : rainy-autumn@outlook.com
 // @time      : 2025/5/3 10:57
 // -------------------------------------------
 package node
 
 import (
-	"github.com/Autumn-27/ScopeSentry/internal/api/handlers/node"
-	"github.com/Autumn-27/ScopeSentry/internal/api/routes/common"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
 	"github.com/gin-gonic/gin"
+	"recon/internal/api/handlers/node"
+	"recon/internal/api/routes/common"
+	"recon/internal/models"
 )
 
 func RegisterNodeRoutes(api *gin.RouterGroup) {
-	// 定义用户路由组
+
 	nodeRoutes := models.RouteGroup{
 		Path: "/node",
 		Routes: []models.Route{
-			// 需要认证和user:read权限的路由
+
 			{
 				Method:      "GET",
 				Path:        "",
@@ -64,6 +62,5 @@ func RegisterNodeRoutes(api *gin.RouterGroup) {
 		},
 	}
 
-	// 注册用户路由组
 	common.RegisterRouteGroup(api, nodeRoutes)
 }

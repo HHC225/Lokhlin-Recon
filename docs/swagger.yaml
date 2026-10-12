@@ -1,63 +1,63 @@
 basePath: /api
 definitions:
-  github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse:
+  recon_internal_api_response.BadRequestResponse:
     properties:
       code:
-        description: 请求错误状态码
+        description: Invalid request status code
         example: 400
         type: integer
       message:
-        description: 错误消息
-        example: 请求错误
+        description: Error message
+        example: Invalid request
         type: string
     type: object
-  github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse:
+  recon_internal_api_response.InternalServerErrorResponse:
     properties:
       code:
-        description: 服务器错误状态码
+        description: Server error status code
         example: 500
         type: integer
       message:
-        description: 错误消息
-        example: 服务器内部错误
+        description: Error message
+        example: Internal server error
         type: string
     type: object
-  github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse:
+  recon_internal_api_response.NotFoundResponse:
     properties:
       code:
-        description: 未找到状态码
+        description: Not found status code
         example: 404
         type: integer
       message:
-        description: 错误消息
-        example: 资源未找到
+        description: Error message
+        example: Resource not found
         type: string
     type: object
-  github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse:
+  recon_internal_api_response.SuccessResponse:
     properties:
       code:
-        description: 成功状态码
+        description: Success status code
         example: 200
         type: integer
       data:
-        description: 响应数据
+        description: Response data
       message:
-        description: 成功消息
-        example: 操作成功
+        description: Success message
+        example: Operation succeeded
         type: string
     type: object
-  github_com_Autumn-27_ScopeSentry-go_internal_api_response.UnauthorizedResponse:
+  recon_internal_api_response.UnauthorizedResponse:
     properties:
       code:
-        description: 未授权状态码
+        description: Unauthorized status code
         example: 401
         type: integer
       message:
-        description: 错误消息
-        example: 未授权访问
+        description: Error message
+        example: Unauthorized access
         type: string
     type: object
-  github_com_Autumn-27_ScopeSentry-go_internal_models.Asset:
+  recon_internal_models.Asset:
     properties:
       body:
         type: string
@@ -116,7 +116,7 @@ definitions:
       url:
         type: string
     type: object
-  github_com_Autumn-27_ScopeSentry-go_internal_models.AssetChangeLog:
+  recon_internal_models.AssetChangeLog:
     properties:
       assetid:
         type: string
@@ -131,7 +131,7 @@ definitions:
       time:
         type: string
     type: object
-  github_com_Autumn-27_ScopeSentry-go_internal_models.NodeData:
+  recon_internal_models.NodeData:
     properties:
       cpuNum:
         type: string
@@ -152,7 +152,7 @@ definitions:
       version:
         type: string
     type: object
-  github_com_Autumn-27_ScopeSentry-go_internal_models.PageMonitoring:
+  recon_internal_models.PageMonitoring:
     properties:
       content:
         items:
@@ -171,7 +171,7 @@ definitions:
       url:
         type: string
     type: object
-  github_com_Autumn-27_ScopeSentry-go_internal_models.PageMonitoringBody:
+  recon_internal_models.PageMonitoringBody:
     properties:
       content:
         items:
@@ -182,49 +182,49 @@ definitions:
       md5:
         type: string
     type: object
-  github_com_Autumn-27_ScopeSentry-go_internal_models.PageMonitoringContentRequest:
+  recon_internal_models.PageMonitoringContentRequest:
     properties:
       flag:
-        description: '1: 获取上一次响应, 2: 获取当前响应'
+        description: '1: Get the previous response, 2: Get the current response'
         type: string
       id:
         type: string
     type: object
-  github_com_Autumn-27_ScopeSentry-go_internal_models.PageMonitoringDiffRequest:
+  recon_internal_models.PageMonitoringDiffRequest:
     properties:
       id:
         type: string
     type: object
-  github_com_Autumn-27_ScopeSentry-go_internal_models.PageMonitoringHistoryRequest:
+  recon_internal_models.PageMonitoringHistoryRequest:
     properties:
       id:
         type: string
     type: object
-  github_com_Autumn-27_ScopeSentry-go_internal_models.SearchRequest:
+  recon_internal_models.SearchRequest:
     properties:
       filters:
         additionalProperties:
           items:
             type: string
           type: array
-        description: Filter 过滤条件
+        description: Filter Filter conditions
         type: object
       pageIndex:
         type: integer
       pageSize:
         type: integer
       search:
-        description: SearchExpression 搜索表达式，如 "url=example.com && statuscode=200"
+        description: SearchExpression Search expression，such as  "url=example.com && statuscode=200"
         type: string
       searchType:
-        description: SearchType 搜索类型，对应SearchKey中的key
+        description: SearchType Search type， maps to SearchKey in key
         type: string
       sort:
         additionalProperties:
           type: string
         type: object
     type: object
-  github_com_Autumn-27_ScopeSentry-go_internal_models.Task:
+  recon_internal_models.Task:
     properties:
       _id:
         type: string
@@ -289,7 +289,7 @@ definitions:
       week:
         type: integer
     type: object
-  github_com_Autumn-27_ScopeSentry-go_internal_models.User:
+  recon_internal_models.User:
     properties:
       created_at:
         type: string
@@ -318,7 +318,7 @@ definitions:
         type: string
     type: object
   internal_api_handlers_system.VersionListResponse:
-    description: 版本信息列表
+    description: Version information list
     properties:
       list:
         items:
@@ -378,68 +378,60 @@ definitions:
         minimum: 1
         type: integer
       search:
-        example: 测试
+        example: test
         type: string
     required:
     - pageIndex
     - pageSize
     type: object
-host: localhost:8080
+host: localhost:8082
 info:
-  contact:
-    email: support@swagger.io
-    name: API Support
-    url: http://www.swagger.io/support
-  description: ScopeSentry 是一个安全扫描和资产管理平台
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: ScopeSentry API
-  version: "1.0"
+  description: Recon  provides security scanning and asset management
+  title: Recon API
+  version: '1.0'
 paths:
   /api/assets:
     post:
       consumes:
       - application/json
-      description: 创建新的资产
+      description: Create an asset
       parameters:
-      - description: 资产信息
+      - description: Asset information
         in: body
         name: asset
         required: true
         schema:
-          $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.Asset'
+          $ref: '#/definitions/recon_internal_models.Asset'
       produces:
       - application/json
       responses:
-        "201":
+        '201':
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse'
+            - $ref: '#/definitions/recon_internal_api_response.SuccessResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.Asset'
+                  $ref: '#/definitions/recon_internal_models.Asset'
               type: object
-        "400":
+        '400':
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse'
-        "500":
+            $ref: '#/definitions/recon_internal_api_response.BadRequestResponse'
+        '500':
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse'
-      summary: 创建资产
+            $ref: '#/definitions/recon_internal_api_response.InternalServerErrorResponse'
+      summary: Create asset
       tags:
-      - 资产
+      - Assets
   /api/assets/{id}:
     delete:
       consumes:
       - application/json
-      description: 删除指定ID的资产
+      description: Delete an asset by ID
       parameters:
-      - description: 资产ID
+      - description: Asset ID
         in: path
         name: id
         required: true
@@ -447,31 +439,31 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        '200':
           description: OK
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse'
-        "400":
+            $ref: '#/definitions/recon_internal_api_response.SuccessResponse'
+        '400':
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse'
-        "404":
+            $ref: '#/definitions/recon_internal_api_response.BadRequestResponse'
+        '404':
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse'
-        "500":
+            $ref: '#/definitions/recon_internal_api_response.NotFoundResponse'
+        '500':
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse'
-      summary: 删除资产
+            $ref: '#/definitions/recon_internal_api_response.InternalServerErrorResponse'
+      summary: Delete asset
       tags:
-      - 资产
+      - Assets
     get:
       consumes:
       - application/json
-      description: 根据ID获取单个资产的详细信息
+      description: Get asset details by ID
       parameters:
-      - description: 资产ID
+      - description: Asset ID
         in: path
         name: id
         required: true
@@ -479,80 +471,80 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse'
+            - $ref: '#/definitions/recon_internal_api_response.SuccessResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.Asset'
+                  $ref: '#/definitions/recon_internal_models.Asset'
               type: object
-        "400":
+        '400':
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse'
-        "404":
+            $ref: '#/definitions/recon_internal_api_response.BadRequestResponse'
+        '404':
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse'
-        "500":
+            $ref: '#/definitions/recon_internal_api_response.NotFoundResponse'
+        '500':
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse'
-      summary: 获取单个资产
+            $ref: '#/definitions/recon_internal_api_response.InternalServerErrorResponse'
+      summary: Get asset
       tags:
-      - 资产
+      - Assets
     put:
       consumes:
       - application/json
-      description: 更新指定ID的资产信息
+      description: Update asset information by ID
       parameters:
-      - description: 资产ID
+      - description: Asset ID
         in: path
         name: id
         required: true
         type: string
-      - description: 资产信息
+      - description: Asset information
         in: body
         name: asset
         required: true
         schema:
-          $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.Asset'
+          $ref: '#/definitions/recon_internal_models.Asset'
       produces:
       - application/json
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse'
+            - $ref: '#/definitions/recon_internal_api_response.SuccessResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.Asset'
+                  $ref: '#/definitions/recon_internal_models.Asset'
               type: object
-        "400":
+        '400':
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse'
-        "404":
+            $ref: '#/definitions/recon_internal_api_response.BadRequestResponse'
+        '404':
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse'
-        "500":
+            $ref: '#/definitions/recon_internal_api_response.NotFoundResponse'
+        '500':
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse'
-      summary: 更新资产
+            $ref: '#/definitions/recon_internal_api_response.InternalServerErrorResponse'
+      summary: Update asset
       tags:
-      - 资产
+      - Assets
   /api/assets/{id}/changelog:
     get:
       consumes:
       - application/json
-      description: 获取指定ID资产的变更历史记录
+      description: Get asset change history by ID
       parameters:
-      - description: 资产ID
+      - description: Asset ID
         in: path
         name: id
         required: true
@@ -560,39 +552,39 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse'
+            - $ref: '#/definitions/recon_internal_api_response.SuccessResponse'
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.AssetChangeLog'
+                    $ref: '#/definitions/recon_internal_models.AssetChangeLog'
                   type: array
               type: object
-        "400":
+        '400':
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse'
-        "404":
+            $ref: '#/definitions/recon_internal_api_response.BadRequestResponse'
+        '404':
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse'
-        "500":
+            $ref: '#/definitions/recon_internal_api_response.NotFoundResponse'
+        '500':
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse'
-      summary: 获取资产变更日志
+            $ref: '#/definitions/recon_internal_api_response.InternalServerErrorResponse'
+      summary: Get asset change log
       tags:
-      - 资产
+      - Assets
   /api/assets/{id}/screenshot:
     get:
       consumes:
       - application/json
-      description: 获取指定ID资产的截图
+      description: Get an asset screenshot by ID
       parameters:
-      - description: 资产ID
+      - description: Asset ID
         in: path
         name: id
         required: true
@@ -600,89 +592,89 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse'
+            - $ref: '#/definitions/recon_internal_api_response.SuccessResponse'
             - properties:
                 data:
                   type: string
               type: object
-        "400":
+        '400':
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse'
-        "404":
+            $ref: '#/definitions/recon_internal_api_response.BadRequestResponse'
+        '404':
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse'
-        "500":
+            $ref: '#/definitions/recon_internal_api_response.NotFoundResponse'
+        '500':
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse'
-      summary: 获取资产截图
+            $ref: '#/definitions/recon_internal_api_response.InternalServerErrorResponse'
+      summary: Get asset screenshot
       tags:
-      - 资产
+      - Assets
   /api/assets/asset:
     post:
       consumes:
       - application/json
-      description: 获取资产列表，支持分页、排序和过滤
+      description: List assets，Supports pagination, sorting and filtering
       parameters:
-      - description: 查询参数
+      - description: Query parameters
         in: body
         name: query
         required: true
         schema:
-          $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.SearchRequest'
+          $ref: '#/definitions/recon_internal_models.SearchRequest'
       produces:
       - application/json
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse'
+            - $ref: '#/definitions/recon_internal_api_response.SuccessResponse'
             - properties:
                 data:
                   properties:
                     list:
                       items:
-                        $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.Asset'
+                        $ref: '#/definitions/recon_internal_models.Asset'
                       type: array
                   type: object
               type: object
-        "400":
+        '400':
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse'
-        "500":
+            $ref: '#/definitions/recon_internal_api_response.BadRequestResponse'
+        '500':
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse'
-      summary: 获取资产列表
+            $ref: '#/definitions/recon_internal_api_response.InternalServerErrorResponse'
+      summary: List assets
       tags:
-      - 资产
+      - Assets
   /api/assets/deduplicate/{assetType}:
     post:
       consumes:
       - application/json
-      description: 对指定类型的资产进行去重处理
+      description: Deduplicate assets of the specified type
       parameters:
-      - description: 资产类型
+      - description: Asset type
         in: path
         name: assetType
         required: true
         type: string
-      - description: 过滤条件
+      - description: Filter conditions
         in: body
         name: filter
         required: true
         schema:
           additionalProperties: true
           type: object
-      - description: 分组字段
+      - description: Grouping fields
         in: body
         name: groupFields
         required: true
@@ -693,51 +685,51 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        '200':
           description: OK
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse'
-        "400":
+            $ref: '#/definitions/recon_internal_api_response.SuccessResponse'
+        '400':
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse'
-        "500":
+            $ref: '#/definitions/recon_internal_api_response.BadRequestResponse'
+        '500':
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse'
-      summary: 资产去重
+            $ref: '#/definitions/recon_internal_api_response.InternalServerErrorResponse'
+      summary: Deduplicate assets
       tags:
-      - 资产
+      - Assets
   /node:
     get:
       consumes:
       - application/json
-      description: 获取所有在线节点的数据
+      description: List data for all online nodes
       produces:
       - application/json
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse'
+            - $ref: '#/definitions/recon_internal_api_response.SuccessResponse'
             - properties:
                 data:
                   properties:
                     list:
                       items:
-                        $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.NodeData'
+                        $ref: '#/definitions/recon_internal_models.NodeData'
                       type: array
                   type: object
               type: object
-        "401":
+        '401':
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.UnauthorizedResponse'
-        "500":
+            $ref: '#/definitions/recon_internal_api_response.UnauthorizedResponse'
+        '500':
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse'
+            $ref: '#/definitions/recon_internal_api_response.InternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
       tags:
@@ -746,60 +738,60 @@ paths:
     post:
       consumes:
       - application/json
-      description: 获取页面监控内容接口
+      description: Get page monitoring content endpoint
       parameters:
-      - description: 内容请求
+      - description: Content request
         in: body
         name: contentRequest
         required: true
         schema:
-          $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.PageMonitoringContentRequest'
+          $ref: '#/definitions/recon_internal_models.PageMonitoringContentRequest'
       produces:
       - application/json
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse'
+            - $ref: '#/definitions/recon_internal_api_response.SuccessResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.PageMonitoringBody'
+                  $ref: '#/definitions/recon_internal_models.PageMonitoringBody'
               type: object
-        "400":
+        '400':
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse'
-        "404":
+            $ref: '#/definitions/recon_internal_api_response.BadRequestResponse'
+        '404':
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse'
-        "500":
+            $ref: '#/definitions/recon_internal_api_response.NotFoundResponse'
+        '500':
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse'
+            $ref: '#/definitions/recon_internal_api_response.InternalServerErrorResponse'
       tags:
       - page_monitoring
   /page-monitoring/diff:
     post:
       consumes:
       - application/json
-      description: 获取页面监控差异接口
+      description: Get page monitoring diff endpoint
       parameters:
-      - description: 差异请求
+      - description: Diff request
         in: body
         name: diffRequest
         required: true
         schema:
-          $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.PageMonitoringDiffRequest'
+          $ref: '#/definitions/recon_internal_models.PageMonitoringDiffRequest'
       produces:
       - application/json
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse'
+            - $ref: '#/definitions/recon_internal_api_response.SuccessResponse'
             - properties:
                 data:
                   properties:
@@ -807,67 +799,67 @@ paths:
                       type: string
                   type: object
               type: object
-        "400":
+        '400':
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse'
-        "404":
+            $ref: '#/definitions/recon_internal_api_response.BadRequestResponse'
+        '404':
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse'
-        "500":
+            $ref: '#/definitions/recon_internal_api_response.NotFoundResponse'
+        '500':
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse'
+            $ref: '#/definitions/recon_internal_api_response.InternalServerErrorResponse'
       tags:
       - page_monitoring
   /page-monitoring/history:
     post:
       consumes:
       - application/json
-      description: 获取页面监控历史记录接口
+      description: Get page monitoring history endpoint
       parameters:
-      - description: 历史记录请求
+      - description: History request
         in: body
         name: historyRequest
         required: true
         schema:
-          $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.PageMonitoringHistoryRequest'
+          $ref: '#/definitions/recon_internal_models.PageMonitoringHistoryRequest'
       produces:
       - application/json
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse'
+            - $ref: '#/definitions/recon_internal_api_response.SuccessResponse'
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.PageMonitoring'
+                    $ref: '#/definitions/recon_internal_models.PageMonitoring'
                   type: array
               type: object
-        "400":
+        '400':
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse'
-        "404":
+            $ref: '#/definitions/recon_internal_api_response.BadRequestResponse'
+        '404':
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse'
-        "500":
+            $ref: '#/definitions/recon_internal_api_response.NotFoundResponse'
+        '500':
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse'
+            $ref: '#/definitions/recon_internal_api_response.InternalServerErrorResponse'
       tags:
       - page_monitoring
   /query:
     post:
       consumes:
       - application/json
-      description: 支持name字段模糊搜索与分页
+      description: supports name partial field search and pagination
       parameters:
-      - description: 查询参数
+      - description: Query parameters
         in: body
         name: data
         required: true
@@ -876,106 +868,106 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse'
+            - $ref: '#/definitions/recon_internal_api_response.SuccessResponse'
             - properties:
                 data:
                   properties:
                     list:
                       items:
-                        $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.Task'
+                        $ref: '#/definitions/recon_internal_models.Task'
                       type: array
                     total:
                       type: integer
                   type: object
               type: object
-        "400":
+        '400':
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse'
-        "500":
+            $ref: '#/definitions/recon_internal_api_response.BadRequestResponse'
+        '500':
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse'
-      summary: 获取任务列表
+            $ref: '#/definitions/recon_internal_api_response.InternalServerErrorResponse'
+      summary: List tasks
       tags:
       - task
   /system/version:
     get:
       consumes:
       - application/json
-      description: 获取 ScopeSentry 服务端及所有节点的当前版本信息
+      description: Get current versions of the Recon server and all scanner nodes
       produces:
       - application/json
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse'
+            - $ref: '#/definitions/recon_internal_api_response.SuccessResponse'
             - properties:
                 data:
                   $ref: '#/definitions/internal_api_handlers_system.VersionListResponse'
               type: object
-        "400":
+        '400':
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse'
-        "401":
+            $ref: '#/definitions/recon_internal_api_response.BadRequestResponse'
+        '401':
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.UnauthorizedResponse'
-        "404":
+            $ref: '#/definitions/recon_internal_api_response.UnauthorizedResponse'
+        '404':
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse'
-        "500":
+            $ref: '#/definitions/recon_internal_api_response.NotFoundResponse'
+        '500':
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse'
+            $ref: '#/definitions/recon_internal_api_response.InternalServerErrorResponse'
       tags:
       - System
   /users:
     get:
       consumes:
       - application/json
-      description: 获取用户列表接口
+      description: List users endpoint
       parameters:
       - default: 1
-        description: 页码
+        description: Page number
         in: query
         name: page
         type: integer
       - default: 10
-        description: 每页数量
+        description: Results per page
         in: query
         name: size
         type: integer
       produces:
       - application/json
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse'
+            - $ref: '#/definitions/recon_internal_api_response.SuccessResponse'
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.User'
+                    $ref: '#/definitions/recon_internal_models.User'
                   type: array
               type: object
-        "401":
+        '401':
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.UnauthorizedResponse'
-        "500":
+            $ref: '#/definitions/recon_internal_api_response.UnauthorizedResponse'
+        '500':
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse'
+            $ref: '#/definitions/recon_internal_api_response.InternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
       tags:
@@ -984,9 +976,9 @@ paths:
     delete:
       consumes:
       - application/json
-      description: 删除用户接口
+      description: Delete user endpoint
       parameters:
-      - description: 用户ID
+      - description: User ID
         in: path
         name: id
         required: true
@@ -994,22 +986,22 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        '200':
           description: OK
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse'
-        "401":
+            $ref: '#/definitions/recon_internal_api_response.SuccessResponse'
+        '401':
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.UnauthorizedResponse'
-        "404":
+            $ref: '#/definitions/recon_internal_api_response.UnauthorizedResponse'
+        '404':
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse'
-        "500":
+            $ref: '#/definitions/recon_internal_api_response.NotFoundResponse'
+        '500':
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse'
+            $ref: '#/definitions/recon_internal_api_response.InternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
       tags:
@@ -1017,9 +1009,9 @@ paths:
     get:
       consumes:
       - application/json
-      description: 获取单个用户接口
+      description: Get user endpoint
       parameters:
-      - description: 用户ID
+      - description: User ID
         in: path
         name: id
         required: true
@@ -1027,27 +1019,27 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse'
+            - $ref: '#/definitions/recon_internal_api_response.SuccessResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.User'
+                  $ref: '#/definitions/recon_internal_models.User'
               type: object
-        "401":
+        '401':
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.UnauthorizedResponse'
-        "404":
+            $ref: '#/definitions/recon_internal_api_response.UnauthorizedResponse'
+        '404':
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse'
-        "500":
+            $ref: '#/definitions/recon_internal_api_response.NotFoundResponse'
+        '500':
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse'
+            $ref: '#/definitions/recon_internal_api_response.InternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
       tags:
@@ -1055,14 +1047,14 @@ paths:
     put:
       consumes:
       - application/json
-      description: 更新用户接口
+      description: Update user endpoint
       parameters:
-      - description: 用户ID
+      - description: User ID
         in: path
         name: id
         required: true
         type: string
-      - description: 更新信息
+      - description: Update information
         in: body
         name: updateRequest
         required: true
@@ -1071,31 +1063,31 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse'
+            - $ref: '#/definitions/recon_internal_api_response.SuccessResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.User'
+                  $ref: '#/definitions/recon_internal_models.User'
               type: object
-        "400":
+        '400':
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse'
-        "401":
+            $ref: '#/definitions/recon_internal_api_response.BadRequestResponse'
+        '401':
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.UnauthorizedResponse'
-        "404":
+            $ref: '#/definitions/recon_internal_api_response.UnauthorizedResponse'
+        '404':
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse'
-        "500":
+            $ref: '#/definitions/recon_internal_api_response.NotFoundResponse'
+        '500':
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse'
+            $ref: '#/definitions/recon_internal_api_response.InternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
       tags:
@@ -1104,9 +1096,9 @@ paths:
     post:
       consumes:
       - application/json
-      description: 用户登录接口
+      description: User login endpoint
       parameters:
-      - description: 登录信息
+      - description: Login information
         in: body
         name: loginRequest
         required: true
@@ -1115,11 +1107,11 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse'
+            - $ref: '#/definitions/recon_internal_api_response.SuccessResponse'
             - properties:
                 data:
                   properties:
@@ -1127,28 +1119,28 @@ paths:
                       type: string
                   type: object
               type: object
-        "400":
+        '400':
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse'
-        "404":
+            $ref: '#/definitions/recon_internal_api_response.BadRequestResponse'
+        '404':
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse'
-        "500":
+            $ref: '#/definitions/recon_internal_api_response.NotFoundResponse'
+        '500':
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse'
-      summary: 用户登录
+            $ref: '#/definitions/recon_internal_api_response.InternalServerErrorResponse'
+      summary: User login
       tags:
       - user
   /users/register:
     post:
       consumes:
       - application/json
-      description: 用户注册接口
+      description: User registration endpoint
       parameters:
-      - description: 注册信息
+      - description: Registration information
         in: body
         name: registerRequest
         required: true
@@ -1157,31 +1149,31 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.SuccessResponse'
+            - $ref: '#/definitions/recon_internal_api_response.SuccessResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_models.User'
+                  $ref: '#/definitions/recon_internal_models.User'
               type: object
-        "400":
+        '400':
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.BadRequestResponse'
-        "401":
+            $ref: '#/definitions/recon_internal_api_response.BadRequestResponse'
+        '401':
           description: Unauthorized
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.UnauthorizedResponse'
-        "404":
+            $ref: '#/definitions/recon_internal_api_response.UnauthorizedResponse'
+        '404':
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.NotFoundResponse'
-        "500":
+            $ref: '#/definitions/recon_internal_api_response.NotFoundResponse'
+        '500':
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_Autumn-27_ScopeSentry-go_internal_api_response.InternalServerErrorResponse'
+            $ref: '#/definitions/recon_internal_api_response.InternalServerErrorResponse'
       tags:
       - user
 securityDefinitions:
@@ -1190,4 +1182,4 @@ securityDefinitions:
     in: header
     name: Authorization
     type: apiKey
-swagger: "2.0"
+swagger: '2.0'

@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Autumn-27/ScopeSentry/internal/database/mongodb"
-	"github.com/Autumn-27/ScopeSentry/internal/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/gridfs"
+	"recon/internal/database/mongodb"
+	"recon/internal/models"
 )
 
 type ManageRepository interface {
@@ -143,7 +143,7 @@ func (r *manageRepository) DeleteFile(ctx context.Context, filename string) erro
 	if err != nil {
 		return err
 	}
-	// 获取文件ID并关闭read流
+
 	file := ds.GetFile()
 	ds.Close()
 	if oid, ok := file.ID.(primitive.ObjectID); ok {
@@ -153,7 +153,7 @@ func (r *manageRepository) DeleteFile(ctx context.Context, filename string) erro
 }
 
 func (r *manageRepository) ReplaceFile(ctx context.Context, filename string, content []byte) error {
-	// 删除旧文件再上传
+
 	if err := r.DeleteFile(ctx, filename); err != nil {
 		return err
 	}

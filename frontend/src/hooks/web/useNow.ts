@@ -1,6 +1,7 @@
 import { dateUtil } from '@/utils/dateUtil'
 import { reactive, toRefs } from 'vue'
 import { tryOnMounted, tryOnUnmounted } from '@vueuse/core'
+import { useLocaleStoreWithOut } from '@/store/modules/locale'
 
 export const useNow = (immediate = true) => {
   let timer: IntervalHandle
@@ -25,7 +26,9 @@ export const useNow = (immediate = true) => {
 
     state.year = now.get('y')
     state.month = now.get('M') + 1
-    state.week = '星期' + ['日', '一', '二', '三', '四', '五', '六'][now.day()]
+    state.week = new Intl.DateTimeFormat(useLocaleStoreWithOut().getCurrentLocale.lang, {
+      weekday: 'long'
+    }).format(now.toDate())
     state.day = now.get('date')
     state.hour = h
     state.minute = m

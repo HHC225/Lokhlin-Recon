@@ -1,3 +1,4 @@
+import { catalogApiPath } from '@/integration/catalog'
 import request from '@/axios'
 import axios from 'axios'
 import type { LogRespData, pluginData, RemotePluginResponse } from './types'
@@ -122,7 +123,6 @@ export const uninstallPluginApi = (
   return request.post({ url: '/api/plugin/uninstall', data: { node, hash, module } })
 }
 
-// 获取本地已安装的插件列表
 export const getLocalPluginListApi = (): Promise<IResponse<pluginDataResponse>> => {
   return request.post({
     url: '/api/plugin',
@@ -130,12 +130,10 @@ export const getLocalPluginListApi = (): Promise<IResponse<pluginDataResponse>> 
   })
 }
 
-// 获取远程插件市场数据
 export const getRemotePluginMarketApi = (): Promise<any> => {
-  // 使用原生 axios 直接调用远程 API，避免添加 Authorization header
   return axios
     .post(
-      'https://api.scope-sentry.top/api/common/plugin/search',
+      catalogApiPath('/api/common/plugin/search'),
       {
         name: '',
         priceStatus: 2,
@@ -153,12 +151,10 @@ export const getRemotePluginMarketApi = (): Promise<any> => {
     .then((res) => res.data)
 }
 
-// 获取插件导出数据
 export const getPluginExportDataApi = (hash: string, token?: string): Promise<any> => {
-  // 使用原生 axios 直接调用远程 API
-  let url = `https://api.scope-sentry.top/api/common/plugin/export-data/${hash}`
+  let url = catalogApiPath(`/api/common/plugin/export-data/${encodeURIComponent(hash)}`)
   if (token) {
-    url += `?token=${token}`
+    url += `?token=${encodeURIComponent(token)}`
   }
   return axios
     .get(url, {
@@ -169,7 +165,6 @@ export const getPluginExportDataApi = (hash: string, token?: string): Promise<an
     .then((res) => res.data)
 }
 
-// 导入插件
 export const importPluginApi = (
   json: string,
   source: string,
@@ -187,7 +182,6 @@ export const importPluginApi = (
   })
 }
 
-// 更新插件状态
 export const updatePluginStatusApi = (
   id: string,
   status: boolean
@@ -201,7 +195,6 @@ export const updatePluginStatusApi = (
   })
 }
 
-// 运行插件一次
 export const runPluginOnceApi = (hash: string): Promise<IResponse<commonRespData>> => {
   return request.post({
     url: '/api/plugin/run',
